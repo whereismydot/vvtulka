@@ -28,11 +28,7 @@ app.innerHTML = `
   <div class="orb orb-left"></div>
   <div class="orb orb-right"></div>
   <main class="layout">
-    <header class="hero">
-      <p class="hero-kicker">VV Local Tool</p>
-      <h1>Расчет ВкусБэк по локальным чекам</h1>
-      <p class="hero-subtitle">Вставляйте заказы, считайте точные суммы и кэшбэк без сервера.</p>
-    </header>
+    
 
     <section class="panel panel-input">
       <h2>Новый заказ</h2>
@@ -159,7 +155,7 @@ function createOrderTable(items: OrderItem[]): HTMLTableElement {
 
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
-  const headers = ['Товар', 'Кол-во', 'Сумма', 'ВкусБэк', 'Строка'];
+  const headers = ['Товар', 'Кол-во', 'Сумма', 'ВкусБэк'];
 
   for (const header of headers) {
     const th = document.createElement('th');
@@ -174,6 +170,9 @@ function createOrderTable(items: OrderItem[]): HTMLTableElement {
 
   for (const item of items) {
     const row = document.createElement('tr');
+    if (item.isVkusbackEligible) {
+      row.classList.add('items-row-eligible');
+    }
 
     const nameCell = document.createElement('td');
     nameCell.textContent = item.name;
@@ -187,14 +186,10 @@ function createOrderTable(items: OrderItem[]): HTMLTableElement {
     const eligibleCell = document.createElement('td');
     eligibleCell.textContent = item.isVkusbackEligible ? 'Да' : 'Нет';
 
-    const lineCell = document.createElement('td');
-    lineCell.textContent = String(item.sourceRow);
-
     row.appendChild(nameCell);
     row.appendChild(qtyCell);
     row.appendChild(sumCell);
     row.appendChild(eligibleCell);
-    row.appendChild(lineCell);
 
     tbody.appendChild(row);
   }
@@ -214,7 +209,7 @@ function renderOrders(): void {
     return;
   }
 
-  for (const order of state.orders) {
+  for (const [index, order] of state.orders.entries()) {
     const card = document.createElement('article');
     card.className = 'order-card';
 
@@ -222,7 +217,7 @@ function renderOrders(): void {
     header.className = 'order-header';
 
     const title = document.createElement('h3');
-    title.textContent = `Заказ ${formatDate(order.createdAt)}`;
+    title.textContent = `Заказ #${index + 1}`;
 
     const deleteButton = document.createElement('button');
     deleteButton.type = 'button';
@@ -237,6 +232,10 @@ function renderOrders(): void {
 
     header.appendChild(title);
     header.appendChild(deleteButton);
+
+    const meta = document.createElement('p');
+    meta.className = 'order-meta';
+    meta.textContent = `Дата: ${formatDate(order.createdAt)}`;
 
     const summary = document.createElement('div');
     summary.className = 'order-summary';
@@ -261,6 +260,7 @@ function renderOrders(): void {
     details.appendChild(createOrderTable(order.items));
 
     card.appendChild(header);
+    card.appendChild(meta);
     card.appendChild(summary);
     card.appendChild(details);
     ordersList.appendChild(card);

@@ -54,12 +54,6 @@ body {
   background: rgba(255, 255, 255, 0.08);
 }
 
-.hero h1 {
-  margin: 0;
-  font-family: "Georgia", "Times New Roman", serif;
-  font-size: clamp(1.6rem, 2.6vw, 2.2rem);
-}
-
 .hero-kicker {
   margin: 0 0 0.55rem;
   text-transform: uppercase;
@@ -234,6 +228,12 @@ input[type="text"]:focus {
   font-size: 1rem;
 }
 
+.order-meta {
+  margin: 0.45rem 0 0;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
 .order-summary {
   display: flex;
   flex-wrap: wrap;
@@ -278,6 +278,18 @@ summary {
 .items-table th {
   background: rgba(19, 42, 58, 0.08);
   color: #19374f;
+}
+
+.items-table tbody tr.items-row-eligible {
+  background: rgba(20, 127, 117, 0.14);
+}
+
+.items-table tbody tr.items-row-eligible td {
+  border-color: rgba(20, 127, 117, 0.35);
+}
+
+.items-table tbody tr.items-row-eligible:hover {
+  background: rgba(20, 127, 117, 0.2);
 }
 
 .orb {
