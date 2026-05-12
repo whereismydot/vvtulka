@@ -3,17 +3,29 @@ import { createClipboardAdapter } from '../../infrastructure/browser/clipboard';
 import type { ThemePreference } from '../../infrastructure/browser/theme-preference';
 import type { Order } from '../../domain/types';
 import type { AppElements } from '../dom/elements';
-import { formatPercentInput } from '../formatters/percent';
 import { renderMetrics } from '../render/metrics-renderer';
 import { renderOrders } from '../render/orders-renderer';
 import { createStatusRenderer } from '../render/status-renderer';
 import { createScrollTopController } from './scroll-top-controller';
+import { createServiceTabsController } from './service-tabs-controller';
 import { createThemeController } from './theme-controller';
 
 interface AppControllerDependencies {
   readonly service: AppService;
   readonly elements: AppElements;
   readonly themePreference: ThemePreference;
+}
+
+const PERCENT_PRESETS = ['3', '5', '8', '10'] as const;
+
+/**
+ * Проверяет, что значение процента относится к доступным пресетам.
+ *
+ * @param value Строковое значение процента.
+ * @returns `true`, если значение есть среди preset-кнопок.
+ */
+function isPresetPercent(value: string): value is (typeof PERCENT_PRESETS)[number] {
+  return PERCENT_PRESETS.includes(value as (typeof PERCENT_PRESETS)[number]);
 }
 
 /**
@@ -124,10 +136,29 @@ export function createAppController(dependencies: AppControllerDependencies): vo
     statusRenderer.setStatus(result.message, result.tone);
   }
 
-  elements.percentInput.value = formatPercentInput(service.getState().percentRaw);
+  /**
+   * Обновляет выделение активной preset-кнопки процента.
+   *
+   * @param value Активное значение процента.
+   */
+  function setActivePercentButton(value: string): void {
+    elements.percentButtons.forEach((button) => {
+      const isActive = button.dataset.percentValue === value;
+      button.classList.toggle('percent-preset-button-active', isActive);
+      button.setAttribute('aria-checked', String(isActive));
+    });
+  }
+
+  const initialPercentValue = service.getState().percentRaw;
+  const selectedPercent = isPresetPercent(initialPercentValue) ? initialPercentValue : '5';
+  if (selectedPercent !== initialPercentValue) {
+    service.updatePercent(selectedPercent);
+  }
+  setActivePercentButton(selectedPercent);
 
   createThemeController(elements.themeToggleButton, themePreference);
   createScrollTopController(elements.scrollTopButton);
+  createServiceTabsController(elements);
 
   elements.metricCashback.addEventListener('click', () => {
     void copyCashbackValue();
@@ -144,13 +175,17 @@ export function createAppController(dependencies: AppControllerDependencies): vo
     statusRenderer.setStatus(result.message, result.tone);
   });
 
-  elements.percentInput.addEventListener('input', () => {
-    service.updatePercent(elements.percentInput.value);
-    renderCurrentMetrics();
-  });
+  elements.percentButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextPercent = button.dataset.percentValue;
+      if (!nextPercent || !isPresetPercent(nextPercent)) {
+        return;
+      }
 
-  elements.percentInput.addEventListener('blur', () => {
-    elements.percentInput.value = formatPercentInput(service.getState().percentRaw);
+      service.updatePercent(nextPercent);
+      setActivePercentButton(nextPercent);
+      renderCurrentMetrics();
+    });
   });
 
   elements.clearAllButton.addEventListener('click', () => {

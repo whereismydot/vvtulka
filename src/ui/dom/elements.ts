@@ -1,10 +1,14 @@
 import { must } from './must';
 
 export interface AppElements {
+  readonly serviceTabVkusbackButton: HTMLButtonElement;
+  readonly serviceTabTwoButton: HTMLButtonElement;
+  readonly servicePaneVkusback: HTMLElement;
+  readonly servicePaneTwo: HTMLElement;
   readonly orderInput: HTMLTextAreaElement;
   readonly orderTitleInput: HTMLInputElement;
   readonly addOrderButton: HTMLButtonElement;
-  readonly percentInput: HTMLInputElement;
+  readonly percentButtons: ReadonlyArray<HTMLButtonElement>;
   readonly clearAllButton: HTMLButtonElement;
   readonly themeToggleButton: HTMLButtonElement;
   readonly ordersList: HTMLDivElement;
@@ -33,13 +37,25 @@ export function getAppRoot(): HTMLDivElement {
  */
 export function getAppElements(): AppElements {
   return {
+    serviceTabVkusbackButton: must(
+      document.querySelector<HTMLButtonElement>('#service-tab-vkusback'),
+      'Не найден #service-tab-vkusback'
+    ),
+    serviceTabTwoButton: must(document.querySelector<HTMLButtonElement>('#service-tab-2'), 'Не найден #service-tab-2'),
+    servicePaneVkusback: must(document.querySelector<HTMLElement>('#service-pane-vkusback'), 'Не найден #service-pane-vkusback'),
+    servicePaneTwo: must(document.querySelector<HTMLElement>('#service-pane-2'), 'Не найден #service-pane-2'),
     orderInput: must(document.querySelector<HTMLTextAreaElement>('#order-input'), 'Не найден #order-input'),
     orderTitleInput: must(
       document.querySelector<HTMLInputElement>('#order-title-input'),
       'Не найден #order-title-input'
     ),
     addOrderButton: must(document.querySelector<HTMLButtonElement>('#add-order'), 'Не найден #add-order'),
-    percentInput: must(document.querySelector<HTMLInputElement>('#percent-input'), 'Не найден #percent-input'),
+    percentButtons: [
+      must(document.querySelector<HTMLButtonElement>('#percent-btn-3'), 'Не найден #percent-btn-3'),
+      must(document.querySelector<HTMLButtonElement>('#percent-btn-5'), 'Не найден #percent-btn-5'),
+      must(document.querySelector<HTMLButtonElement>('#percent-btn-8'), 'Не найден #percent-btn-8'),
+      must(document.querySelector<HTMLButtonElement>('#percent-btn-10'), 'Не найден #percent-btn-10')
+    ],
     clearAllButton: must(document.querySelector<HTMLButtonElement>('#clear-all-btn'), 'Не найден #clear-all-btn'),
     themeToggleButton: must(document.querySelector<HTMLButtonElement>('#theme-toggle'), 'Не найден #theme-toggle'),
     ordersList: must(document.querySelector<HTMLDivElement>('#orders-list'), 'Не найден #orders-list'),
