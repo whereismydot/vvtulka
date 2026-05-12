@@ -1,11 +1,17 @@
 export const APP_TEMPLATE = `
   <div class="app-shell">
-    <span class="bg-orb bg-orb-left" aria-hidden="true"></span>
-    <span class="bg-orb bg-orb-right" aria-hidden="true"></span>
+    <div class="topbar">
+      <button id="theme-toggle" type="button" class="btn btn-theme" aria-label="Переключить тему" title="Переключить тему"></button>
+    </div>
+    <span class="bg-shape bg-shape-left" aria-hidden="true"></span>
+    <span class="bg-shape bg-shape-right" aria-hidden="true"></span>
+    <span class="bg-grid" aria-hidden="true"></span>
     <main class="layout">
-      <div class="topbar">
-        <button id="theme-toggle" type="button" class="btn btn-theme" aria-label="Переключить тему" title="Переключить тему"></button>
-      </div>
+      <header class="hero-panel">
+        <p class="hero-kicker">Офлайн-инструмент</p>
+        <h1>VV Local Tool</h1>
+        <p class="hero-subtitle">Разбор чеков и быстрый расчёт ВкусБэк без внешних сервисов.</p>
+      </header>
       <section class="workspace">
         <section class="panel panel-input">
           <h2>Новый заказ</h2>
@@ -20,7 +26,7 @@ export const APP_TEMPLATE = `
         </section>
 
         <aside class="workspace-side">
-          <section class="panel panel-controls">
+          <section class="panel panel-controls panel-percent">
             <div class="control-row">
               <label for="percent-input">Процент ВкусБэк</label>
               <input id="percent-input" type="text" inputmode="decimal" placeholder="5" />
