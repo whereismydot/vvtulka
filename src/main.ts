@@ -11,6 +11,9 @@ interface AppState {
 }
 
 type StatusTone = 'info' | 'success' | 'warning' | 'error';
+type ThemeMode = 'light' | 'dark';
+
+const THEME_STORAGE_KEY = 'vv_theme_preference';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 if (!app) {
@@ -25,10 +28,10 @@ function must<T>(value: T | null, message: string): T {
 }
 
 app.innerHTML = `
-  <div class="orb orb-left"></div>
-  <div class="orb orb-right"></div>
   <main class="layout">
-    
+    <div class="topbar">
+      <button id="theme-toggle" type="button" class="btn btn-theme" aria-label="Переключить тему" title="Переключить тему"></button>
+    </div>
 
     <section class="panel panel-input">
       <h2>Новый заказ</h2>
@@ -62,7 +65,15 @@ app.innerHTML = `
       </article>
       <article class="metric-card">
         <h3>Итоговый кэшбэк</h3>
-        <p id="metric-cashback">0</p>
+        <button
+          id="metric-cashback"
+          class="metric-copy"
+          type="button"
+          aria-label="Скопировать итоговый кэшбэк"
+          title="Нажмите, чтобы скопировать"
+        >
+          0
+        </button>
       </article>
     </section>
 
@@ -82,6 +93,7 @@ const exportButton = must(document.querySelector<HTMLButtonElement>('#export-btn
 const importButton = must(document.querySelector<HTMLButtonElement>('#import-btn'), 'Не найден #import-btn');
 const clearAllButton = must(document.querySelector<HTMLButtonElement>('#clear-all-btn'), 'Не найден #clear-all-btn');
 const importFileInput = must(document.querySelector<HTMLInputElement>('#import-file'), 'Не найден #import-file');
+const themeToggleButton = must(document.querySelector<HTMLButtonElement>('#theme-toggle'), 'Не найден #theme-toggle');
 const ordersList = must(document.querySelector<HTMLDivElement>('#orders-list'), 'Не найден #orders-list');
 const metricOrders = must(document.querySelector<HTMLParagraphElement>('#metric-orders'), 'Не найден #metric-orders');
 const metricVkusback = must(
@@ -89,7 +101,7 @@ const metricVkusback = must(
   'Не найден #metric-vkusback'
 );
 const metricCashback = must(
-  document.querySelector<HTMLParagraphElement>('#metric-cashback'),
+  document.querySelector<HTMLButtonElement>('#metric-cashback'),
   'Не найден #metric-cashback'
 );
 const statusBox = must(document.querySelector<HTMLElement>('#status-box'), 'Не найден #status-box');
@@ -100,7 +112,85 @@ const state: AppState = {
   percentRaw: loadedState.percentRaw
 };
 
+function getSystemTheme(): ThemeMode {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return 'light';
+  }
+
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function getStoredTheme(): ThemeMode | null {
+  if (typeof localStorage === 'undefined') {
+    return null;
+  }
+
+  const raw = localStorage.getItem(THEME_STORAGE_KEY);
+  if (raw === 'light' || raw === 'dark') {
+    return raw;
+  }
+
+  return null;
+}
+
+function resolveInitialTheme(): ThemeMode {
+  return getStoredTheme() ?? getSystemTheme();
+}
+
+function applyTheme(mode: ThemeMode): void {
+  document.documentElement.dataset.theme = mode;
+}
+
+function renderThemeToggleLabel(mode: ThemeMode): void {
+  const currentModeName = mode === 'dark' ? 'тёмная' : 'светлая';
+  const nextMode = mode === 'dark' ? 'light' : 'dark';
+  const nextModeName = nextMode === 'dark' ? 'тёмную' : 'светлую';
+  themeToggleButton.textContent = mode === 'dark' ? '☀' : '☾';
+  themeToggleButton.setAttribute('aria-label', `Сейчас ${currentModeName} тема. Переключить на ${nextModeName}.`);
+  themeToggleButton.setAttribute('title', `Переключить на ${nextModeName} тему`);
+}
+
+function toggleTheme(): void {
+  const activeTheme = (document.documentElement.dataset.theme as ThemeMode | undefined) ?? resolveInitialTheme();
+  const nextTheme: ThemeMode = activeTheme === 'dark' ? 'light' : 'dark';
+  applyTheme(nextTheme);
+  renderThemeToggleLabel(nextTheme);
+
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+  }
+}
+
+const initialTheme = resolveInitialTheme();
+applyTheme(initialTheme);
+renderThemeToggleLabel(initialTheme);
+
+if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+  const colorSchemeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+  colorSchemeMedia.addEventListener('change', () => {
+    if (getStoredTheme() !== null) {
+      return;
+    }
+
+    const systemTheme = colorSchemeMedia.matches ? 'dark' : 'light';
+    applyTheme(systemTheme);
+    renderThemeToggleLabel(systemTheme);
+  });
+}
+
 percentInput.value = formatPercentInput(state.percentRaw);
+themeToggleButton.addEventListener('click', toggleTheme);
+metricCashback.addEventListener('click', async () => {
+  const valueToCopy = metricCashback.dataset.copyValue ?? metricCashback.textContent?.trim() ?? '';
+  const copied = await copyTextToClipboard(valueToCopy);
+
+  if (copied) {
+    setStatus(`Итоговый кэшбэк скопирован: ${valueToCopy}`, 'success');
+    return;
+  }
+
+  setStatus('Не удалось скопировать итоговый кэшбэк.', 'error');
+});
 
 function createOrderId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -138,15 +228,47 @@ function setStatus(message: string, tone: StatusTone = 'info'): void {
   statusBox.className = `status status-${tone}`;
 }
 
+async function copyTextToClipboard(value: string): Promise<boolean> {
+  if (!value) {
+    return false;
+  }
+
+  try {
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return true;
+    }
+  } catch {
+    // fallback below
+  }
+
+  try {
+    const textarea = document.createElement('textarea');
+    textarea.value = value;
+    textarea.setAttribute('readonly', 'true');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand('copy');
+    document.body.removeChild(textarea);
+    return copied;
+  } catch {
+    return false;
+  }
+}
+
 function countEligibleItems(items: OrderItem[]): number {
   return items.filter((item) => item.isVkusbackEligible).length;
 }
 
 function renderMetrics(): void {
   const metrics = calculateMetrics(state.orders, state.percentRaw);
+  const cashbackDisplay = formatDecimalForDisplay(metrics.cashbackRaw);
   metricOrders.textContent = String(metrics.ordersCount);
   metricVkusback.textContent = formatDecimalForDisplay(metrics.vkusbackTotalRaw);
-  metricCashback.textContent = formatDecimalForDisplay(metrics.cashbackRaw);
+  metricCashback.textContent = cashbackDisplay;
+  metricCashback.dataset.copyValue = cashbackDisplay;
 }
 
 function createOrderTable(items: OrderItem[]): HTMLTableElement {
@@ -217,6 +339,7 @@ function renderOrders(): void {
     header.className = 'order-header';
 
     const title = document.createElement('h3');
+    title.className = 'order-number';
     title.textContent = `Заказ #${index + 1}`;
 
     const deleteButton = document.createElement('button');
