@@ -2,7 +2,7 @@
 import { calculateMetrics, computeOrderVkusbackSumRaw } from './lib/calculations';
 import { formatDecimalForDisplay, normalizeDecimalInput } from './lib/decimal';
 import { parseOrderText } from './lib/parser';
-import { buildStorageState, hydrateState, loadState, saveState } from './lib/storage';
+import { buildStorageState, loadState, saveState } from './lib/storage';
 import type { Order, OrderItem } from './types';
 
 interface AppState {
@@ -32,67 +32,74 @@ app.innerHTML = `
     <div class="topbar">
       <button id="theme-toggle" type="button" class="btn btn-theme" aria-label="Переключить тему" title="Переключить тему"></button>
     </div>
+    <section class="workspace">
+      <section class="panel panel-input">
+        <h2>Новый заказ</h2>
+        <div class="control-row control-row-title">
+          <label for="order-title-input">Название заказа</label>
+          <input id="order-title-input" type="text" placeholder="Например: 442 984 922" />
+        </div>
+        <textarea id="order-input" rows="10" placeholder="Откройте чек заказа. Выделите всё (Ctrl + A), скопируйте (Ctrl + C) и вставьте сюда (Ctrl + V)."></textarea>
+        <div class="input-actions">
+          <button id="add-order" class="btn btn-primary">Добавить заказ</button>
+        </div>
+      </section>
 
-    <section class="panel panel-input">
-      <h2>Новый заказ</h2>
-      <textarea id="order-input" rows="10" placeholder="Вставьте сюда текст чека с табами..."></textarea>
-      <div class="input-actions">
-        <button id="add-order" class="btn btn-primary">Добавить заказ</button>
-      </div>
+      <aside class="workspace-side">
+        <section class="panel panel-controls">
+          <div class="control-row">
+            <label for="percent-input">Процент ВкусБэк</label>
+            <input id="percent-input" type="text" inputmode="decimal" placeholder="5" />
+          </div>
+        </section>
+
+        <section class="metrics metrics-vertical" aria-live="polite">
+          <article class="metric-card">
+            <h3>Заказов</h3>
+            <p id="metric-orders">0</p>
+          </article>
+          <article class="metric-card">
+            <h3>Сумма ВкусБэк</h3>
+            <p id="metric-vkusback">0</p>
+          </article>
+          <article class="metric-card metric-card-cashback">
+            <h3>Итоговый кэшбэк</h3>
+            <button
+              id="metric-cashback"
+              class="metric-copy"
+              type="button"
+              aria-label="Скопировать итоговый кэшбэк"
+              title="Нажмите, чтобы скопировать"
+            >
+              0
+            </button>
+          </article>
+        </section>
+
+        <button id="clear-all-btn" class="btn btn-danger btn-block clear-all-standalone">Очистить список заказов</button>
+      </aside>
     </section>
-
-    <section class="panel panel-controls">
-      <div class="control-row">
-        <label for="percent-input">Процент ВкусБэк</label>
-        <input id="percent-input" type="text" inputmode="decimal" placeholder="5" />
-      </div>
-      <div class="control-actions">
-        <button id="export-btn" class="btn">Экспорт JSON</button>
-        <button id="import-btn" class="btn">Импорт JSON</button>
-        <button id="clear-all-btn" class="btn btn-danger">Очистить все</button>
-        <input id="import-file" type="file" accept="application/json" hidden />
-      </div>
-    </section>
-
-    <section class="metrics" aria-live="polite">
-      <article class="metric-card">
-        <h3>Заказов</h3>
-        <p id="metric-orders">0</p>
-      </article>
-      <article class="metric-card">
-        <h3>Сумма ВкусБэк</h3>
-        <p id="metric-vkusback">0</p>
-      </article>
-      <article class="metric-card">
-        <h3>Итоговый кэшбэк</h3>
-        <button
-          id="metric-cashback"
-          class="metric-copy"
-          type="button"
-          aria-label="Скопировать итоговый кэшбэк"
-          title="Нажмите, чтобы скопировать"
-        >
-          0
-        </button>
-      </article>
-    </section>
-
-    <section id="status-box" class="status status-info" aria-live="polite"></section>
 
     <section class="panel panel-orders">
       <h2>Добавленные заказы</h2>
       <div id="orders-list" class="orders-list"></div>
     </section>
+
+    <section id="status-box" class="status status-floating status-info" aria-live="polite"></section>
+    <button id="scroll-top-btn" class="btn scroll-top-btn" type="button" aria-label="Вернуться наверх" title="Наверх">
+      ↑
+    </button>
   </main>
 `;
 
 const orderInput = must(document.querySelector<HTMLTextAreaElement>('#order-input'), 'Не найден #order-input');
+const orderTitleInput = must(
+  document.querySelector<HTMLInputElement>('#order-title-input'),
+  'Не найден #order-title-input'
+);
 const addOrderButton = must(document.querySelector<HTMLButtonElement>('#add-order'), 'Не найден #add-order');
 const percentInput = must(document.querySelector<HTMLInputElement>('#percent-input'), 'Не найден #percent-input');
-const exportButton = must(document.querySelector<HTMLButtonElement>('#export-btn'), 'Не найден #export-btn');
-const importButton = must(document.querySelector<HTMLButtonElement>('#import-btn'), 'Не найден #import-btn');
 const clearAllButton = must(document.querySelector<HTMLButtonElement>('#clear-all-btn'), 'Не найден #clear-all-btn');
-const importFileInput = must(document.querySelector<HTMLInputElement>('#import-file'), 'Не найден #import-file');
 const themeToggleButton = must(document.querySelector<HTMLButtonElement>('#theme-toggle'), 'Не найден #theme-toggle');
 const ordersList = must(document.querySelector<HTMLDivElement>('#orders-list'), 'Не найден #orders-list');
 const metricOrders = must(document.querySelector<HTMLParagraphElement>('#metric-orders'), 'Не найден #metric-orders');
@@ -105,12 +112,18 @@ const metricCashback = must(
   'Не найден #metric-cashback'
 );
 const statusBox = must(document.querySelector<HTMLElement>('#status-box'), 'Не найден #status-box');
+const scrollTopButton = must(
+  document.querySelector<HTMLButtonElement>('#scroll-top-btn'),
+  'Не найден #scroll-top-btn'
+);
 
 const loadedState = loadState();
 const state: AppState = {
   orders: loadedState.orders,
   percentRaw: loadedState.percentRaw
 };
+let statusTimer: ReturnType<typeof setTimeout> | null = null;
+const SCROLL_TOP_VISIBLE_OFFSET = 360;
 
 function getSystemTheme(): ThemeMode {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
@@ -145,7 +158,7 @@ function renderThemeToggleLabel(mode: ThemeMode): void {
   const currentModeName = mode === 'dark' ? 'тёмная' : 'светлая';
   const nextMode = mode === 'dark' ? 'light' : 'dark';
   const nextModeName = nextMode === 'dark' ? 'тёмную' : 'светлую';
-  themeToggleButton.textContent = mode === 'dark' ? '☀' : '☾';
+  themeToggleButton.textContent = mode === 'dark' ? '☀' : '🌙';
   themeToggleButton.setAttribute('aria-label', `Сейчас ${currentModeName} тема. Переключить на ${nextModeName}.`);
   themeToggleButton.setAttribute('title', `Переключить на ${nextModeName} тему`);
 }
@@ -192,6 +205,10 @@ metricCashback.addEventListener('click', async () => {
   setStatus('Не удалось скопировать итоговый кэшбэк.', 'error');
 });
 
+function buildDefaultOrderTitle(orderIndex: number): string {
+  return `Заказ ${orderIndex}`;
+}
+
 function createOrderId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID();
@@ -224,8 +241,34 @@ function formatDate(iso: string): string {
 }
 
 function setStatus(message: string, tone: StatusTone = 'info'): void {
+  if (statusTimer !== null) {
+    clearTimeout(statusTimer);
+    statusTimer = null;
+  }
+
   statusBox.textContent = message;
-  statusBox.className = `status status-${tone}`;
+  statusBox.className = `status status-floating status-${tone} status-visible`;
+
+  const hideDelay =
+    tone === 'error' ? 5500 :
+    tone === 'warning' ? 4500 :
+    3000;
+
+  statusTimer = setTimeout(() => {
+    statusBox.classList.remove('status-visible');
+  }, hideDelay);
+}
+
+function updateScrollTopVisibility(): void {
+  const isVisible = window.scrollY > SCROLL_TOP_VISIBLE_OFFSET;
+  scrollTopButton.classList.toggle('scroll-top-visible', isVisible);
+}
+
+function scrollToTop(): void {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
 }
 
 async function copyTextToClipboard(value: string): Promise<boolean> {
@@ -277,7 +320,7 @@ function createOrderTable(items: OrderItem[]): HTMLTableElement {
 
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
-  const headers = ['Товар', 'Кол-во', 'Сумма', 'ВкусБэк'];
+  const headers = ['#', 'Товар', 'Кол-во', 'Сумма', 'ВкусБэк'];
 
   for (const header of headers) {
     const th = document.createElement('th');
@@ -290,11 +333,14 @@ function createOrderTable(items: OrderItem[]): HTMLTableElement {
 
   const tbody = document.createElement('tbody');
 
-  for (const item of items) {
+  for (const [index, item] of items.entries()) {
     const row = document.createElement('tr');
     if (item.isVkusbackEligible) {
       row.classList.add('items-row-eligible');
     }
+
+    const indexCell = document.createElement('td');
+    indexCell.textContent = String(index + 1);
 
     const nameCell = document.createElement('td');
     nameCell.textContent = item.name;
@@ -308,6 +354,7 @@ function createOrderTable(items: OrderItem[]): HTMLTableElement {
     const eligibleCell = document.createElement('td');
     eligibleCell.textContent = item.isVkusbackEligible ? 'Да' : 'Нет';
 
+    row.appendChild(indexCell);
     row.appendChild(nameCell);
     row.appendChild(qtyCell);
     row.appendChild(sumCell);
@@ -338,22 +385,71 @@ function renderOrders(): void {
     const header = document.createElement('div');
     header.className = 'order-header';
 
-    const title = document.createElement('h3');
-    title.className = 'order-number';
-    title.textContent = `Заказ #${index + 1}`;
+    const titleWrap = document.createElement('div');
+    titleWrap.className = 'order-title-wrap';
+
+    const titleButton = document.createElement('button');
+    titleButton.type = 'button';
+    titleButton.className = 'order-title-copy';
+    titleButton.textContent = order.title;
+    titleButton.title = 'Нажмите, чтобы скопировать название';
+    titleButton.addEventListener('click', async () => {
+      const copied = await copyTextToClipboard(order.title);
+      if (copied) {
+        setStatus(`Название скопировано: ${order.title}`, 'success');
+        return;
+      }
+      setStatus('Не удалось скопировать название заказа.', 'error');
+    });
+
+    const editTitleButton = document.createElement('button');
+    editTitleButton.type = 'button';
+    editTitleButton.className = 'order-title-edit';
+    editTitleButton.textContent = '✎';
+    editTitleButton.title = 'Изменить название';
+    editTitleButton.setAttribute('aria-label', 'Изменить название заказа');
+    editTitleButton.addEventListener('click', () => {
+      const nextTitleRaw = window.prompt('Введите новое название заказа:', order.title);
+      if (nextTitleRaw === null) {
+        return;
+      }
+
+      const nextTitle = nextTitleRaw.trim();
+      if (!nextTitle) {
+        setStatus('Название не может быть пустым.', 'warning');
+        return;
+      }
+
+      order.title = nextTitle;
+      saveCurrentState();
+      renderOrders();
+      setStatus('Название заказа обновлено.', 'success');
+    });
+
+    const orderNumberBadge = document.createElement('span');
+    orderNumberBadge.className = 'order-number';
+    orderNumberBadge.textContent = `#${index + 1}`;
 
     const deleteButton = document.createElement('button');
     deleteButton.type = 'button';
     deleteButton.className = 'btn btn-danger';
     deleteButton.textContent = 'Удалить';
     deleteButton.addEventListener('click', () => {
+      const isConfirmed = window.confirm(`Удалить заказ "${order.title}"?`);
+      if (!isConfirmed) {
+        return;
+      }
+
       state.orders = state.orders.filter((current) => current.id !== order.id);
       saveCurrentState();
       renderAll();
       setStatus('Заказ удален.', 'info');
     });
 
-    header.appendChild(title);
+    titleWrap.appendChild(orderNumberBadge);
+    titleWrap.appendChild(titleButton);
+    titleWrap.appendChild(editTitleButton);
+    header.appendChild(titleWrap);
     header.appendChild(deleteButton);
 
     const meta = document.createElement('p');
@@ -416,6 +512,7 @@ addOrderButton.addEventListener('click', () => {
 
   const order: Order = {
     id: createOrderId(),
+    title: orderTitleInput.value.trim() || buildDefaultOrderTitle(state.orders.length + 1),
     createdAt: new Date().toISOString(),
     items: parseResult.items,
     vkusbackSumRaw: computeOrderVkusbackSumRaw(parseResult.items),
@@ -425,6 +522,7 @@ addOrderButton.addEventListener('click', () => {
   state.orders = [order, ...state.orders];
   saveCurrentState();
   renderAll();
+  orderTitleInput.value = '';
   orderInput.value = '';
 
   if (parseResult.warnings.length > 0) {
@@ -446,7 +544,7 @@ percentInput.addEventListener('blur', () => {
 });
 
 clearAllButton.addEventListener('click', () => {
-  const isConfirmed = window.confirm('Удалить все заказы из локального хранилища?');
+  const isConfirmed = window.confirm('Очистить список заказов? Это действие нельзя отменить.');
   if (!isConfirmed) {
     return;
   }
@@ -457,52 +555,11 @@ clearAllButton.addEventListener('click', () => {
   setStatus('Все заказы очищены.', 'info');
 });
 
-exportButton.addEventListener('click', () => {
-  const payload = buildStorageState(state.orders, state.percentRaw);
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {
-    type: 'application/json;charset=utf-8'
-  });
-
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `vv-local-tool-${new Date().toISOString().slice(0, 10)}.json`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-
-  setStatus('Экспорт завершен.', 'success');
+scrollTopButton.addEventListener('click', () => {
+  scrollToTop();
 });
-
-importButton.addEventListener('click', () => {
-  importFileInput.click();
-});
-
-importFileInput.addEventListener('change', async () => {
-  const file = importFileInput.files?.[0];
-  if (!file) {
-    return;
-  }
-
-  try {
-    const text = await file.text();
-    const parsed = JSON.parse(text) as unknown;
-    const imported = hydrateState(parsed);
-
-    state.orders = imported.orders;
-    state.percentRaw = imported.percentRaw;
-
-    percentInput.value = formatPercentInput(state.percentRaw);
-    saveCurrentState();
-    renderAll();
-    setStatus('Импорт завершен.', 'success');
-  } catch {
-    setStatus('Не удалось импортировать файл. Проверьте формат JSON.', 'error');
-  } finally {
-    importFileInput.value = '';
-  }
-});
+window.addEventListener('scroll', updateScrollTopVisibility, { passive: true });
+updateScrollTopVisibility();
 
 renderAll();
 setStatus('Готово к работе. Данные хранятся локально в браузере.', 'info');

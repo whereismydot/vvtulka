@@ -10,6 +10,7 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  title: string;
   createdAt: string;
   items: OrderItem[];
   vkusbackSumRaw: DecimalRaw;

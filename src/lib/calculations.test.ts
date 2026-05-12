@@ -5,6 +5,7 @@ import type { Order, OrderItem } from '../types';
 function buildOrder(id: string, items: OrderItem[]): Order {
   return {
     id,
+    title: `Order ${id}`,
     createdAt: '2026-01-01T10:00:00.000Z',
     rawInput: 'raw',
     items,

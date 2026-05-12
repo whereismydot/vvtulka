@@ -49,6 +49,7 @@ function sanitizeOrder(input: unknown): Order | null {
     return null;
   }
 
+  const titleRaw = typeof input.title === 'string' ? input.title.trim() : '';
   const createdAt = typeof input.createdAt === 'string' ? input.createdAt : new Date().toISOString();
   const rawInput = typeof input.rawInput === 'string' ? input.rawInput : '';
 
@@ -59,6 +60,7 @@ function sanitizeOrder(input: unknown): Order | null {
 
   return {
     id: input.id,
+    title: titleRaw || 'Без названия',
     createdAt,
     rawInput,
     items,
