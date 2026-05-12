@@ -1,11 +1,11 @@
-﻿import { normalizeDecimalInput } from './decimal';
+import { normalizeDecimalInput } from '../decimal/decimal';
 import type { OrderItem, ParseResult } from '../types';
 
 interface HeaderIndexes {
-  itemIndex: number;
-  quantityIndex: number;
-  sumIndex: number;
-  vkusbackIndex: number;
+  readonly itemIndex: number;
+  readonly quantityIndex: number;
+  readonly sumIndex: number;
+  readonly vkusbackIndex: number;
 }
 
 const HEADER_SYNONYMS = {
@@ -17,6 +17,13 @@ const HEADER_SYNONYMS = {
 
 const ELIGIBLE_VALUES = new Set(['да', 'yes', 'true', '1', 'y']);
 
+/**
+ * Нормализует ячейку заголовка: приводит к нижнему регистру,
+ * заменяет `ё` на `е` и удаляет небуквенно-цифровые символы.
+ *
+ * @param value Исходный текст ячейки.
+ * @returns Нормализованное значение для сравнения.
+ */
 function normalizeHeaderCell(value: string): string {
   return value
     .toLowerCase()
@@ -24,15 +31,33 @@ function normalizeHeaderCell(value: string): string {
     .replace(/[^a-zа-я0-9]/g, '');
 }
 
+/**
+ * Проверяет, содержит ли строка хотя бы одну цифру.
+ *
+ * @param value Проверяемая строка.
+ * @returns `true`, если в строке есть цифры.
+ */
 function hasDigits(value: string): boolean {
   return /\d/.test(value);
 }
 
-function isTotalRow(cells: string[]): boolean {
+/**
+ * Определяет, является ли строка итоговой (например, "ИТОГО").
+ *
+ * @param cells Ячейки строки.
+ * @returns `true`, если строку нужно пропустить как итоговую.
+ */
+function isTotalRow(cells: readonly string[]): boolean {
   return cells.some((cell) => normalizeHeaderCell(cell).startsWith('итого'));
 }
 
-function findHeaderLine(lines: string[]): { headerIndex: number; cells: string[] } | null {
+/**
+ * Ищет строку заголовка таблицы чека.
+ *
+ * @param lines Все строки входного текста.
+ * @returns Индекс и ячейки заголовка либо `null`, если заголовок не найден.
+ */
+function findHeaderLine(lines: readonly string[]): { headerIndex: number; cells: string[] } | null {
   for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
     const line = lines[lineIndex];
     if (!line.includes('\t')) {
@@ -54,7 +79,14 @@ function findHeaderLine(lines: string[]): { headerIndex: number; cells: string[]
   return null;
 }
 
-function findIndex(cells: string[], aliases: string[]): number {
+/**
+ * Находит индекс колонки по списку допустимых алиасов.
+ *
+ * @param cells Ячейки заголовка.
+ * @param aliases Допустимые названия колонки.
+ * @returns Индекс колонки или `-1`, если совпадение не найдено.
+ */
+function findIndex(cells: readonly string[], aliases: readonly string[]): number {
   const normalizedAliases = new Set(aliases.map((alias) => normalizeHeaderCell(alias)));
   for (let index = 0; index < cells.length; index += 1) {
     const normalizedCell = normalizeHeaderCell(cells[index]);
@@ -66,7 +98,13 @@ function findIndex(cells: string[], aliases: string[]): number {
   return -1;
 }
 
-function resolveIndexes(headerCells: string[]): { indexes: HeaderIndexes | null; missing: string[] } {
+/**
+ * Разрешает индексы обязательных колонок и собирает список отсутствующих.
+ *
+ * @param headerCells Ячейки строки заголовка.
+ * @returns Индексы колонок либо `null` и перечень пропущенных полей.
+ */
+function resolveIndexes(headerCells: readonly string[]): { indexes: HeaderIndexes | null; missing: string[] } {
   const itemIndex = findIndex(headerCells, HEADER_SYNONYMS.item);
   const quantityIndex = findIndex(headerCells, HEADER_SYNONYMS.quantity);
   const sumIndex = findIndex(headerCells, HEADER_SYNONYMS.sum);
@@ -102,12 +140,26 @@ function resolveIndexes(headerCells: string[]): { indexes: HeaderIndexes | null;
   };
 }
 
+/**
+ * Преобразует значение колонки ВкусБэк в булев признак.
+ *
+ * @param value Значение ячейки.
+ * @returns `true`, если позиция участвует в ВкусБэк.
+ */
 function parseEligibility(value: string): boolean {
   const normalized = value.trim().toLowerCase();
   return ELIGIBLE_VALUES.has(normalized);
 }
 
-function buildItem(cells: string[], indexes: HeaderIndexes, sourceRow: number): OrderItem | null {
+/**
+ * Строит доменный объект позиции заказа из строки таблицы.
+ *
+ * @param cells Ячейки текущей строки.
+ * @param indexes Индексы обязательных колонок.
+ * @param sourceRow Номер строки во входном тексте (1-based).
+ * @returns Позицию заказа или `null`, если строка невалидна для парсинга.
+ */
+function buildItem(cells: readonly string[], indexes: HeaderIndexes, sourceRow: number): OrderItem | null {
   const name = (cells[indexes.itemIndex] ?? '').trim();
   const quantityCell = (cells[indexes.quantityIndex] ?? '').trim();
   const sumCell = (cells[indexes.sumIndex] ?? '').trim();
@@ -130,6 +182,13 @@ function buildItem(cells: string[], indexes: HeaderIndexes, sourceRow: number): 
   };
 }
 
+/**
+ * Разбирает текст чека в список позиций заказа.
+ * Возвращает отдельные коллекции для ошибок, предупреждений и успешно распознанных строк.
+ *
+ * @param rawInput Сырой текст, вставленный пользователем.
+ * @returns Результат парсинга: позиции, предупреждения и ошибки.
+ */
 export function parseOrderText(rawInput: string): ParseResult {
   const lines = rawInput.split(/\r?\n/);
   const warnings: string[] = [];

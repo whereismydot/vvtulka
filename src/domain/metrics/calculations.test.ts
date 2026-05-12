@@ -1,8 +1,8 @@
-﻿import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { calculateMetrics, computeOrderVkusbackSumRaw } from './calculations';
 import type { Order, OrderItem } from '../types';
 
-function buildOrder(id: string, items: OrderItem[]): Order {
+function buildOrder(id: string, items: readonly OrderItem[]): Order {
   return {
     id,
     title: `Order ${id}`,
@@ -38,5 +38,34 @@ describe('calculations', () => {
 
     expect(metrics.vkusbackTotalRaw).toBe('300');
     expect(metrics.cashbackRaw).toBe('15');
+  });
+
+  it('clamps negative percent to zero', () => {
+    const order = buildOrder('1', [
+      { name: 'A', quantityRaw: '1', sumRaw: '80', isVkusbackEligible: true, sourceRow: 1 }
+    ]);
+
+    const metrics = calculateMetrics([order], '-10');
+
+    expect(metrics.percentRaw).toBe('0');
+    expect(metrics.cashbackRaw).toBe('0');
+  });
+
+  it('returns zero values for empty orders', () => {
+    const metrics = calculateMetrics([], '5');
+
+    expect(metrics.ordersCount).toBe(0);
+    expect(metrics.vkusbackTotalRaw).toBe('0');
+    expect(metrics.cashbackRaw).toBe('0');
+  });
+
+  it('keeps decimal precision for cashback', () => {
+    const order = buildOrder('1', [
+      { name: 'A', quantityRaw: '1', sumRaw: '0.3', isVkusbackEligible: true, sourceRow: 1 }
+    ]);
+
+    const metrics = calculateMetrics([order], '10');
+
+    expect(metrics.cashbackRaw).toBe('0.03');
   });
 });
