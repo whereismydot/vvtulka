@@ -3,8 +3,10 @@
 export interface AppElements {
   readonly serviceTabVkusbackButton: HTMLButtonElement;
   readonly serviceTabTwoButton: HTMLButtonElement;
+  readonly serviceTabThreeButton: HTMLButtonElement;
   readonly servicePaneVkusback: HTMLElement;
   readonly servicePaneTwo: HTMLElement;
+  readonly servicePaneThree: HTMLElement;
   readonly orderInput: HTMLTextAreaElement;
   readonly orderTitleInput: HTMLInputElement;
   readonly addOrderButton: HTMLButtonElement;
@@ -24,6 +26,16 @@ export interface AppElements {
   readonly textCleanerTrimLineEndInput: HTMLInputElement;
   readonly textCleanerRemoveEmptyLinesInput: HTMLInputElement;
   readonly textCleanerTrimWholeTextInput: HTMLInputElement;
+  readonly shelfLifeForm: HTMLFormElement;
+  readonly shelfLifeDateInput: HTMLInputElement;
+  readonly shelfLifeTermInput: HTMLInputElement;
+  readonly shelfLifeUnitSelect: HTMLSelectElement;
+  readonly shelfLifeUseTimeInput: HTMLInputElement;
+  readonly shelfLifeTimeRow: HTMLDivElement;
+  readonly shelfLifeTimeInput: HTMLInputElement;
+  readonly shelfLifeCheckButton: HTMLButtonElement;
+  readonly shelfLifeResult: HTMLElement;
+  readonly shelfLifeResultText: HTMLParagraphElement;
   readonly themeToggleButton: HTMLButtonElement;
   readonly ordersList: HTMLDivElement;
   readonly metricOrders: HTMLParagraphElement;
@@ -50,8 +62,10 @@ export function getAppElements(): AppElements {
       '#service-tab-vkusback not found'
     ),
     serviceTabTwoButton: must(document.querySelector<HTMLButtonElement>('#service-tab-2'), '#service-tab-2 not found'),
+    serviceTabThreeButton: must(document.querySelector<HTMLButtonElement>('#service-tab-3'), '#service-tab-3 not found'),
     servicePaneVkusback: must(document.querySelector<HTMLElement>('#service-pane-vkusback'), '#service-pane-vkusback not found'),
     servicePaneTwo: must(document.querySelector<HTMLElement>('#service-pane-2'), '#service-pane-2 not found'),
+    servicePaneThree: must(document.querySelector<HTMLElement>('#service-pane-3'), '#service-pane-3 not found'),
     orderInput: must(document.querySelector<HTMLTextAreaElement>('#order-input'), '#order-input not found'),
     orderTitleInput: must(document.querySelector<HTMLInputElement>('#order-title-input'), '#order-title-input not found'),
     addOrderButton: must(document.querySelector<HTMLButtonElement>('#add-order'), '#add-order not found'),
@@ -102,6 +116,22 @@ export function getAppElements(): AppElements {
     textCleanerTrimWholeTextInput: must(
       document.querySelector<HTMLInputElement>('#text-cleaner-setting-trim-whole-text'),
       '#text-cleaner-setting-trim-whole-text not found'
+    ),
+    shelfLifeForm: must(document.querySelector<HTMLFormElement>('#shelf-life-form'), '#shelf-life-form not found'),
+    shelfLifeDateInput: must(document.querySelector<HTMLInputElement>('#shelf-life-date-input'), '#shelf-life-date-input not found'),
+    shelfLifeTermInput: must(document.querySelector<HTMLInputElement>('#shelf-life-term-input'), '#shelf-life-term-input not found'),
+    shelfLifeUnitSelect: must(document.querySelector<HTMLSelectElement>('#shelf-life-unit-select'), '#shelf-life-unit-select not found'),
+    shelfLifeUseTimeInput: must(
+      document.querySelector<HTMLInputElement>('#shelf-life-use-time-input'),
+      '#shelf-life-use-time-input not found'
+    ),
+    shelfLifeTimeRow: must(document.querySelector<HTMLDivElement>('#shelf-life-time-row'), '#shelf-life-time-row not found'),
+    shelfLifeTimeInput: must(document.querySelector<HTMLInputElement>('#shelf-life-time-input'), '#shelf-life-time-input not found'),
+    shelfLifeCheckButton: must(document.querySelector<HTMLButtonElement>('#shelf-life-check-btn'), '#shelf-life-check-btn not found'),
+    shelfLifeResult: must(document.querySelector<HTMLElement>('#shelf-life-result'), '#shelf-life-result not found'),
+    shelfLifeResultText: must(
+      document.querySelector<HTMLParagraphElement>('#shelf-life-result-text'),
+      '#shelf-life-result-text not found'
     ),
     themeToggleButton: must(document.querySelector<HTMLButtonElement>('#theme-toggle'), '#theme-toggle not found'),
     ordersList: must(document.querySelector<HTMLDivElement>('#orders-list'), '#orders-list not found'),

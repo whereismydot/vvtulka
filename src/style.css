@@ -226,7 +226,7 @@ body {
 
 .services-nav {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-2);
 }
 
@@ -352,7 +352,10 @@ body {
 }
 
 textarea,
-input[type='text'] {
+input[type='text'],
+input[type='number'],
+input[type='time'],
+select {
   width: 100%;
   border: 1px solid var(--color-line-strong);
   border-radius: var(--radius-sm);
@@ -366,7 +369,9 @@ input[type='text'] {
 }
 
 textarea::placeholder,
-input[type='text']::placeholder {
+input[type='text']::placeholder,
+input[type='number']::placeholder,
+input[type='time']::placeholder {
   color: var(--color-text-faint);
   font-weight: 500;
 }
@@ -553,6 +558,92 @@ textarea {
   accent-color: var(--color-accent);
 }
 
+.panel-shelf-life {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.shelf-life-form {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 780px;
+}
+
+.shelf-life-row {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.shelf-life-time-row[hidden] {
+  display: none !important;
+}
+
+.shelf-life-row label {
+  color: var(--color-text-soft);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.shelf-life-term-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.shelf-life-time-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-main);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.shelf-life-time-toggle input[type='checkbox'] {
+  accent-color: var(--color-accent);
+  width: 1.32rem;
+  height: 1.32rem;
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.shelf-life-actions {
+  display: flex;
+}
+
+.shelf-life-result {
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  background: var(--color-surface-solid);
+}
+
+.shelf-life-result p {
+  margin: 0;
+  color: var(--color-text-main);
+  font-size: clamp(1.22rem, 2.8vw, 2.1rem);
+  line-height: 1.15;
+  font-weight: 800;
+}
+
+.shelf-life-result-valid {
+  border-color: var(--color-success-line);
+  background: var(--color-success-bg);
+}
+
+.shelf-life-result-expired {
+  border-color: var(--color-error-line);
+  background: var(--color-error-bg);
+}
+
+.field-invalid {
+  border-color: var(--color-danger) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 28%, transparent 72%);
+}
+
 .input-actions,
 .control-actions {
   margin-top: var(--space-4);
@@ -563,6 +654,9 @@ textarea {
 
 textarea:focus,
 input[type='text']:focus,
+input[type='number']:focus,
+input[type='time']:focus,
+select:focus,
 .btn:focus-visible,
 summary:focus-visible,
 .metric-copy:focus-visible,
@@ -570,6 +664,11 @@ summary:focus-visible,
   outline: none;
   border-color: var(--color-accent);
   box-shadow: var(--focus-ring);
+}
+
+.field-invalid:focus {
+  border-color: var(--color-danger) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 28%, transparent 72%);
 }
 
 .btn {
@@ -1029,6 +1128,14 @@ summary {
 
   .cleaner-settings-grid {
     grid-template-columns: 1fr;
+  }
+
+  .shelf-life-term-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .shelf-life-actions .btn {
+    width: 100%;
   }
 
   .cleaner-field textarea {

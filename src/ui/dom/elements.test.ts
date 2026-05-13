@@ -17,6 +17,7 @@ describe('app elements resolver', () => {
 
     expect(elements.orderInput.id).toBe('order-input');
     expect(elements.textCleanerSourceInput.id).toBe('text-cleaner-source');
+    expect(elements.shelfLifeDateInput.id).toBe('shelf-life-date-input');
     expect(elements.metricCashback.id).toBe('metric-cashback');
   });
 

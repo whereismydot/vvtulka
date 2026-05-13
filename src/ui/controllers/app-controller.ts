@@ -8,6 +8,7 @@ import { renderOrders } from '../render/orders-renderer';
 import { createStatusRenderer } from '../render/status-renderer';
 import { createScrollTopController } from './scroll-top-controller';
 import { createServiceTabsController } from './service-tabs-controller';
+import { createShelfLifeController } from './shelf-life-controller';
 import { createTextCleanerController } from './text-cleaner-controller';
 import { createThemeController } from './theme-controller';
 
@@ -163,6 +164,10 @@ export function createAppController(dependencies: AppControllerDependencies): vo
   createTextCleanerController({
     elements,
     copyText: (value: string) => clipboard.copyText(value),
+    setStatus: (message, tone) => statusRenderer.setStatus(message, tone)
+  });
+  createShelfLifeController({
+    elements,
     setStatus: (message, tone) => statusRenderer.setStatus(message, tone)
   });
 

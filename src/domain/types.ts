@@ -67,3 +67,5 @@ export interface TextCleanerResult {
   readonly output: string;
   readonly stats: TextCleanerStats;
 }
+
+export type ShelfLifeUnit = 'days' | 'weeks' | 'months' | 'years';
