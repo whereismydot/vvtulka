@@ -230,6 +230,14 @@
         ↑
       </button>
     </main>
+    <footer class="site-footer" role="contentinfo">
+      <p class="site-footer-text">
+        <span class="site-footer-label">По вопросам:</span>
+        <a class="site-footer-link" href="https://t.me/gleb_perveev" target="_blank" rel="noopener noreferrer">@gleb_perveev</a>
+        <span class="site-footer-separator" aria-hidden="true">·</span>
+        <a class="site-footer-link" href="mailto:sanlovty@yandex.ru">sanlovty@yandex.ru</a>
+      </p>
+    </footer>
   </div>
 `;
 
