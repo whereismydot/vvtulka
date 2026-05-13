@@ -134,9 +134,11 @@ body {
 
 .app-shell {
   position: relative;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
   overflow-x: clip;
-  padding-bottom: var(--space-8);
+  padding-bottom: 0;
 }
 
 .bg-shape {
@@ -187,10 +189,54 @@ body {
   position: relative;
   z-index: 1;
   width: min(1420px, calc(100% - 2.2rem));
-  margin: clamp(0.7rem, 1.8vw, 1rem) auto var(--space-8);
+  margin: clamp(0.7rem, 1.8vw, 1rem) auto var(--space-4);
   display: grid;
   gap: var(--space-5);
   animation: layout-fade 0.5s ease both;
+}
+
+.site-footer {
+  position: relative;
+  z-index: 1;
+  width: min(1420px, calc(100% - 2.2rem));
+  margin-top: auto;
+  margin-inline: auto;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
+.site-footer-text {
+  margin: 0;
+  color: var(--color-text-faint);
+  opacity: 0.86;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.site-footer-label {
+  font-weight: 700;
+}
+
+.site-footer-separator {
+  margin-inline: var(--space-1);
+}
+
+.site-footer-link {
+  color: inherit;
+  text-decoration-color: color-mix(in srgb, var(--color-text-faint) 55%, transparent 45%);
+  text-underline-offset: 2px;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.site-footer-link:hover {
+  color: var(--color-text-soft);
+  text-decoration-color: currentcolor;
+}
+
+.site-footer-link:focus-visible {
+  outline: none;
+  border-radius: 4px;
+  box-shadow: var(--focus-ring);
 }
 
 .services-toolbar {
@@ -1083,6 +1129,10 @@ summary {
     width: min(1360px, calc(100% - 1.5rem));
   }
 
+  .site-footer {
+    width: min(1360px, calc(100% - 1.5rem));
+  }
+
   .workspace {
     grid-template-columns: minmax(0, 1.54fr) minmax(300px, 0.88fr);
   }
@@ -1164,6 +1214,14 @@ summary {
   .layout {
     width: calc(100% - 0.8rem);
     margin-top: 0.55rem;
+  }
+
+  .site-footer {
+    width: calc(100% - 0.8rem);
+  }
+
+  .site-footer-text {
+    font-size: 0.76rem;
   }
 
   .panel {

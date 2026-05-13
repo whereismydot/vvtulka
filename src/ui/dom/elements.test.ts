@@ -14,11 +14,17 @@ describe('app elements resolver', () => {
     root.innerHTML = APP_TEMPLATE;
 
     const elements = getAppElements();
+    const footer = root.querySelector('footer.site-footer');
+    const telegramLink = root.querySelector<HTMLAnchorElement>('a.site-footer-link[href="https://t.me/gleb_perveev"]');
+    const emailLink = root.querySelector<HTMLAnchorElement>('a.site-footer-link[href="mailto:sanlovty@yandex.ru"]');
 
     expect(elements.orderInput.id).toBe('order-input');
     expect(elements.textCleanerSourceInput.id).toBe('text-cleaner-source');
     expect(elements.shelfLifeDateInput.id).toBe('shelf-life-date-input');
     expect(elements.metricCashback.id).toBe('metric-cashback');
+    expect(footer).not.toBeNull();
+    expect(telegramLink).not.toBeNull();
+    expect(emailLink).not.toBeNull();
   });
 
   it('throws when app root is missing', () => {
