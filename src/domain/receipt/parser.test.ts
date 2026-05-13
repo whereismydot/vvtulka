@@ -31,4 +31,46 @@ describe('order parser', () => {
     const result = parseOrderText('просто текст без таблицы');
     expect(result.errors.length).toBe(1);
   });
+
+  it('returns error when a required column is missing', () => {
+    const input = `
+п.п.\tТовар\tКолво\tСумма
+1\tТовар A\t1\t100
+`;
+
+    const result = parseOrderText(input);
+
+    expect(result.items).toHaveLength(0);
+    expect(result.errors).toHaveLength(1);
+  });
+
+  it('supports different eligible values and keeps source rows', () => {
+    const input = `
+п.п.\tТовар\tКолво\tСумма\tВкусбек
+1\tA\t1\t10\tyes
+2\tB\t1\t20\t1
+3\tC\t1\t30\ttrue
+`;
+
+    const result = parseOrderText(input);
+
+    expect(result.errors).toEqual([]);
+    expect(result.items).toHaveLength(3);
+    expect(result.items.map((item) => item.isVkusbackEligible)).toEqual([true, true, true]);
+    expect(result.items.map((item) => item.sourceRow)).toEqual([3, 4, 5]);
+  });
+
+  it('returns warnings and empty items when all rows are invalid', () => {
+    const input = `
+п.п.\tТовар\tКолво\tСумма\tВходитВкусБэк
+1\tA\t1\t--\tДа
+2\tB\t2\t--\tНет
+`;
+
+    const result = parseOrderText(input);
+
+    expect(result.errors).toEqual([]);
+    expect(result.items).toEqual([]);
+    expect(result.warnings.length).toBeGreaterThan(0);
+  });
 });

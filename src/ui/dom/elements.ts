@@ -1,4 +1,4 @@
-import { must } from './must';
+﻿import { must } from './must';
 
 export interface AppElements {
   readonly serviceTabVkusbackButton: HTMLButtonElement;
@@ -10,6 +10,20 @@ export interface AppElements {
   readonly addOrderButton: HTMLButtonElement;
   readonly percentButtons: ReadonlyArray<HTMLButtonElement>;
   readonly clearAllButton: HTMLButtonElement;
+  readonly textCleanerSourceInput: HTMLTextAreaElement;
+  readonly textCleanerOutputInput: HTMLTextAreaElement;
+  readonly textCleanerSettingsToggleButton: HTMLButtonElement;
+  readonly textCleanerCopyButton: HTMLButtonElement;
+  readonly textCleanerClearButton: HTMLButtonElement;
+  readonly textCleanerSettingsPanel: HTMLDivElement;
+  readonly textCleanerNormalizeLineBreaksInput: HTMLInputElement;
+  readonly textCleanerReplaceTabsInput: HTMLInputElement;
+  readonly textCleanerReplaceNbspInput: HTMLInputElement;
+  readonly textCleanerCollapseInnerSpacesInput: HTMLInputElement;
+  readonly textCleanerTrimLineStartInput: HTMLInputElement;
+  readonly textCleanerTrimLineEndInput: HTMLInputElement;
+  readonly textCleanerRemoveEmptyLinesInput: HTMLInputElement;
+  readonly textCleanerTrimWholeTextInput: HTMLInputElement;
   readonly themeToggleButton: HTMLButtonElement;
   readonly ordersList: HTMLDivElement;
   readonly metricOrders: HTMLParagraphElement;
@@ -20,55 +34,81 @@ export interface AppElements {
 }
 
 /**
- * Возвращает корневой контейнер приложения.
- *
- * @returns DOM-элемент `#app`.
- * @throws {Error} Если элемент `#app` отсутствует в документе.
+ * Returns root app container.
  */
 export function getAppRoot(): HTMLDivElement {
-  return must(document.querySelector<HTMLDivElement>('#app'), 'Элемент #app не найден.');
+  return must(document.querySelector<HTMLDivElement>('#app'), '#app element not found.');
 }
 
 /**
- * Получает и валидирует все DOM-элементы, используемые приложением.
- *
- * @returns Набор типизированных ссылок на элементы интерфейса.
- * @throws {Error} Если какой-либо обязательный элемент не найден.
+ * Resolves and validates all required DOM elements.
  */
 export function getAppElements(): AppElements {
   return {
     serviceTabVkusbackButton: must(
       document.querySelector<HTMLButtonElement>('#service-tab-vkusback'),
-      'Не найден #service-tab-vkusback'
+      '#service-tab-vkusback not found'
     ),
-    serviceTabTwoButton: must(document.querySelector<HTMLButtonElement>('#service-tab-2'), 'Не найден #service-tab-2'),
-    servicePaneVkusback: must(document.querySelector<HTMLElement>('#service-pane-vkusback'), 'Не найден #service-pane-vkusback'),
-    servicePaneTwo: must(document.querySelector<HTMLElement>('#service-pane-2'), 'Не найден #service-pane-2'),
-    orderInput: must(document.querySelector<HTMLTextAreaElement>('#order-input'), 'Не найден #order-input'),
-    orderTitleInput: must(
-      document.querySelector<HTMLInputElement>('#order-title-input'),
-      'Не найден #order-title-input'
-    ),
-    addOrderButton: must(document.querySelector<HTMLButtonElement>('#add-order'), 'Не найден #add-order'),
+    serviceTabTwoButton: must(document.querySelector<HTMLButtonElement>('#service-tab-2'), '#service-tab-2 not found'),
+    servicePaneVkusback: must(document.querySelector<HTMLElement>('#service-pane-vkusback'), '#service-pane-vkusback not found'),
+    servicePaneTwo: must(document.querySelector<HTMLElement>('#service-pane-2'), '#service-pane-2 not found'),
+    orderInput: must(document.querySelector<HTMLTextAreaElement>('#order-input'), '#order-input not found'),
+    orderTitleInput: must(document.querySelector<HTMLInputElement>('#order-title-input'), '#order-title-input not found'),
+    addOrderButton: must(document.querySelector<HTMLButtonElement>('#add-order'), '#add-order not found'),
     percentButtons: [
-      must(document.querySelector<HTMLButtonElement>('#percent-btn-3'), 'Не найден #percent-btn-3'),
-      must(document.querySelector<HTMLButtonElement>('#percent-btn-5'), 'Не найден #percent-btn-5'),
-      must(document.querySelector<HTMLButtonElement>('#percent-btn-8'), 'Не найден #percent-btn-8'),
-      must(document.querySelector<HTMLButtonElement>('#percent-btn-10'), 'Не найден #percent-btn-10')
+      must(document.querySelector<HTMLButtonElement>('#percent-btn-3'), '#percent-btn-3 not found'),
+      must(document.querySelector<HTMLButtonElement>('#percent-btn-5'), '#percent-btn-5 not found'),
+      must(document.querySelector<HTMLButtonElement>('#percent-btn-8'), '#percent-btn-8 not found'),
+      must(document.querySelector<HTMLButtonElement>('#percent-btn-10'), '#percent-btn-10 not found')
     ],
-    clearAllButton: must(document.querySelector<HTMLButtonElement>('#clear-all-btn'), 'Не найден #clear-all-btn'),
-    themeToggleButton: must(document.querySelector<HTMLButtonElement>('#theme-toggle'), 'Не найден #theme-toggle'),
-    ordersList: must(document.querySelector<HTMLDivElement>('#orders-list'), 'Не найден #orders-list'),
-    metricOrders: must(document.querySelector<HTMLParagraphElement>('#metric-orders'), 'Не найден #metric-orders'),
-    metricVkusback: must(
-      document.querySelector<HTMLParagraphElement>('#metric-vkusback'),
-      'Не найден #metric-vkusback'
+    clearAllButton: must(document.querySelector<HTMLButtonElement>('#clear-all-btn'), '#clear-all-btn not found'),
+    textCleanerSourceInput: must(document.querySelector<HTMLTextAreaElement>('#text-cleaner-source'), '#text-cleaner-source not found'),
+    textCleanerOutputInput: must(document.querySelector<HTMLTextAreaElement>('#text-cleaner-output'), '#text-cleaner-output not found'),
+    textCleanerSettingsToggleButton: must(
+      document.querySelector<HTMLButtonElement>('#text-cleaner-settings-toggle'),
+      '#text-cleaner-settings-toggle not found'
     ),
-    metricCashback: must(
-      document.querySelector<HTMLButtonElement>('#metric-cashback'),
-      'Не найден #metric-cashback'
+    textCleanerCopyButton: must(document.querySelector<HTMLButtonElement>('#text-cleaner-copy-btn'), '#text-cleaner-copy-btn not found'),
+    textCleanerClearButton: must(document.querySelector<HTMLButtonElement>('#text-cleaner-clear-btn'), '#text-cleaner-clear-btn not found'),
+    textCleanerSettingsPanel: must(document.querySelector<HTMLDivElement>('#text-cleaner-settings-panel'), '#text-cleaner-settings-panel not found'),
+    textCleanerNormalizeLineBreaksInput: must(
+      document.querySelector<HTMLInputElement>('#text-cleaner-setting-normalize-line-breaks'),
+      '#text-cleaner-setting-normalize-line-breaks not found'
     ),
-    statusBox: must(document.querySelector<HTMLElement>('#status-box'), 'Не найден #status-box'),
-    scrollTopButton: must(document.querySelector<HTMLButtonElement>('#scroll-top-btn'), 'Не найден #scroll-top-btn')
+    textCleanerReplaceTabsInput: must(
+      document.querySelector<HTMLInputElement>('#text-cleaner-setting-replace-tabs'),
+      '#text-cleaner-setting-replace-tabs not found'
+    ),
+    textCleanerReplaceNbspInput: must(
+      document.querySelector<HTMLInputElement>('#text-cleaner-setting-replace-nbsp'),
+      '#text-cleaner-setting-replace-nbsp not found'
+    ),
+    textCleanerCollapseInnerSpacesInput: must(
+      document.querySelector<HTMLInputElement>('#text-cleaner-setting-collapse-inner-spaces'),
+      '#text-cleaner-setting-collapse-inner-spaces not found'
+    ),
+    textCleanerTrimLineStartInput: must(
+      document.querySelector<HTMLInputElement>('#text-cleaner-setting-trim-line-start'),
+      '#text-cleaner-setting-trim-line-start not found'
+    ),
+    textCleanerTrimLineEndInput: must(
+      document.querySelector<HTMLInputElement>('#text-cleaner-setting-trim-line-end'),
+      '#text-cleaner-setting-trim-line-end not found'
+    ),
+    textCleanerRemoveEmptyLinesInput: must(
+      document.querySelector<HTMLInputElement>('#text-cleaner-setting-remove-empty-lines'),
+      '#text-cleaner-setting-remove-empty-lines not found'
+    ),
+    textCleanerTrimWholeTextInput: must(
+      document.querySelector<HTMLInputElement>('#text-cleaner-setting-trim-whole-text'),
+      '#text-cleaner-setting-trim-whole-text not found'
+    ),
+    themeToggleButton: must(document.querySelector<HTMLButtonElement>('#theme-toggle'), '#theme-toggle not found'),
+    ordersList: must(document.querySelector<HTMLDivElement>('#orders-list'), '#orders-list not found'),
+    metricOrders: must(document.querySelector<HTMLParagraphElement>('#metric-orders'), '#metric-orders not found'),
+    metricVkusback: must(document.querySelector<HTMLParagraphElement>('#metric-vkusback'), '#metric-vkusback not found'),
+    metricCashback: must(document.querySelector<HTMLButtonElement>('#metric-cashback'), '#metric-cashback not found'),
+    statusBox: must(document.querySelector<HTMLElement>('#status-box'), '#status-box not found'),
+    scrollTopButton: must(document.querySelector<HTMLButtonElement>('#scroll-top-btn'), '#scroll-top-btn not found')
   };
 }

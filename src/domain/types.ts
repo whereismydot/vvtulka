@@ -36,3 +36,34 @@ export interface StorageState {
   readonly percentRaw: DecimalRaw;
   readonly updatedAt: string;
 }
+
+export interface TextCleanerSettings {
+  readonly version: number;
+  readonly normalizeLineBreaks: boolean;
+  readonly replaceTabsWithSpaces: boolean;
+  readonly replaceNbspWithSpace: boolean;
+  readonly collapseInnerSpaces: boolean;
+  readonly trimLineStart: boolean;
+  readonly trimLineEnd: boolean;
+  readonly removeEmptyLines: boolean;
+  readonly trimWholeText: boolean;
+}
+
+export interface TextCleanerStats {
+  readonly inputLength: number;
+  readonly outputLength: number;
+  readonly inputLines: number;
+  readonly outputLines: number;
+  readonly normalizedLineBreaksCount: number;
+  readonly replacedTabsCount: number;
+  readonly replacedNbspCount: number;
+  readonly collapsedSpaceGroupsCount: number;
+  readonly trimmedLineStartCount: number;
+  readonly trimmedLineEndCount: number;
+  readonly removedEmptyLinesCount: number;
+}
+
+export interface TextCleanerResult {
+  readonly output: string;
+  readonly stats: TextCleanerStats;
+}

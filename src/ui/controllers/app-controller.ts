@@ -8,6 +8,7 @@ import { renderOrders } from '../render/orders-renderer';
 import { createStatusRenderer } from '../render/status-renderer';
 import { createScrollTopController } from './scroll-top-controller';
 import { createServiceTabsController } from './service-tabs-controller';
+import { createTextCleanerController } from './text-cleaner-controller';
 import { createThemeController } from './theme-controller';
 
 interface AppControllerDependencies {
@@ -159,6 +160,11 @@ export function createAppController(dependencies: AppControllerDependencies): vo
   createThemeController(elements.themeToggleButton, themePreference);
   createScrollTopController(elements.scrollTopButton);
   createServiceTabsController(elements);
+  createTextCleanerController({
+    elements,
+    copyText: (value: string) => clipboard.copyText(value),
+    setStatus: (message, tone) => statusRenderer.setStatus(message, tone)
+  });
 
   elements.metricCashback.addEventListener('click', () => {
     void copyCashbackValue();

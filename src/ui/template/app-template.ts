@@ -1,4 +1,4 @@
-export const APP_TEMPLATE = `
+﻿export const APP_TEMPLATE = `
   <div class="app-shell">
     <div class="topbar">
       <button id="theme-toggle" type="button" class="btn btn-theme" aria-label="Переключить тему" title="Переключить тему"></button>
@@ -23,8 +23,8 @@ export const APP_TEMPLATE = `
             <span class="service-tab-subtitle">Разбор чеков и расчёт</span>
           </button>
           <button id="service-tab-2" class="service-tab" type="button" data-service-tab="service-2" aria-selected="false">
-            <span class="service-tab-title">Сервис 2</span>
-            <span class="service-tab-subtitle">Черновик следующего модуля</span>
+            <span class="service-tab-title">Очистка текста</span>
+            <span class="service-tab-subtitle">Уборка лишних пробелов и пустых строк</span>
           </button>
         </nav>
       </header>
@@ -98,9 +98,75 @@ export const APP_TEMPLATE = `
       </section>
 
       <section id="service-pane-2" class="service-pane service-pane-secondary" hidden>
-        <section class="panel panel-service-placeholder">
-          <div class="service-placeholder-badge" aria-hidden="true">Скоро</div>
-          <h2>Скоро здесь будет новый сервис.</h2>
+        <section class="panel panel-cleaner">
+          <h2>Очистка текста в реальном времени</h2>
+
+          <div class="cleaner-columns">
+            <div class="cleaner-field">
+              <label for="text-cleaner-source">Исходный текст</label>
+              <textarea
+                id="text-cleaner-source"
+                rows="12"
+                placeholder="Вставьте текст. Очистка выполняется автоматически."
+              ></textarea>
+            </div>
+
+            <div class="cleaner-field">
+              <label for="text-cleaner-output">Очищенный текст</label>
+              <textarea id="text-cleaner-output" rows="12" readonly placeholder="Здесь появится результат."></textarea>
+              <div class="cleaner-actions">
+                <button
+                  id="text-cleaner-settings-toggle"
+                  class="btn"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="text-cleaner-settings-panel"
+                >
+                  Настройки
+                </button>
+                <button id="text-cleaner-copy-btn" class="btn btn-primary" type="button">Скопировать</button>
+                <button id="text-cleaner-clear-btn" class="btn btn-danger" type="button">Очистить</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="text-cleaner-settings-panel" class="cleaner-settings" hidden>
+            <p class="cleaner-settings-title">Правила очистки</p>
+            <div class="cleaner-settings-grid">
+              <label class="cleaner-setting-row">
+                <input id="text-cleaner-setting-normalize-line-breaks" type="checkbox" />
+                <span>Нормализовать переносы строк (LF / \\n)</span>
+              </label>
+              <label class="cleaner-setting-row">
+                <input id="text-cleaner-setting-replace-tabs" type="checkbox" />
+                <span>Заменять табуляцию на пробел</span>
+              </label>
+              <label class="cleaner-setting-row">
+                <input id="text-cleaner-setting-replace-nbsp" type="checkbox" />
+                <span>Заменять неразрывный пробел на обычный</span>
+              </label>
+              <label class="cleaner-setting-row">
+                <input id="text-cleaner-setting-collapse-inner-spaces" type="checkbox" />
+                <span>Схлопывать повторные пробелы в строке</span>
+              </label>
+              <label class="cleaner-setting-row">
+                <input id="text-cleaner-setting-trim-line-start" type="checkbox" />
+                <span>Удалять пробелы в начале каждой строки</span>
+              </label>
+              <label class="cleaner-setting-row">
+                <input id="text-cleaner-setting-trim-line-end" type="checkbox" />
+                <span>Удалять пробелы в конце каждой строки</span>
+              </label>
+              <label class="cleaner-setting-row">
+                <input id="text-cleaner-setting-remove-empty-lines" type="checkbox" />
+                <span>Удалять пустые строки</span>
+              </label>
+              <label class="cleaner-setting-row">
+                <input id="text-cleaner-setting-trim-whole-text" type="checkbox" />
+                <span>Обрезать пустоты по краям всего текста</span>
+              </label>
+            </div>
+          </div>
         </section>
       </section>
 
@@ -111,3 +177,4 @@ export const APP_TEMPLATE = `
     </main>
   </div>
 `;
+

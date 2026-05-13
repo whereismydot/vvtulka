@@ -51,6 +51,17 @@ describe('calculations', () => {
     expect(metrics.cashbackRaw).toBe('0');
   });
 
+  it('normalizes percent from locale string', () => {
+    const order = buildOrder('1', [
+      { name: 'A', quantityRaw: '1', sumRaw: '100', isVkusbackEligible: true, sourceRow: 1 }
+    ]);
+
+    const metrics = calculateMetrics([order], ' 12,5 ');
+
+    expect(metrics.percentRaw).toBe('12.5');
+    expect(metrics.cashbackRaw).toBe('12.5');
+  });
+
   it('returns zero values for empty orders', () => {
     const metrics = calculateMetrics([], '5');
 
@@ -67,5 +78,20 @@ describe('calculations', () => {
     const metrics = calculateMetrics([order], '10');
 
     expect(metrics.cashbackRaw).toBe('0.03');
+  });
+
+  it('returns stable structure for large percent values', () => {
+    const order = buildOrder('1', [
+      { name: 'A', quantityRaw: '1', sumRaw: '10', isVkusbackEligible: true, sourceRow: 1 }
+    ]);
+
+    const metrics = calculateMetrics([order], '250');
+
+    expect(metrics).toEqual({
+      ordersCount: 1,
+      vkusbackTotalRaw: '10',
+      percentRaw: '250',
+      cashbackRaw: '25'
+    });
   });
 });
