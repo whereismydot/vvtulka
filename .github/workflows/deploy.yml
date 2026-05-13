@@ -31,11 +31,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: npm test
-
-      - name: Build
-        run: npm run build
+      - name: Run full verification
+        run: npm run test:all
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

@@ -9,7 +9,9 @@
     "build": "npm run typecheck && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:all": "vitest run && tsc --noEmit && vite build && vitest run --coverage && node scripts/run-shelf-life-tz-tests.mjs",
+    "test:coverage": "vitest run --coverage",
+    "test:shelf-life:tz": "node scripts/run-shelf-life-tz-tests.mjs"
   },
   "dependencies": {
     "decimal.js": "^10.6.0"

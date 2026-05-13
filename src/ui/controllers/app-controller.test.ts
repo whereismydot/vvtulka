@@ -12,6 +12,7 @@ import { renderOrders } from '../render/orders-renderer';
 import { createStatusRenderer } from '../render/status-renderer';
 import { createScrollTopController } from './scroll-top-controller';
 import { createServiceTabsController } from './service-tabs-controller';
+import { createShelfLifeController } from './shelf-life-controller';
 import { createTextCleanerController } from './text-cleaner-controller';
 import { createThemeController } from './theme-controller';
 
@@ -32,6 +33,9 @@ vi.mock('./scroll-top-controller', () => ({
 }));
 vi.mock('./service-tabs-controller', () => ({
   createServiceTabsController: vi.fn()
+}));
+vi.mock('./shelf-life-controller', () => ({
+  createShelfLifeController: vi.fn()
 }));
 vi.mock('./text-cleaner-controller', () => ({
   createTextCleanerController: vi.fn()
@@ -60,8 +64,10 @@ function createElements(): AppElements {
   return {
     serviceTabVkusbackButton: document.createElement('button'),
     serviceTabTwoButton: document.createElement('button'),
+    serviceTabThreeButton: document.createElement('button'),
     servicePaneVkusback: document.createElement('section'),
     servicePaneTwo: document.createElement('section'),
+    servicePaneThree: document.createElement('section'),
     orderInput: document.createElement('textarea'),
     orderTitleInput: document.createElement('input'),
     addOrderButton: document.createElement('button'),
@@ -81,6 +87,16 @@ function createElements(): AppElements {
     textCleanerTrimLineEndInput: document.createElement('input'),
     textCleanerRemoveEmptyLinesInput: document.createElement('input'),
     textCleanerTrimWholeTextInput: document.createElement('input'),
+    shelfLifeForm: document.createElement('form'),
+    shelfLifeDateInput: document.createElement('input'),
+    shelfLifeTermInput: document.createElement('input'),
+    shelfLifeUnitSelect: document.createElement('select'),
+    shelfLifeUseTimeInput: document.createElement('input'),
+    shelfLifeTimeRow: document.createElement('div'),
+    shelfLifeTimeInput: document.createElement('input'),
+    shelfLifeCheckButton: document.createElement('button'),
+    shelfLifeResult: document.createElement('section'),
+    shelfLifeResultText: document.createElement('p'),
     themeToggleButton: document.createElement('button'),
     ordersList: document.createElement('div'),
     metricOrders: document.createElement('p'),
@@ -158,6 +174,7 @@ describe('app controller', () => {
     expect(vi.mocked(createScrollTopController)).toHaveBeenCalledTimes(1);
     expect(vi.mocked(createServiceTabsController)).toHaveBeenCalledTimes(1);
     expect(vi.mocked(createTextCleanerController)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(createShelfLifeController)).toHaveBeenCalledTimes(1);
     expect(setStatus).toHaveBeenCalledWith(expect.any(String), 'info');
   });
 

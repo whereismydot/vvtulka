@@ -1,14 +1,15 @@
 import type { AppElements } from '../dom/elements';
 
-type ServiceTabId = 'vkusback' | 'service-2';
+type ServiceTabId = 'vkusback' | 'service-2' | 'service-3';
 
 const ACTIVE_TAB_STORAGE_KEY = 'vv-local-tool.active-service-tab';
 
-/**
- * Возвращает доступный localStorage или `null`, если среда его не поддерживает.
- *
- * @returns Экземпляр Storage или `null` при недоступности.
- */
+interface ServiceTabBinding {
+  readonly id: ServiceTabId;
+  readonly button: HTMLButtonElement;
+  readonly pane: HTMLElement;
+}
+
 function getStorage(): Storage | null {
   try {
     return window.localStorage;
@@ -17,22 +18,10 @@ function getStorage(): Storage | null {
   }
 }
 
-/**
- * Проверяет, что строка соответствует поддерживаемому идентификатору вкладки.
- *
- * @param value Проверяемое значение.
- * @returns `true`, если значение можно использовать как идентификатор вкладки.
- */
 function isServiceTabId(value: string): value is ServiceTabId {
-  return value === 'vkusback' || value === 'service-2';
+  return value === 'vkusback' || value === 'service-2' || value === 'service-3';
 }
 
-/**
- * Загружает сохранённый идентификатор активной вкладки.
- *
- * @param storage Хранилище браузера или `null`.
- * @returns Идентификатор вкладки; по умолчанию — `vkusback`.
- */
 function loadActiveTab(storage: Storage | null): ServiceTabId {
   if (storage === null) {
     return 'vkusback';
@@ -46,12 +35,6 @@ function loadActiveTab(storage: Storage | null): ServiceTabId {
   return raw;
 }
 
-/**
- * Сохраняет активную вкладку в localStorage.
- *
- * @param storage Хранилище браузера или `null`.
- * @param tab Идентификатор вкладки.
- */
 function saveActiveTab(storage: Storage | null, tab: ServiceTabId): void {
   if (storage === null) {
     return;
@@ -60,45 +43,49 @@ function saveActiveTab(storage: Storage | null, tab: ServiceTabId): void {
   storage.setItem(ACTIVE_TAB_STORAGE_KEY, tab);
 }
 
-/**
- * Переключает активную вкладку и синхронизирует атрибуты доступности.
- *
- * @param elements DOM-элементы приложения.
- * @param tab Целевая вкладка.
- */
-function applyActiveTab(elements: AppElements, tab: ServiceTabId): void {
-  const vkusbackActive = tab === 'vkusback';
-
-  elements.serviceTabVkusbackButton.classList.toggle('service-tab-active', vkusbackActive);
-  elements.serviceTabVkusbackButton.setAttribute('aria-selected', String(vkusbackActive));
-  elements.servicePaneVkusback.classList.toggle('service-pane-active', vkusbackActive);
-  elements.servicePaneVkusback.hidden = !vkusbackActive;
-
-  elements.serviceTabTwoButton.classList.toggle('service-tab-active', !vkusbackActive);
-  elements.serviceTabTwoButton.setAttribute('aria-selected', String(!vkusbackActive));
-  elements.servicePaneTwo.classList.toggle('service-pane-active', !vkusbackActive);
-  elements.servicePaneTwo.hidden = vkusbackActive;
+function getBindings(elements: AppElements): readonly ServiceTabBinding[] {
+  return [
+    {
+      id: 'vkusback',
+      button: elements.serviceTabVkusbackButton,
+      pane: elements.servicePaneVkusback
+    },
+    {
+      id: 'service-2',
+      button: elements.serviceTabTwoButton,
+      pane: elements.servicePaneTwo
+    },
+    {
+      id: 'service-3',
+      button: elements.serviceTabThreeButton,
+      pane: elements.servicePaneThree
+    }
+  ];
 }
 
-/**
- * Инициализирует переключение вкладок сервисов и сохранение активной вкладки.
- *
- * @param elements DOM-элементы приложения.
- */
+function applyActiveTab(elements: AppElements, tab: ServiceTabId): void {
+  getBindings(elements).forEach((binding) => {
+    const isActive = binding.id === tab;
+    binding.button.classList.toggle('service-tab-active', isActive);
+    binding.button.setAttribute('aria-selected', String(isActive));
+    binding.pane.classList.toggle('service-pane-active', isActive);
+    binding.pane.hidden = !isActive;
+  });
+}
+
 export function createServiceTabsController(elements: AppElements): void {
   const storage = getStorage();
+  const bindings = getBindings(elements);
 
   const switchTo = (nextTab: ServiceTabId): void => {
     applyActiveTab(elements, nextTab);
     saveActiveTab(storage, nextTab);
   };
 
-  elements.serviceTabVkusbackButton.addEventListener('click', () => {
-    switchTo('vkusback');
-  });
-
-  elements.serviceTabTwoButton.addEventListener('click', () => {
-    switchTo('service-2');
+  bindings.forEach((binding) => {
+    binding.button.addEventListener('click', () => {
+      switchTo(binding.id);
+    });
   });
 
   switchTo(loadActiveTab(storage));

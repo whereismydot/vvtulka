@@ -26,6 +26,10 @@
             <span class="service-tab-title">Очистка текста</span>
             <span class="service-tab-subtitle">Уборка лишних пробелов и пустых строк</span>
           </button>
+          <button id="service-tab-3" class="service-tab" type="button" data-service-tab="service-3" aria-selected="false">
+            <span class="service-tab-title">Калькулятор срока годности</span>
+            <span class="service-tab-subtitle">Проверка срока по дате изготовления</span>
+          </button>
         </nav>
       </header>
 
@@ -170,11 +174,70 @@
         </section>
       </section>
 
+      <section id="service-pane-3" class="service-pane service-pane-secondary" hidden>
+        <section class="panel panel-shelf-life">
+          <h2>Калькулятор срока годности</h2>
+
+          <form id="shelf-life-form" class="shelf-life-form" novalidate>
+            <div class="shelf-life-row">
+              <label for="shelf-life-date-input">Дата изготовления</label>
+              <input
+                id="shelf-life-date-input"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="ДД.ММ.ГГГГ"
+                maxlength="10"
+              />
+            </div>
+
+            <div class="shelf-life-row">
+              <label for="shelf-life-term-input">Срок годности</label>
+              <div class="shelf-life-term-controls">
+                <input id="shelf-life-term-input" type="number" min="1" step="1" value="10" />
+                <select id="shelf-life-unit-select">
+                  <option value="days">Дней (суток)</option>
+                  <option value="weeks">Недель</option>
+                  <option value="months" selected>Месяцев</option>
+                  <option value="years">Лет</option>
+                </select>
+              </div>
+            </div>
+
+            <label class="shelf-life-time-toggle">
+              <input id="shelf-life-use-time-input" type="checkbox" />
+              <span>Учитывать конкретное время</span>
+            </label>
+
+            <div id="shelf-life-time-row" class="shelf-life-row shelf-life-time-row" hidden>
+              <label for="shelf-life-time-input">Время изготовления</label>
+              <input id="shelf-life-time-input" type="time" />
+            </div>
+
+            <div class="shelf-life-actions">
+              <button id="shelf-life-check-btn" class="btn btn-primary" type="submit">Проверить</button>
+            </div>
+          </form>
+
+          <section id="shelf-life-result" class="shelf-life-result" aria-live="polite" hidden>
+            <p id="shelf-life-result-text"></p>
+          </section>
+        </section>
+      </section>
+
       <section id="status-box" class="status status-floating status-info" aria-live="polite"></section>
       <button id="scroll-top-btn" class="btn scroll-top-btn" type="button" aria-label="Вернуться наверх" title="Наверх">
         ↑
       </button>
     </main>
+    <footer class="site-footer" role="contentinfo">
+      <p class="site-footer-text">
+        <span class="site-footer-label">По вопросам:</span>
+        <a class="site-footer-link" href="https://t.me/gleb_perveev" target="_blank" rel="noopener noreferrer">@gleb_perveev</a>
+        <span class="site-footer-separator" aria-hidden="true">·</span>
+        <a class="site-footer-link" href="mailto:sanlovty@yandex.ru">sanlovty@yandex.ru</a>
+      </p>
+    </footer>
   </div>
 `;
 
