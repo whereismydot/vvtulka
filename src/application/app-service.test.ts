@@ -70,6 +70,38 @@ describe('AppService', () => {
     expect(result.message).toBe('Заказ добавлен. Предупреждений: 1.');
   });
 
+  it('returns parser errors without state changes', () => {
+    const { service, persistedSnapshots } = createService({
+      items: [],
+      warnings: [],
+      errors: ['Ошибка парсинга']
+    });
+
+    const result = service.addOrder('чек', 'Название');
+
+    expect(result.orderAdded).toBe(false);
+    expect(result.changed).toBe(false);
+    expect(result.tone).toBe('error');
+    expect(service.getState().orders).toEqual([]);
+    expect(persistedSnapshots).toHaveLength(0);
+  });
+
+  it('returns warning when parser produced no items', () => {
+    const { service, persistedSnapshots } = createService({
+      items: [],
+      warnings: ['row skipped'],
+      errors: []
+    });
+
+    const result = service.addOrder('чек', 'Название');
+
+    expect(result.orderAdded).toBe(false);
+    expect(result.changed).toBe(false);
+    expect(result.warningsCount).toBe(1);
+    expect(result.tone).toBe('warning');
+    expect(persistedSnapshots).toHaveLength(0);
+  });
+
   it('handles rename, delete and clear use-cases', () => {
     const { service } = createService(validParseResult);
 
@@ -101,5 +133,31 @@ describe('AppService', () => {
 
     expect(service.getState().percentRaw).toBe('0');
     expect(persistedSnapshots).toHaveLength(1);
+  });
+
+  it('returns not-found result for unknown order on rename and delete', () => {
+    const { service, persistedSnapshots } = createService(validParseResult);
+
+    const renameResult = service.renameOrder('missing', 'Новое имя');
+    const deleteResult = service.deleteOrder('missing');
+
+    expect(renameResult.changed).toBe(false);
+    expect(renameResult.tone).toBe('error');
+    expect(deleteResult.changed).toBe(false);
+    expect(deleteResult.tone).toBe('error');
+    expect(persistedSnapshots).toHaveLength(0);
+  });
+
+  it('supports custom title and persists clear on empty state', () => {
+    const { service, persistedSnapshots } = createService(validParseResult);
+
+    const addResult = service.addOrder('чек', '  Кастомный заказ  ');
+    expect(addResult.orderAdded).toBe(true);
+    expect(service.getState().orders[0].title).toBe('Кастомный заказ');
+
+    const clearResult = service.clearOrders();
+    expect(clearResult.changed).toBe(true);
+    expect(service.getState().orders).toEqual([]);
+    expect(persistedSnapshots.length).toBeGreaterThanOrEqual(2);
   });
 });
