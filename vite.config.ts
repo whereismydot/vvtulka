@@ -1,7 +1,7 @@
 ﻿import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  base: './',
+  base: '/vvtulka/',
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
