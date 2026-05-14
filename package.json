@@ -8,10 +8,10 @@
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc --noEmit",
-    "build": "npm run typecheck && vite build",
+    "build": "npm run typecheck && vite build && node scripts/prepare-pages-dist.mjs",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:all": "vitest run && tsc --noEmit && vite build && vitest run --coverage && node scripts/run-shelf-life-tz-tests.mjs",
+    "test:all": "vitest run && npm run build && vitest run --coverage && node scripts/run-shelf-life-tz-tests.mjs",
     "test:coverage": "vitest run --coverage",
     "test:shelf-life:tz": "node scripts/run-shelf-life-tz-tests.mjs"
   },

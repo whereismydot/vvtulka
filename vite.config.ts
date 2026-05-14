@@ -1,7 +1,11 @@
-﻿import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vitest/config';
 
-export default defineConfig({
-  base: './',
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/vvtulka/' : '/',
+  build: {
+    outDir: 'dist/vvtulka',
+    emptyOutDir: true
+  },
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
@@ -12,4 +16,4 @@ export default defineConfig({
       exclude: ['src/**/*.test.ts']
     }
   }
-});
+}));
