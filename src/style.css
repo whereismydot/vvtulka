@@ -211,6 +211,11 @@ body {
   font-size: 0.78rem;
   line-height: 1.4;
   text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.site-footer-text + .site-footer-text {
+  margin-top: 0.2rem;
 }
 
 .site-footer-label {
@@ -1222,6 +1227,7 @@ summary {
 
   .site-footer-text {
     font-size: 0.76rem;
+    line-height: 1.45;
   }
 
   .panel {

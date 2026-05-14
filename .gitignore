@@ -1,5 +1,48 @@
-﻿node_modules
-dist
-.vite
-coverage
+﻿# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.vite/
+
+# Test / coverage
+coverage/
+.nyc_output/
+
+# Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+.idea/
+
+# Temporary
+tmp/
+temp/
+.cache/
+
+# Certificates / secrets
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+
+# Local config
+*.local

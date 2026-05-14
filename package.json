@@ -1,7 +1,9 @@
 {
-  "name": "vv-local-tool",
+  "name": "vvtulka",
   "private": true,
   "version": "1.0.0",
+  "license": "Apache-2.0",
+  "author": "Gleb Perveev",
   "type": "module",
   "scripts": {
     "dev": "vite",
