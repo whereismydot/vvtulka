@@ -9,6 +9,7 @@ function createElements(): AppElements {
   const sourceInput = document.createElement('textarea');
   sourceInput.id = 'source';
   const outputInput = document.createElement('textarea');
+  const outputCharacterCount = document.createElement('p');
   const settingsToggleButton = document.createElement('button');
   const copyButton = document.createElement('button');
   const clearButton = document.createElement('button');
@@ -31,10 +32,16 @@ function createElements(): AppElements {
   removeEmptyLines.type = 'checkbox';
   const trimWholeText = document.createElement('input');
   trimWholeText.type = 'checkbox';
+  const removeDotBeforeEmoji = document.createElement('input');
+  removeDotBeforeEmoji.type = 'checkbox';
+  const excludeSpacesFromCharacterCount = document.createElement('input');
+  excludeSpacesFromCharacterCount.type = 'checkbox';
+
   const host = document.createElement('div');
   host.append(
     sourceInput,
     outputInput,
+    outputCharacterCount,
     settingsToggleButton,
     copyButton,
     clearButton,
@@ -46,13 +53,16 @@ function createElements(): AppElements {
     trimLineStart,
     trimLineEnd,
     removeEmptyLines,
-    trimWholeText
+    trimWholeText,
+    removeDotBeforeEmoji,
+    excludeSpacesFromCharacterCount
   );
   document.body.appendChild(host);
 
   return {
     textCleanerSourceInput: sourceInput,
     textCleanerOutputInput: outputInput,
+    textCleanerOutputCharacterCount: outputCharacterCount,
     textCleanerSettingsToggleButton: settingsToggleButton,
     textCleanerCopyButton: copyButton,
     textCleanerClearButton: clearButton,
@@ -64,7 +74,9 @@ function createElements(): AppElements {
     textCleanerTrimLineStartInput: trimLineStart,
     textCleanerTrimLineEndInput: trimLineEnd,
     textCleanerRemoveEmptyLinesInput: removeEmptyLines,
-    textCleanerTrimWholeTextInput: trimWholeText
+    textCleanerTrimWholeTextInput: trimWholeText,
+    textCleanerRemoveDotBeforeEmojiInput: removeDotBeforeEmoji,
+    textCleanerExcludeSpacesFromCharacterCountInput: excludeSpacesFromCharacterCount
   } as unknown as AppElements;
 }
 
@@ -87,7 +99,41 @@ describe('text cleaner controller', () => {
     elements.textCleanerSourceInput.dispatchEvent(new Event('input'));
 
     expect(elements.textCleanerOutputInput.value).toBe('A\nB');
+    expect(elements.textCleanerOutputCharacterCount.textContent).toContain('2');
     expect(setStatus).not.toHaveBeenCalled();
+  });
+
+  it('renders new settings with default enabled state', () => {
+    const elements = createElements();
+    createTextCleanerController({
+      elements,
+      copyText: async () => true,
+      setStatus: vi.fn()
+    });
+
+    expect(elements.textCleanerRemoveDotBeforeEmojiInput.checked).toBe(true);
+    expect(elements.textCleanerExcludeSpacesFromCharacterCountInput.checked).toBe(true);
+  });
+
+  it('restores new settings from storage', () => {
+    localStorage.setItem(
+      TEXT_CLEANER_SETTINGS_STORAGE_KEY,
+      JSON.stringify({
+        ...createDefaultTextCleanerSettings(),
+        removeDotBeforeEmoji: false,
+        excludeSpacesFromCharacterCount: false
+      })
+    );
+
+    const elements = createElements();
+    createTextCleanerController({
+      elements,
+      copyText: async () => true,
+      setStatus: vi.fn()
+    });
+
+    expect(elements.textCleanerRemoveDotBeforeEmojiInput.checked).toBe(false);
+    expect(elements.textCleanerExcludeSpacesFromCharacterCountInput.checked).toBe(false);
   });
 
   it('toggles settings panel and button state', () => {
@@ -129,6 +175,40 @@ describe('text cleaner controller', () => {
     expect(persisted.removeEmptyLines).toBe(false);
   });
 
+  it('toggles dot-before-emoji setting and updates output', () => {
+    const elements = createElements();
+    createTextCleanerController({
+      elements,
+      copyText: async () => true,
+      setStatus: vi.fn()
+    });
+
+    elements.textCleanerSourceInput.value = 'Спасибо. 😊 Хорошего дня.';
+    elements.textCleanerSourceInput.dispatchEvent(new Event('input'));
+    expect(elements.textCleanerOutputInput.value).toBe('Спасибо 😊 Хорошего дня.');
+
+    elements.textCleanerRemoveDotBeforeEmojiInput.checked = false;
+    elements.textCleanerRemoveDotBeforeEmojiInput.dispatchEvent(new Event('change'));
+    expect(elements.textCleanerOutputInput.value).toBe('Спасибо. 😊 Хорошего дня.');
+  });
+
+  it('toggles whitespace counting mode and updates counter', () => {
+    const elements = createElements();
+    createTextCleanerController({
+      elements,
+      copyText: async () => true,
+      setStatus: vi.fn()
+    });
+
+    elements.textCleanerSourceInput.value = 'a b';
+    elements.textCleanerSourceInput.dispatchEvent(new Event('input'));
+    expect(elements.textCleanerOutputCharacterCount.textContent).toContain('2');
+
+    elements.textCleanerExcludeSpacesFromCharacterCountInput.checked = false;
+    elements.textCleanerExcludeSpacesFromCharacterCountInput.dispatchEvent(new Event('change'));
+    expect(elements.textCleanerOutputCharacterCount.textContent).toContain('3');
+  });
+
   it('copies output and shows statuses', async () => {
     const elements = createElements();
     const setStatus = vi.fn();
@@ -147,7 +227,7 @@ describe('text cleaner controller', () => {
     expect(setStatus).toHaveBeenCalledWith('Очищенный текст скопирован.', 'success');
   });
 
-  it('clears both fields and focuses source input', () => {
+  it('clears both fields, resets counter and focuses source input', () => {
     const elements = createElements();
     const setStatus = vi.fn();
     createTextCleanerController({
@@ -157,11 +237,12 @@ describe('text cleaner controller', () => {
     });
 
     elements.textCleanerSourceInput.value = 'A';
-    elements.textCleanerOutputInput.value = 'B';
+    elements.textCleanerSourceInput.dispatchEvent(new Event('input'));
     elements.textCleanerClearButton.click();
 
     expect(elements.textCleanerSourceInput.value).toBe('');
     expect(elements.textCleanerOutputInput.value).toBe('');
+    expect(elements.textCleanerOutputCharacterCount.textContent).toContain('0');
     expect(document.activeElement).toBe(elements.textCleanerSourceInput);
     expect(setStatus).toHaveBeenCalledWith('Поля очищены.', 'info');
   });

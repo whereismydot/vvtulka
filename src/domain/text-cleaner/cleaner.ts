@@ -1,4 +1,5 @@
 import type { TextCleanerResult, TextCleanerSettings } from '../types';
+import { removeDotBeforeEmoji } from './remove-dot-before-emoji';
 
 const MULTI_SPACES_PATTERN = / {2,}/g;
 
@@ -116,6 +117,10 @@ export function cleanText(input: string, settings: TextCleanerSettings): TextCle
 
   if (settings.trimWholeText) {
     nextText = nextText.trim();
+  }
+
+  if (settings.removeDotBeforeEmoji) {
+    nextText = removeDotBeforeEmoji(nextText);
   }
 
   return {

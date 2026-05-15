@@ -1,5 +1,7 @@
 import { AppService } from '../../application/app-service';
+import { SITE_VERSION } from '../../application/site-version';
 import { createClipboardAdapter } from '../../infrastructure/browser/clipboard';
+import { CHANGELOG_RAW } from '../../infrastructure/content/changelog-source';
 import type { ThemePreference } from '../../infrastructure/browser/theme-preference';
 import type { Order } from '../../domain/types';
 import type { AppElements } from '../dom/elements';
@@ -11,6 +13,7 @@ import { createServiceTabsController } from './service-tabs-controller';
 import { createShelfLifeController } from './shelf-life-controller';
 import { createTextCleanerController } from './text-cleaner-controller';
 import { createThemeController } from './theme-controller';
+import { createWhatsNewController } from './whats-new-controller';
 
 interface AppControllerDependencies {
   readonly service: AppService;
@@ -169,6 +172,11 @@ export function createAppController(dependencies: AppControllerDependencies): vo
   createShelfLifeController({
     elements,
     setStatus: (message, tone) => statusRenderer.setStatus(message, tone)
+  });
+  createWhatsNewController({
+    elements,
+    version: SITE_VERSION,
+    changelogRaw: CHANGELOG_RAW
   });
 
   elements.metricCashback.addEventListener('click', () => {

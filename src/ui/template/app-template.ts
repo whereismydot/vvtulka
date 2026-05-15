@@ -118,6 +118,9 @@
             <div class="cleaner-field">
               <label for="text-cleaner-output">Очищенный текст</label>
               <textarea id="text-cleaner-output" rows="12" readonly placeholder="Здесь появится результат."></textarea>
+              <p id="text-cleaner-output-character-count" class="cleaner-character-count" aria-live="polite">
+                Символов без пробелов: 0
+              </p>
               <div class="cleaner-actions">
                 <button
                   id="text-cleaner-settings-toggle"
@@ -168,6 +171,14 @@
               <label class="cleaner-setting-row">
                 <input id="text-cleaner-setting-trim-whole-text" type="checkbox" />
                 <span>Обрезать пустоты по краям всего текста</span>
+              </label>
+              <label class="cleaner-setting-row">
+                <input id="text-cleaner-setting-remove-dot-before-emoji" type="checkbox" />
+                <span>Удалять точку перед эмодзи</span>
+              </label>
+              <label class="cleaner-setting-row">
+                <input id="text-cleaner-setting-exclude-spaces-from-character-count" type="checkbox" />
+                <span>Не учитывать пробелы в счётчике символов</span>
               </label>
             </div>
           </div>
@@ -232,8 +243,15 @@
     </main>
     <footer class="site-footer" role="contentinfo">
       <p class="site-footer-text">
-        © 2026 Gleb Perveev. Licensed under
-        <a class="site-footer-link" href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">Apache License 2.0</a>.
+        <button
+          id="site-version-button"
+          class="site-footer-version-button"
+          type="button"
+          aria-haspopup="dialog"
+          aria-controls="whats-new-modal"
+        >
+          Версия
+        </button>
       </p>
       <p class="site-footer-text">
         <span class="site-footer-label">По вопросам:</span>
@@ -241,7 +259,21 @@
         <span class="site-footer-separator" aria-hidden="true">·</span>
         <a class="site-footer-link" href="mailto:sanlovty@yandex.ru">sanlovty@yandex.ru</a>
       </p>
+      <p class="site-footer-text">
+        © 2026 Gleb Perveev. Licensed under
+        <a class="site-footer-link" href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">Apache License 2.0</a>.
+      </p>
     </footer>
+
+    <div id="whats-new-modal" class="whats-new-modal" hidden>
+      <div class="whats-new-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="whats-new-modal-title">
+        <header class="whats-new-modal-header">
+          <h2 id="whats-new-modal-title" class="whats-new-modal-title">Что нового?</h2>
+          <button id="whats-new-modal-close" class="whats-new-modal-close" type="button" aria-label="Закрыть окно изменений">×</button>
+        </header>
+        <div id="whats-new-modal-content" class="whats-new-modal-content"></div>
+      </div>
+    </div>
   </div>
 `;
 
