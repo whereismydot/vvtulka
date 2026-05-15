@@ -1,4 +1,5 @@
 import type { StatusTone } from '../../application/app-results';
+import { countCharacters } from '../../domain/text-cleaner/character-counter';
 import { cleanText } from '../../domain/text-cleaner/cleaner';
 import type { TextCleanerSettings } from '../../domain/types';
 import { loadTextCleanerSettings, saveTextCleanerSettings } from '../../infrastructure/storage/text-cleaner-settings-storage';
@@ -31,6 +32,7 @@ export function createTextCleanerController(dependencies: TextCleanerControllerD
   const settingsToggleButton = elements.textCleanerSettingsToggleButton;
   const copyButton = elements.textCleanerCopyButton;
   const clearButton = elements.textCleanerClearButton;
+  const outputCharacterCount = elements.textCleanerOutputCharacterCount;
 
   const settingInputs: Record<SettingFlag, HTMLInputElement> = {
     normalizeLineBreaks: elements.textCleanerNormalizeLineBreaksInput,
@@ -40,7 +42,9 @@ export function createTextCleanerController(dependencies: TextCleanerControllerD
     trimLineStart: elements.textCleanerTrimLineStartInput,
     trimLineEnd: elements.textCleanerTrimLineEndInput,
     removeEmptyLines: elements.textCleanerRemoveEmptyLinesInput,
-    trimWholeText: elements.textCleanerTrimWholeTextInput
+    trimWholeText: elements.textCleanerTrimWholeTextInput,
+    removeDotBeforeEmoji: elements.textCleanerRemoveDotBeforeEmojiInput,
+    excludeSpacesFromCharacterCount: elements.textCleanerExcludeSpacesFromCharacterCountInput
   };
 
   let settings = loadTextCleanerSettings();
@@ -61,13 +65,19 @@ export function createTextCleanerController(dependencies: TextCleanerControllerD
       trimLineStart: settingInputs.trimLineStart.checked,
       trimLineEnd: settingInputs.trimLineEnd.checked,
       removeEmptyLines: settingInputs.removeEmptyLines.checked,
-      trimWholeText: settingInputs.trimWholeText.checked
+      trimWholeText: settingInputs.trimWholeText.checked,
+      removeDotBeforeEmoji: settingInputs.removeDotBeforeEmoji.checked,
+      excludeSpacesFromCharacterCount: settingInputs.excludeSpacesFromCharacterCount.checked
     };
   }
 
   function renderOutput(): void {
     const result = cleanText(sourceInput.value, settings);
     outputInput.value = result.output;
+    const count = countCharacters(result.output, { excludeWhitespace: settings.excludeSpacesFromCharacterCount });
+    outputCharacterCount.textContent = settings.excludeSpacesFromCharacterCount
+      ? `\u0421\u0438\u043c\u0432\u043e\u043b\u043e\u0432 \u0431\u0435\u0437 \u043f\u0440\u043e\u0431\u0435\u043b\u043e\u0432: ${count}`
+      : `\u0421\u0438\u043c\u0432\u043e\u043b\u043e\u0432: ${count}`;
   }
 
   function toggleSettingsPanel(): void {
@@ -112,7 +122,7 @@ export function createTextCleanerController(dependencies: TextCleanerControllerD
 
   clearButton.addEventListener('click', () => {
     sourceInput.value = '';
-    outputInput.value = '';
+    renderOutput();
     sourceInput.focus();
     setStatus('Поля очищены.', 'info');
   });

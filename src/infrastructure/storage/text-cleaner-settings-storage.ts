@@ -12,7 +12,9 @@ const DEFAULT_TEXT_CLEANER_SETTINGS: TextCleanerSettings = {
   trimLineStart: true,
   trimLineEnd: true,
   removeEmptyLines: true,
-  trimWholeText: true
+  trimWholeText: true,
+  removeDotBeforeEmoji: true,
+  excludeSpacesFromCharacterCount: true
 };
 
 type SettingFlag = Exclude<keyof TextCleanerSettings, 'version'>;
@@ -71,7 +73,13 @@ export function hydrateTextCleanerSettings(input: unknown): TextCleanerSettings 
     trimLineStart: getBooleanSetting(input, 'trimLineStart', defaults.trimLineStart),
     trimLineEnd: getBooleanSetting(input, 'trimLineEnd', defaults.trimLineEnd),
     removeEmptyLines: getBooleanSetting(input, 'removeEmptyLines', defaults.removeEmptyLines),
-    trimWholeText: getBooleanSetting(input, 'trimWholeText', defaults.trimWholeText)
+    trimWholeText: getBooleanSetting(input, 'trimWholeText', defaults.trimWholeText),
+    removeDotBeforeEmoji: getBooleanSetting(input, 'removeDotBeforeEmoji', defaults.removeDotBeforeEmoji),
+    excludeSpacesFromCharacterCount: getBooleanSetting(
+      input,
+      'excludeSpacesFromCharacterCount',
+      defaults.excludeSpacesFromCharacterCount
+    )
   };
 }
 

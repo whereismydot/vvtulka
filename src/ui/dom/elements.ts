@@ -26,6 +26,9 @@ export interface AppElements {
   readonly textCleanerTrimLineEndInput: HTMLInputElement;
   readonly textCleanerRemoveEmptyLinesInput: HTMLInputElement;
   readonly textCleanerTrimWholeTextInput: HTMLInputElement;
+  readonly textCleanerRemoveDotBeforeEmojiInput: HTMLInputElement;
+  readonly textCleanerExcludeSpacesFromCharacterCountInput: HTMLInputElement;
+  readonly textCleanerOutputCharacterCount: HTMLParagraphElement;
   readonly shelfLifeForm: HTMLFormElement;
   readonly shelfLifeDateInput: HTMLInputElement;
   readonly shelfLifeTermInput: HTMLInputElement;
@@ -116,6 +119,18 @@ export function getAppElements(): AppElements {
     textCleanerTrimWholeTextInput: must(
       document.querySelector<HTMLInputElement>('#text-cleaner-setting-trim-whole-text'),
       '#text-cleaner-setting-trim-whole-text not found'
+    ),
+    textCleanerRemoveDotBeforeEmojiInput: must(
+      document.querySelector<HTMLInputElement>('#text-cleaner-setting-remove-dot-before-emoji'),
+      '#text-cleaner-setting-remove-dot-before-emoji not found'
+    ),
+    textCleanerExcludeSpacesFromCharacterCountInput: must(
+      document.querySelector<HTMLInputElement>('#text-cleaner-setting-exclude-spaces-from-character-count'),
+      '#text-cleaner-setting-exclude-spaces-from-character-count not found'
+    ),
+    textCleanerOutputCharacterCount: must(
+      document.querySelector<HTMLParagraphElement>('#text-cleaner-output-character-count'),
+      '#text-cleaner-output-character-count not found'
     ),
     shelfLifeForm: must(document.querySelector<HTMLFormElement>('#shelf-life-form'), '#shelf-life-form not found'),
     shelfLifeDateInput: must(document.querySelector<HTMLInputElement>('#shelf-life-date-input'), '#shelf-life-date-input not found'),

@@ -552,6 +552,14 @@ textarea {
   background: color-mix(in srgb, var(--color-surface-muted) 84%, var(--color-surface-solid) 16%);
 }
 
+.cleaner-character-count {
+  margin: 0;
+  color: var(--color-text-soft);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-align: right;
+}
+
 .cleaner-actions {
   display: flex;
   flex-wrap: wrap;

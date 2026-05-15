@@ -54,7 +54,9 @@ describe('text cleaner settings storage', () => {
       trimLineStart: false,
       trimLineEnd: true,
       removeEmptyLines: false,
-      trimWholeText: true
+      trimWholeText: true,
+      removeDotBeforeEmoji: false,
+      excludeSpacesFromCharacterCount: true
     });
 
     expect(hydrated.version).toBe(createDefaultTextCleanerSettings().version);
@@ -62,6 +64,8 @@ describe('text cleaner settings storage', () => {
     expect(hydrated.replaceTabsWithSpaces).toBe(true);
     expect(hydrated.replaceNbspWithSpace).toBe(false);
     expect(hydrated.trimLineStart).toBe(false);
+    expect(hydrated.removeDotBeforeEmoji).toBe(false);
+    expect(hydrated.excludeSpacesFromCharacterCount).toBe(true);
   });
 
   it('loads defaults when storage contains malformed JSON', () => {
@@ -78,7 +82,9 @@ describe('text cleaner settings storage', () => {
     const customSettings: TextCleanerSettings = {
       ...createDefaultTextCleanerSettings(),
       normalizeLineBreaks: false,
-      removeEmptyLines: false
+      removeEmptyLines: false,
+      removeDotBeforeEmoji: false,
+      excludeSpacesFromCharacterCount: false
     };
 
     saveTextCleanerSettings(customSettings, storage);
@@ -86,6 +92,8 @@ describe('text cleaner settings storage', () => {
 
     expect(restored.normalizeLineBreaks).toBe(false);
     expect(restored.removeEmptyLines).toBe(false);
+    expect(restored.removeDotBeforeEmoji).toBe(false);
+    expect(restored.excludeSpacesFromCharacterCount).toBe(false);
   });
 
   it('ignores unknown fields and keeps schema version', () => {
@@ -97,6 +105,16 @@ describe('text cleaner settings storage', () => {
 
     expect(hydrated.version).toBe(createDefaultTextCleanerSettings().version);
     expect(hydrated.normalizeLineBreaks).toBe(true);
+  });
+
+  it('falls back to defaults for missing new fields in legacy payload', () => {
+    const hydrated = hydrateTextCleanerSettings({
+      normalizeLineBreaks: false
+    });
+
+    expect(hydrated.normalizeLineBreaks).toBe(false);
+    expect(hydrated.removeDotBeforeEmoji).toBe(true);
+    expect(hydrated.excludeSpacesFromCharacterCount).toBe(true);
   });
 
   it('returns defaults when storage is unavailable', () => {

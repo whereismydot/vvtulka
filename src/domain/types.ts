@@ -47,6 +47,8 @@ export interface TextCleanerSettings {
   readonly trimLineEnd: boolean;
   readonly removeEmptyLines: boolean;
   readonly trimWholeText: boolean;
+  readonly removeDotBeforeEmoji: boolean;
+  readonly excludeSpacesFromCharacterCount: boolean;
 }
 
 export interface TextCleanerStats {

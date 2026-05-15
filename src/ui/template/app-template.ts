@@ -118,6 +118,9 @@
             <div class="cleaner-field">
               <label for="text-cleaner-output">Очищенный текст</label>
               <textarea id="text-cleaner-output" rows="12" readonly placeholder="Здесь появится результат."></textarea>
+              <p id="text-cleaner-output-character-count" class="cleaner-character-count" aria-live="polite">
+                Символов без пробелов: 0
+              </p>
               <div class="cleaner-actions">
                 <button
                   id="text-cleaner-settings-toggle"
@@ -168,6 +171,14 @@
               <label class="cleaner-setting-row">
                 <input id="text-cleaner-setting-trim-whole-text" type="checkbox" />
                 <span>Обрезать пустоты по краям всего текста</span>
+              </label>
+              <label class="cleaner-setting-row">
+                <input id="text-cleaner-setting-remove-dot-before-emoji" type="checkbox" />
+                <span>Удалять точку перед эмодзи</span>
+              </label>
+              <label class="cleaner-setting-row">
+                <input id="text-cleaner-setting-exclude-spaces-from-character-count" type="checkbox" />
+                <span>Не учитывать пробелы в счётчике символов</span>
               </label>
             </div>
           </div>

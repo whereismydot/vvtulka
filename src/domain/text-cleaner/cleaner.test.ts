@@ -89,4 +89,35 @@ describe('cleanText', () => {
     expect(twice.output).toBe(once.output);
     expect(twice.stats.outputLength).toBe(once.stats.outputLength);
   });
+
+  it('removes dot before emoji when setting is enabled', () => {
+    const input = 'Спасибо. 😊 Хорошего дня.';
+    const result = cleanText(input, buildSettings({ removeDotBeforeEmoji: true }));
+
+    expect(result.output).toBe('Спасибо 😊 Хорошего дня.');
+  });
+
+  it('keeps dot before emoji when setting is disabled', () => {
+    const input = 'Спасибо. 😊 Хорошего дня.';
+    const result = cleanText(input, buildSettings({ removeDotBeforeEmoji: false }));
+
+    expect(result.output).toBe('Спасибо. 😊 Хорошего дня.');
+  });
+
+  it('keeps compatibility with other rules when dot-before-emoji rule is enabled', () => {
+    const input = '  Спасибо.   😊\n\n  Пока. 🙏🏻 ';
+    const result = cleanText(input, buildSettings({ removeDotBeforeEmoji: true }));
+
+    expect(result.output).toBe('Спасибо 😊\nПока 🙏🏻');
+  });
+
+  it('applies dot-before-emoji removal on real regression text', () => {
+    const input =
+      'Юлия, оператор на связи.\n' +
+      'К сожалению, не вы одни сталкиваетесь с проблемой перевёрнутых пирожных. Просим прощения, что не смогли привезти в целости и сохранности. Уже сообщили о проблеме куратору курьера. Надеемся, в следующий раз привезём без повреждений. Само же недовольство упаковкой подсетилит технологу. Надеемся, сможем доработать её, чтобы не огорчать. 🙏🏻';
+    const result = cleanText(input, buildSettings({ removeDotBeforeEmoji: true }));
+
+    expect(result.output).toContain('Надеемся, сможем доработать её, чтобы не огорчать 🙏🏻');
+    expect(result.output).not.toContain('чтобы не огорчать. 🙏🏻');
+  });
 });
