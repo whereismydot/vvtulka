@@ -252,7 +252,28 @@
         <span class="site-footer-separator" aria-hidden="true">·</span>
         <a class="site-footer-link" href="mailto:sanlovty@yandex.ru">sanlovty@yandex.ru</a>
       </p>
+      <p class="site-footer-text">
+        <button
+          id="site-version-button"
+          class="site-footer-version-button"
+          type="button"
+          aria-haspopup="dialog"
+          aria-controls="whats-new-modal"
+        >
+          Версия
+        </button>
+      </p>
     </footer>
+
+    <div id="whats-new-modal" class="whats-new-modal" hidden>
+      <div class="whats-new-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="whats-new-modal-title">
+        <header class="whats-new-modal-header">
+          <h2 id="whats-new-modal-title" class="whats-new-modal-title">Что нового?</h2>
+          <button id="whats-new-modal-close" class="whats-new-modal-close" type="button" aria-label="Закрыть окно изменений">×</button>
+        </header>
+        <div id="whats-new-modal-content" class="whats-new-modal-content"></div>
+      </div>
+    </div>
   </div>
 `;
 

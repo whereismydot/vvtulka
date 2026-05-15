@@ -15,6 +15,7 @@ import { createServiceTabsController } from './service-tabs-controller';
 import { createShelfLifeController } from './shelf-life-controller';
 import { createTextCleanerController } from './text-cleaner-controller';
 import { createThemeController } from './theme-controller';
+import { createWhatsNewController } from './whats-new-controller';
 
 vi.mock('../../infrastructure/browser/clipboard', () => ({
   createClipboardAdapter: vi.fn()
@@ -42,6 +43,15 @@ vi.mock('./text-cleaner-controller', () => ({
 }));
 vi.mock('./theme-controller', () => ({
   createThemeController: vi.fn()
+}));
+vi.mock('./whats-new-controller', () => ({
+  createWhatsNewController: vi.fn()
+}));
+vi.mock('../../application/site-version', () => ({
+  SITE_VERSION: '1.0.1-test'
+}));
+vi.mock('../../infrastructure/content/changelog-source', () => ({
+  CHANGELOG_RAW: '# Changelog\\n\\n## 1.0.1-test'
 }));
 
 interface ServiceMocks {
@@ -90,6 +100,10 @@ function createElements(): AppElements {
     textCleanerRemoveDotBeforeEmojiInput: document.createElement('input'),
     textCleanerExcludeSpacesFromCharacterCountInput: document.createElement('input'),
     textCleanerOutputCharacterCount: document.createElement('p'),
+    siteVersionButton: document.createElement('button'),
+    whatsNewModal: document.createElement('div'),
+    whatsNewModalCloseButton: document.createElement('button'),
+    whatsNewModalContent: document.createElement('div'),
     shelfLifeForm: document.createElement('form'),
     shelfLifeDateInput: document.createElement('input'),
     shelfLifeTermInput: document.createElement('input'),
@@ -178,6 +192,14 @@ describe('app controller', () => {
     expect(vi.mocked(createServiceTabsController)).toHaveBeenCalledTimes(1);
     expect(vi.mocked(createTextCleanerController)).toHaveBeenCalledTimes(1);
     expect(vi.mocked(createShelfLifeController)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(createWhatsNewController)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(createWhatsNewController)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        elements,
+        version: '1.0.1-test',
+        changelogRaw: expect.stringContaining('# Changelog')
+      })
+    );
     expect(setStatus).toHaveBeenCalledWith(expect.any(String), 'info');
   });
 

@@ -15,6 +15,9 @@ describe('app elements resolver', () => {
 
     const elements = getAppElements();
     const footer = root.querySelector('footer.site-footer');
+    const licenseLink = root.querySelector<HTMLAnchorElement>(
+      'a.site-footer-link[href="https://www.apache.org/licenses/LICENSE-2.0"]'
+    );
     const telegramLink = root.querySelector<HTMLAnchorElement>('a.site-footer-link[href="https://t.me/gleb_perveev"]');
     const emailLink = root.querySelector<HTMLAnchorElement>('a.site-footer-link[href="mailto:sanlovty@yandex.ru"]');
 
@@ -25,9 +28,14 @@ describe('app elements resolver', () => {
     expect(elements.textCleanerExcludeSpacesFromCharacterCountInput.id).toBe(
       'text-cleaner-setting-exclude-spaces-from-character-count'
     );
+    expect(elements.siteVersionButton.id).toBe('site-version-button');
+    expect(elements.whatsNewModal.id).toBe('whats-new-modal');
+    expect(elements.whatsNewModalCloseButton.id).toBe('whats-new-modal-close');
+    expect(elements.whatsNewModalContent.id).toBe('whats-new-modal-content');
     expect(elements.shelfLifeDateInput.id).toBe('shelf-life-date-input');
     expect(elements.metricCashback.id).toBe('metric-cashback');
     expect(footer).not.toBeNull();
+    expect(licenseLink).not.toBeNull();
     expect(telegramLink).not.toBeNull();
     expect(emailLink).not.toBeNull();
   });

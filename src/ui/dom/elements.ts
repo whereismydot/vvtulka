@@ -29,6 +29,10 @@ export interface AppElements {
   readonly textCleanerRemoveDotBeforeEmojiInput: HTMLInputElement;
   readonly textCleanerExcludeSpacesFromCharacterCountInput: HTMLInputElement;
   readonly textCleanerOutputCharacterCount: HTMLParagraphElement;
+  readonly siteVersionButton: HTMLButtonElement;
+  readonly whatsNewModal: HTMLDivElement;
+  readonly whatsNewModalCloseButton: HTMLButtonElement;
+  readonly whatsNewModalContent: HTMLDivElement;
   readonly shelfLifeForm: HTMLFormElement;
   readonly shelfLifeDateInput: HTMLInputElement;
   readonly shelfLifeTermInput: HTMLInputElement;
@@ -131,6 +135,16 @@ export function getAppElements(): AppElements {
     textCleanerOutputCharacterCount: must(
       document.querySelector<HTMLParagraphElement>('#text-cleaner-output-character-count'),
       '#text-cleaner-output-character-count not found'
+    ),
+    siteVersionButton: must(document.querySelector<HTMLButtonElement>('#site-version-button'), '#site-version-button not found'),
+    whatsNewModal: must(document.querySelector<HTMLDivElement>('#whats-new-modal'), '#whats-new-modal not found'),
+    whatsNewModalCloseButton: must(
+      document.querySelector<HTMLButtonElement>('#whats-new-modal-close'),
+      '#whats-new-modal-close not found'
+    ),
+    whatsNewModalContent: must(
+      document.querySelector<HTMLDivElement>('#whats-new-modal-content'),
+      '#whats-new-modal-content not found'
     ),
     shelfLifeForm: must(document.querySelector<HTMLFormElement>('#shelf-life-form'), '#shelf-life-form not found'),
     shelfLifeDateInput: must(document.querySelector<HTMLInputElement>('#shelf-life-date-input'), '#shelf-life-date-input not found'),
