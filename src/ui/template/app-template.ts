@@ -243,16 +243,6 @@
     </main>
     <footer class="site-footer" role="contentinfo">
       <p class="site-footer-text">
-        © 2026 Gleb Perveev. Licensed under
-        <a class="site-footer-link" href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">Apache License 2.0</a>.
-      </p>
-      <p class="site-footer-text">
-        <span class="site-footer-label">По вопросам:</span>
-        <a class="site-footer-link" href="https://t.me/gleb_perveev" target="_blank" rel="noopener noreferrer">@gleb_perveev</a>
-        <span class="site-footer-separator" aria-hidden="true">·</span>
-        <a class="site-footer-link" href="mailto:sanlovty@yandex.ru">sanlovty@yandex.ru</a>
-      </p>
-      <p class="site-footer-text">
         <button
           id="site-version-button"
           class="site-footer-version-button"
@@ -262,6 +252,16 @@
         >
           Версия
         </button>
+      </p>
+      <p class="site-footer-text">
+        <span class="site-footer-label">По вопросам:</span>
+        <a class="site-footer-link" href="https://t.me/gleb_perveev" target="_blank" rel="noopener noreferrer">@gleb_perveev</a>
+        <span class="site-footer-separator" aria-hidden="true">·</span>
+        <a class="site-footer-link" href="mailto:sanlovty@yandex.ru">sanlovty@yandex.ru</a>
+      </p>
+      <p class="site-footer-text">
+        © 2026 Gleb Perveev. Licensed under
+        <a class="site-footer-link" href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">Apache License 2.0</a>.
       </p>
     </footer>
 
