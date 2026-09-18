@@ -45,6 +45,8 @@ export interface ParsedBotText {
 export interface PersonUsage {
   readonly name: string;
   readonly tag: string;
+  /** Номер команды (1–4) или `null`, если человек вне команд 1–4. */
+  readonly team: number | null;
   readonly count: number;
   /** Дни срочных до выбранной даты. */
   readonly days: readonly number[];

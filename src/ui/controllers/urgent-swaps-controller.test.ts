@@ -24,6 +24,12 @@ function createElements(): AppElements {
   onlySwaps.checked = true;
   const dateInput = document.createElement('input');
   dateInput.type = 'date';
+  const sortSelect = document.createElement('select');
+  ['text', 'name-current', 'count-current'].forEach((value) => {
+    const option = document.createElement('option');
+    option.value = value;
+    sortSelect.append(option);
+  });
 
   return {
     urgentDateInput: dateInput,
@@ -38,6 +44,8 @@ function createElements(): AppElements {
     urgentWarnings: document.createElement('div'),
     urgentSearchInput: searchInput,
     urgentOnlySwapsInput: onlySwaps,
+    urgentSortSelect: sortSelect,
+    urgentSortDirectionButton: document.createElement('button'),
     urgentTable: document.createElement('div'),
     urgentOutputPanel: document.createElement('section'),
     urgentOutput: document.createElement('div'),
@@ -117,6 +125,52 @@ describe('urgent swaps controller', () => {
     elements.urgentOnlySwapsInput.checked = false;
     elements.urgentOnlySwapsInput.dispatchEvent(new Event('change'));
     expect(elements.urgentTable.querySelectorAll('tbody tr:not(.urgent-group)')).toHaveLength(1);
+  });
+
+  it('sorts the table without changing the final text', async () => {
+    const schedule: MonthSchedule = {
+      ...SCHEDULE,
+      people: [
+        { name: 'Иванов Иван', tag: '@ivan', team: 1, temporaryLeader: false, row: 8, shifts: { 20: '08/20' }, urgentDays: [1, 2, 3] },
+        { name: 'Петров Пётр', tag: '@petr', team: 2, temporaryLeader: false, row: 9, shifts: { 20: '08/20' }, urgentDays: [4] }
+      ]
+    };
+    const text = 'Дежурные на линию "Срочные"\nПоздние:\nИванов Иван  @ivan  08/20\nПетров Пётр  @petr  08/20';
+    createUrgentSwapsController({ elements, copyText, setStatus, loadSchedule: vi.fn(async () => schedule) });
+    elements.urgentDateInput.value = '2026-09-20';
+    elements.urgentTextInput.value = text;
+    elements.urgentOnlySwapsInput.checked = false;
+    elements.urgentRunButton.click();
+    await settle();
+
+    const tags = (): (string | null)[] => [...elements.urgentTable.querySelectorAll('.urgent-tag')].map((element) => element.textContent);
+    const outputBefore = elements.urgentOutput.innerHTML;
+    expect(tags()).toEqual(['@ivan', '@petr']);
+    expect(elements.urgentSortDirectionButton.disabled).toBe(true);
+
+    elements.urgentSortSelect.value = 'name-current';
+    elements.urgentSortSelect.dispatchEvent(new Event('change'));
+    expect(elements.urgentSortDirectionButton.disabled).toBe(false);
+    expect(tags()).toEqual(['@ivan', '@petr']);
+
+    elements.urgentSortDirectionButton.click();
+    expect(tags()).toEqual(['@petr', '@ivan']);
+    expect(elements.urgentSortDirectionButton.textContent).toBe('↓');
+
+    elements.urgentSortSelect.value = 'count-current';
+    elements.urgentSortSelect.dispatchEvent(new Event('change'));
+    expect(tags()).toEqual(['@ivan', '@petr']);
+    expect(elements.urgentSortDirectionButton.textContent).toBe('↓');
+
+    elements.urgentSortSelect.value = 'text';
+    elements.urgentSortSelect.dispatchEvent(new Event('change'));
+    expect(elements.urgentSortDirectionButton.disabled).toBe(true);
+    expect(tags()).toEqual(['@ivan', '@petr']);
+
+    elements.urgentCopyButton.click();
+    await settle();
+    expect(copyText).toHaveBeenLastCalledWith(text);
+    expect(elements.urgentOutput.innerHTML).toBe(outputBefore);
   });
 
   it('shows an error, marks the failed step and re-enables the button', async () => {

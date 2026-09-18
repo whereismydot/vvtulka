@@ -1,6 +1,7 @@
 import type { StatusTone } from '../../application/app-results';
 import { runUrgentSwaps, tomorrowIso } from '../../application/urgent-swaps-service';
 import { SCHEDULE_SPREADSHEET_ID, SHEETS_API_KEY } from '../../config/google-sheets';
+import type { PlanSortKey, SortDirection } from '../../domain/urgent-swaps/plan-sort';
 import type { ProgressEvent, ProgressStage, UrgentPlan } from '../../domain/urgent-swaps/types';
 import { createScheduleClient, type ScheduleLoader } from '../../infrastructure/google-sheets/schedule-client';
 import type { AppElements } from '../dom/elements';
@@ -33,6 +34,7 @@ export function createUrgentSwapsController(dependencies: UrgentSwapsControllerD
 
   let plan: UrgentPlan | null = null;
   let running = false;
+  let sortDirection: SortDirection = 'asc';
 
   elements.urgentDateInput.value = tomorrowIso(now());
 
@@ -47,8 +49,15 @@ export function createUrgentSwapsController(dependencies: UrgentSwapsControllerD
     }
     renderPlanTable(elements.urgentTable, plan, {
       query: elements.urgentSearchInput.value,
-      onlySwaps: elements.urgentOnlySwapsInput.checked
+      onlySwaps: elements.urgentOnlySwapsInput.checked,
+      sort: { key: elements.urgentSortSelect.value as PlanSortKey, direction: sortDirection }
     });
+  };
+
+  const syncSortControls = (): void => {
+    const isDefault = elements.urgentSortSelect.value === 'text';
+    elements.urgentSortDirectionButton.disabled = isDefault;
+    elements.urgentSortDirectionButton.textContent = sortDirection === 'asc' ? '↑' : '↓';
   };
 
   const copy = async (value: string): Promise<void> => {
@@ -133,6 +142,17 @@ export function createUrgentSwapsController(dependencies: UrgentSwapsControllerD
   });
   elements.urgentSearchInput.addEventListener('input', renderTable);
   elements.urgentOnlySwapsInput.addEventListener('change', renderTable);
+  elements.urgentSortSelect.addEventListener('change', () => {
+    sortDirection = elements.urgentSortSelect.value.startsWith('count-') ? 'desc' : 'asc';
+    syncSortControls();
+    renderTable();
+  });
+  elements.urgentSortDirectionButton.addEventListener('click', () => {
+    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    syncSortControls();
+    renderTable();
+  });
+  syncSortControls();
   elements.urgentCopyButton.addEventListener('click', () => {
     if (plan !== null) {
       void copy(plan.text);

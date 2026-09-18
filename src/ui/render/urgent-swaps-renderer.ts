@@ -1,3 +1,4 @@
+import { sortPlanRows, type PlanSortKey, type SortDirection } from '../../domain/urgent-swaps/plan-sort';
 import type { PersonUsage, PlanRow, ProgressEvent, ProgressStage, UrgentPlan } from '../../domain/urgent-swaps/types';
 
 export type StepStatus = 'wait' | 'run' | 'ok' | 'err';
@@ -10,6 +11,8 @@ export interface StepView {
 export interface PlanFilter {
   readonly query: string;
   readonly onlySwaps: boolean;
+  /** Сортировка таблицы; по умолчанию — порядок текста бота с заголовками групп. */
+  readonly sort?: { readonly key: PlanSortKey; readonly direction: SortDirection };
 }
 
 const STEP_TITLES: Readonly<Record<ProgressStage, string>> = {
@@ -102,9 +105,22 @@ function countClass(count: number): string {
 }
 
 /**
+ * Подпись команды для карточки человека.
+ */
+function teamLabel(team: number | null): string {
+  return team === null ? 'вне команд 1–4' : `Команда ${team}`;
+}
+
+/**
  * Строит ячейки «человек» и «срочных» для одной стороны замены.
  */
-function createPersonCells(person: PersonUsage, shift: string, query: string, known = true): [HTMLTableCellElement, HTMLTableCellElement] {
+function createPersonCells(
+  person: PersonUsage,
+  shift: string,
+  query: string,
+  known = true,
+  groupLabel?: string
+): [HTMLTableCellElement, HTMLTableCellElement] {
   const personCell = createElement('td');
   const box = createElement('div', 'urgent-person');
 
@@ -116,7 +132,11 @@ function createPersonCells(person: PersonUsage, shift: string, query: string, kn
   tag.dataset.copy = person.tag;
   appendHighlighted(tag, person.tag === '' ? 'нет тега' : person.tag, query);
 
-  const meta = createElement('span', 'urgent-shift', `${shift} · `);
+  const meta = createElement('span', 'urgent-shift');
+  if (groupLabel !== undefined) {
+    meta.append(createElement('span', 'urgent-group-chip', groupLabel), ' ');
+  }
+  meta.append(known ? `${teamLabel(person.team)} · ${shift} · ` : `${shift} · `);
   if (known) {
     const link = createElement('a', 'urgent-link', 'строка в таблице ↗');
     link.href = person.link;
@@ -170,16 +190,18 @@ export function renderPlanTable(container: HTMLElement, plan: UrgentPlan, filter
 
   const body = createElement('tbody');
   const query = filter.query.trim();
+  const sort = filter.sort ?? { key: 'text' as const, direction: 'asc' as const };
+  const grouped = sort.key === 'text';
   let lastGroup = '';
   let shown = 0;
 
-  for (const row of plan.rows) {
+  for (const row of sortPlanRows(plan.rows, sort.key, sort.direction)) {
     if ((filter.onlySwaps && row.replacement === null) || !matchesQuery(row, query)) {
       continue;
     }
     shown += 1;
 
-    if (row.group !== lastGroup) {
+    if (grouped && row.group !== lastGroup) {
       lastGroup = row.group;
       const groupRow = createElement('tr', 'urgent-group');
       const cell = createElement('td', undefined, row.group);
@@ -189,8 +211,8 @@ export function renderPlanTable(container: HTMLElement, plan: UrgentPlan, filter
     }
 
     const tr = createElement('tr', row.replacement === null ? 'urgent-row-same' : undefined);
-    const current: PersonUsage = row.current ?? { name: row.name, tag: row.tag, count: 0, days: [], link: '#' };
-    tr.append(...createPersonCells(current, row.shift, query, row.current !== null));
+    const current: PersonUsage = row.current ?? { name: row.name, tag: row.tag, team: null, count: 0, days: [], link: '#' };
+    tr.append(...createPersonCells(current, row.shift, query, row.current !== null, grouped ? undefined : row.group));
     tr.append(createElement('td', 'urgent-arrow', row.replacement === null ? '=' : '→'));
     if (row.replacement === null) {
       const same = createElement('td', 'urgent-hint', row.current === null ? 'не найден в таблице' : 'без изменений');

@@ -10,8 +10,8 @@ import {
   renderWarnings
 } from './urgent-swaps-renderer';
 
-function usage(name: string, tag: string, count: number, days: number[] = []): PersonUsage {
-  return { name, tag, count, days, link: 'https://example.test/row' };
+function usage(name: string, tag: string, count: number, days: number[] = [], team: number | null = 1): PersonUsage {
+  return { name, tag, team, count, days, link: 'https://example.test/row' };
 }
 
 function row(overrides: Partial<PlanRow> & Pick<PlanRow, 'name'>): PlanRow {
@@ -21,8 +21,8 @@ function row(overrides: Partial<PlanRow> & Pick<PlanRow, 'name'>): PlanRow {
 const PLAN: UrgentPlan = {
   dateLabel: '20.09.2026',
   rows: [
-    row({ name: 'Иванов Иван', tag: '@ivan', current: usage('Иванов Иван', '@ivan', 3, [1, 2, 3]), replacement: usage('Новый Никита', '@new', 0) }),
-    row({ name: 'Петров Пётр', tag: '@petr', group: 'Ранние', current: usage('Петров Пётр', '@petr', 1, [4]) }),
+    row({ name: 'Иванов Иван', tag: '@ivan', current: usage('Иванов Иван', '@ivan', 3, [1, 2, 3], 2), replacement: usage('Новый Никита', '@new', 0, [], 4) }),
+    row({ name: 'Петров Пётр', tag: '@petr', group: 'Ранние', current: usage('Петров Пётр', '@petr', 1, [4], null) }),
     row({ name: 'Неизвестный Никто', tag: '@nobody', group: 'Ранние' })
   ],
   text: 'Поздние:\nНовый Никита  @new  08/20\n\nРанние:',
@@ -98,6 +98,39 @@ describe('urgent swaps renderer', () => {
 
     renderPlanTable(container, PLAN, { query: 'нет такого', onlySwaps: false });
     expect(container.textContent).toContain('Ничего не найдено');
+  });
+
+  it('shows the team of each person and marks people outside teams 1-4', () => {
+    const container = document.createElement('div');
+
+    renderPlanTable(container, PLAN, { query: '', onlySwaps: false });
+
+    const meta = [...container.querySelectorAll('.urgent-shift')].map((element) => element.textContent);
+    expect(meta[0]).toContain('Команда 2 · 08/20');
+    expect(meta[1]).toContain('Команда 4 · 08/20');
+    expect(meta[2]).toContain('вне команд 1–4 · 08/20');
+    expect(meta[3]).not.toContain('Команда');
+  });
+
+  it('sorts rows flat with a group chip and without group headers', () => {
+    const container = document.createElement('div');
+
+    renderPlanTable(container, PLAN, { query: '', onlySwaps: false, sort: { key: 'count-current', direction: 'asc' } });
+
+    const tags = [...container.querySelectorAll('.urgent-tag')].map((element) => element.textContent);
+    expect(tags.slice(0, 2)).toEqual(['@petr', '@ivan']);
+    expect(container.querySelectorAll('.urgent-group')).toHaveLength(0);
+    expect([...container.querySelectorAll('.urgent-group-chip')].map((element) => element.textContent)).toEqual(['Ранние', 'Поздние', 'Ранние']);
+  });
+
+  it('combines sorting with search and the swaps-only filter', () => {
+    const container = document.createElement('div');
+
+    renderPlanTable(container, PLAN, { query: 'петров', onlySwaps: false, sort: { key: 'name-current', direction: 'desc' } });
+    expect(container.querySelectorAll('tbody tr')).toHaveLength(1);
+
+    renderPlanTable(container, PLAN, { query: '', onlySwaps: true, sort: { key: 'name-replacement', direction: 'asc' } });
+    expect(container.querySelectorAll('tbody tr')).toHaveLength(1);
   });
 
   it('highlights changed lines in the output', () => {
