@@ -30,6 +30,10 @@
             <span class="service-tab-title">Калькулятор срока годности</span>
             <span class="service-tab-subtitle">Проверка срока по дате изготовления</span>
           </button>
+          <button id="service-tab-4" class="service-tab" type="button" data-service-tab="urgent" aria-selected="false">
+            <span class="service-tab-title">Срочные: замены</span>
+            <span class="service-tab-subtitle">Подбор замен по графику и числу срочных</span>
+          </button>
         </nav>
       </header>
 
@@ -222,6 +226,52 @@
           <section id="shelf-life-result" class="shelf-life-result" aria-live="polite" hidden>
             <p id="shelf-life-result-text"></p>
           </section>
+        </section>
+      </section>
+
+      <section id="service-pane-4" class="service-pane service-pane-secondary" hidden>
+        <section class="panel panel-urgent">
+          <h2>Срочные: подбор замен</h2>
+          <div class="urgent-date-row">
+            <label for="urgent-date-input">Распределение на дату</label>
+            <input id="urgent-date-input" type="date" />
+            <span class="urgent-hint">Срочные считаются с 1-го числа месяца до этой даты (сам день не входит).</span>
+          </div>
+          <textarea id="urgent-text-input" rows="9" placeholder="Вставьте текст распределения от бота."></textarea>
+          <div class="input-actions">
+            <button id="urgent-run-btn" class="btn btn-primary" type="button">Подобрать замены</button>
+          </div>
+          <div id="urgent-steps" class="urgent-steps" hidden></div>
+          <details id="urgent-log-details" class="urgent-log-details" hidden>
+            <summary>Лог работы</summary>
+            <pre id="urgent-log" class="urgent-log"></pre>
+          </details>
+          <div id="urgent-error" class="urgent-error" role="alert" hidden></div>
+        </section>
+
+        <section id="urgent-result" class="panel panel-urgent-result" hidden>
+          <div class="urgent-result-head">
+            <h2>Кого на кого меняем</h2>
+            <span id="urgent-stat" class="urgent-hint"></span>
+          </div>
+          <div id="urgent-warnings" class="urgent-warnings"></div>
+          <div class="urgent-tools">
+            <input id="urgent-search-input" type="text" placeholder="Поиск по ФИО или @тегу" autocomplete="off" />
+            <label class="urgent-only-swaps">
+              <input id="urgent-only-swaps-input" type="checkbox" checked />
+              <span>Только замены</span>
+            </label>
+            <span class="urgent-hint">Клик по ФИО или тегу копирует его.</span>
+          </div>
+          <div id="urgent-table" class="urgent-table-wrap"></div>
+        </section>
+
+        <section id="urgent-output-panel" class="panel panel-urgent-output" hidden>
+          <div class="urgent-result-head">
+            <h2>Готовый текст</h2>
+            <button id="urgent-copy-btn" class="btn btn-primary" type="button">Скопировать текст</button>
+          </div>
+          <div id="urgent-output" class="urgent-output"></div>
         </section>
       </section>
 

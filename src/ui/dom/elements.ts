@@ -4,9 +4,27 @@ export interface AppElements {
   readonly serviceTabVkusbackButton: HTMLButtonElement;
   readonly serviceTabTwoButton: HTMLButtonElement;
   readonly serviceTabThreeButton: HTMLButtonElement;
+  readonly serviceTabUrgentButton: HTMLButtonElement;
   readonly servicePaneVkusback: HTMLElement;
   readonly servicePaneTwo: HTMLElement;
   readonly servicePaneThree: HTMLElement;
+  readonly servicePaneUrgent: HTMLElement;
+  readonly urgentDateInput: HTMLInputElement;
+  readonly urgentTextInput: HTMLTextAreaElement;
+  readonly urgentRunButton: HTMLButtonElement;
+  readonly urgentSteps: HTMLDivElement;
+  readonly urgentLogDetails: HTMLDetailsElement;
+  readonly urgentLog: HTMLPreElement;
+  readonly urgentError: HTMLDivElement;
+  readonly urgentResult: HTMLElement;
+  readonly urgentStat: HTMLElement;
+  readonly urgentWarnings: HTMLDivElement;
+  readonly urgentSearchInput: HTMLInputElement;
+  readonly urgentOnlySwapsInput: HTMLInputElement;
+  readonly urgentTable: HTMLDivElement;
+  readonly urgentOutputPanel: HTMLElement;
+  readonly urgentOutput: HTMLDivElement;
+  readonly urgentCopyButton: HTMLButtonElement;
   readonly orderInput: HTMLTextAreaElement;
   readonly orderTitleInput: HTMLInputElement;
   readonly addOrderButton: HTMLButtonElement;
@@ -63,9 +81,27 @@ export function getAppElements(): AppElements {
     ),
     serviceTabTwoButton: must(document.querySelector<HTMLButtonElement>('#service-tab-2'), '#service-tab-2 not found'),
     serviceTabThreeButton: must(document.querySelector<HTMLButtonElement>('#service-tab-3'), '#service-tab-3 not found'),
+    serviceTabUrgentButton: must(document.querySelector<HTMLButtonElement>('#service-tab-4'), '#service-tab-4 not found'),
     servicePaneVkusback: must(document.querySelector<HTMLElement>('#service-pane-vkusback'), '#service-pane-vkusback not found'),
     servicePaneTwo: must(document.querySelector<HTMLElement>('#service-pane-2'), '#service-pane-2 not found'),
     servicePaneThree: must(document.querySelector<HTMLElement>('#service-pane-3'), '#service-pane-3 not found'),
+    servicePaneUrgent: must(document.querySelector<HTMLElement>('#service-pane-4'), '#service-pane-4 not found'),
+    urgentDateInput: must(document.querySelector<HTMLInputElement>('#urgent-date-input'), '#urgent-date-input not found'),
+    urgentTextInput: must(document.querySelector<HTMLTextAreaElement>('#urgent-text-input'), '#urgent-text-input not found'),
+    urgentRunButton: must(document.querySelector<HTMLButtonElement>('#urgent-run-btn'), '#urgent-run-btn not found'),
+    urgentSteps: must(document.querySelector<HTMLDivElement>('#urgent-steps'), '#urgent-steps not found'),
+    urgentLogDetails: must(document.querySelector<HTMLDetailsElement>('#urgent-log-details'), '#urgent-log-details not found'),
+    urgentLog: must(document.querySelector<HTMLPreElement>('#urgent-log'), '#urgent-log not found'),
+    urgentError: must(document.querySelector<HTMLDivElement>('#urgent-error'), '#urgent-error not found'),
+    urgentResult: must(document.querySelector<HTMLElement>('#urgent-result'), '#urgent-result not found'),
+    urgentStat: must(document.querySelector<HTMLElement>('#urgent-stat'), '#urgent-stat not found'),
+    urgentWarnings: must(document.querySelector<HTMLDivElement>('#urgent-warnings'), '#urgent-warnings not found'),
+    urgentSearchInput: must(document.querySelector<HTMLInputElement>('#urgent-search-input'), '#urgent-search-input not found'),
+    urgentOnlySwapsInput: must(document.querySelector<HTMLInputElement>('#urgent-only-swaps-input'), '#urgent-only-swaps-input not found'),
+    urgentTable: must(document.querySelector<HTMLDivElement>('#urgent-table'), '#urgent-table not found'),
+    urgentOutputPanel: must(document.querySelector<HTMLElement>('#urgent-output-panel'), '#urgent-output-panel not found'),
+    urgentOutput: must(document.querySelector<HTMLDivElement>('#urgent-output'), '#urgent-output not found'),
+    urgentCopyButton: must(document.querySelector<HTMLButtonElement>('#urgent-copy-btn'), '#urgent-copy-btn not found'),
     orderInput: must(document.querySelector<HTMLTextAreaElement>('#order-input'), '#order-input not found'),
     orderTitleInput: must(document.querySelector<HTMLInputElement>('#order-title-input'), '#order-title-input not found'),
     addOrderButton: must(document.querySelector<HTMLButtonElement>('#add-order'), '#add-order not found'),
