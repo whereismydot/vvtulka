@@ -15,6 +15,7 @@ import { createServiceTabsController } from './service-tabs-controller';
 import { createShelfLifeController } from './shelf-life-controller';
 import { createTextCleanerController } from './text-cleaner-controller';
 import { createThemeController } from './theme-controller';
+import { createUrgentSwapsController } from './urgent-swaps-controller';
 
 vi.mock('../../infrastructure/browser/clipboard', () => ({
   createClipboardAdapter: vi.fn()
@@ -43,6 +44,9 @@ vi.mock('./text-cleaner-controller', () => ({
 vi.mock('./theme-controller', () => ({
   createThemeController: vi.fn()
 }));
+vi.mock('./urgent-swaps-controller', () => ({
+  createUrgentSwapsController: vi.fn()
+}));
 
 interface ServiceMocks {
   getState: ReturnType<typeof vi.fn>;
@@ -65,9 +69,27 @@ function createElements(): AppElements {
     serviceTabVkusbackButton: document.createElement('button'),
     serviceTabTwoButton: document.createElement('button'),
     serviceTabThreeButton: document.createElement('button'),
+    serviceTabUrgentButton: document.createElement('button'),
     servicePaneVkusback: document.createElement('section'),
     servicePaneTwo: document.createElement('section'),
     servicePaneThree: document.createElement('section'),
+    servicePaneUrgent: document.createElement('section'),
+    urgentDateInput: document.createElement('input'),
+    urgentTextInput: document.createElement('textarea'),
+    urgentRunButton: document.createElement('button'),
+    urgentSteps: document.createElement('div'),
+    urgentLogDetails: document.createElement('details'),
+    urgentLog: document.createElement('pre'),
+    urgentError: document.createElement('div'),
+    urgentResult: document.createElement('section'),
+    urgentStat: document.createElement('span'),
+    urgentWarnings: document.createElement('div'),
+    urgentSearchInput: document.createElement('input'),
+    urgentOnlySwapsInput: document.createElement('input'),
+    urgentTable: document.createElement('div'),
+    urgentOutputPanel: document.createElement('section'),
+    urgentOutput: document.createElement('div'),
+    urgentCopyButton: document.createElement('button'),
     orderInput: document.createElement('textarea'),
     orderTitleInput: document.createElement('input'),
     addOrderButton: document.createElement('button'),
@@ -175,6 +197,7 @@ describe('app controller', () => {
     expect(vi.mocked(createServiceTabsController)).toHaveBeenCalledTimes(1);
     expect(vi.mocked(createTextCleanerController)).toHaveBeenCalledTimes(1);
     expect(vi.mocked(createShelfLifeController)).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(createUrgentSwapsController)).toHaveBeenCalledTimes(1);
     expect(setStatus).toHaveBeenCalledWith(expect.any(String), 'info');
   });
 

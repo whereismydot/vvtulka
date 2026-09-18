@@ -46,3 +46,6 @@ temp/
 
 # Local config
 *.local
+
+# Local env overrides
+*.local
