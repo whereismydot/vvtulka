@@ -1601,6 +1601,48 @@ summary {
   }
 }
 
+/* Сортировка таблицы замен */
+.urgent-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+}
+
+.urgent-sort select {
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.7rem;
+  font: inherit;
+  color: var(--color-text-main);
+  background: var(--color-surface-solid);
+}
+
+.urgent-sort select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: var(--focus-ring);
+}
+
+.urgent-sort-direction {
+  min-width: 2.6rem;
+  padding: 0.5rem 0.8rem;
+}
+
+.urgent-sort-direction:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.urgent-group-chip {
+  display: inline-block;
+  border-radius: var(--radius-pill);
+  padding: 0 0.5rem;
+  font-weight: 800;
+  color: var(--color-accent-strong);
+  background: var(--color-accent-soft);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

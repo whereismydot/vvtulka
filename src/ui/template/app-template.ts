@@ -261,7 +261,21 @@
               <input id="urgent-only-swaps-input" type="checkbox" checked />
               <span>Только замены</span>
             </label>
-            <span class="urgent-hint">Клик по ФИО или тегу копирует его.</span>
+            <label class="urgent-sort">
+              <span>Сортировка</span>
+              <select id="urgent-sort-select">
+                <option value="text">Как в тексте бота</option>
+                <option value="name-current">ФИО (было)</option>
+                <option value="name-replacement">ФИО (станет)</option>
+                <option value="count-current">Срочных (было)</option>
+                <option value="count-replacement">Срочных (станет)</option>
+                <option value="team-current">Команда (было)</option>
+                <option value="team-replacement">Команда (станет)</option>
+                <option value="shift">График</option>
+              </select>
+            </label>
+            <button id="urgent-sort-direction-btn" class="btn urgent-sort-direction" type="button" aria-label="Направление сортировки" title="Направление сортировки" disabled>↑</button>
+            <span class="urgent-hint">Клик по ФИО или тегу копирует его. Порядок итогового текста не меняется.</span>
           </div>
           <div id="urgent-table" class="urgent-table-wrap"></div>
         </section>

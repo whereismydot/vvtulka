@@ -110,7 +110,7 @@ export function planUrgentSwaps(input: PlanInput): UrgentPlan {
     `https://docs.google.com/spreadsheets/d/${schedule.spreadsheetId}/edit#gid=${schedule.sheetGid}&range=D${person.row}`;
   const usageOf = (person: SchedulePerson): PersonUsage => {
     const days = urgentDaysBefore(person, date.day);
-    return { name: person.name, tag: person.tag, count: days.length, days, link: linkFor(person) };
+    return { name: person.name, tag: person.tag, team: person.team, count: days.length, days, link: linkFor(person) };
   };
 
   const nameCounts = new Map<string, number>();

@@ -21,6 +21,8 @@ export interface AppElements {
   readonly urgentWarnings: HTMLDivElement;
   readonly urgentSearchInput: HTMLInputElement;
   readonly urgentOnlySwapsInput: HTMLInputElement;
+  readonly urgentSortSelect: HTMLSelectElement;
+  readonly urgentSortDirectionButton: HTMLButtonElement;
   readonly urgentTable: HTMLDivElement;
   readonly urgentOutputPanel: HTMLElement;
   readonly urgentOutput: HTMLDivElement;
@@ -98,6 +100,11 @@ export function getAppElements(): AppElements {
     urgentWarnings: must(document.querySelector<HTMLDivElement>('#urgent-warnings'), '#urgent-warnings not found'),
     urgentSearchInput: must(document.querySelector<HTMLInputElement>('#urgent-search-input'), '#urgent-search-input not found'),
     urgentOnlySwapsInput: must(document.querySelector<HTMLInputElement>('#urgent-only-swaps-input'), '#urgent-only-swaps-input not found'),
+    urgentSortSelect: must(document.querySelector<HTMLSelectElement>('#urgent-sort-select'), '#urgent-sort-select not found'),
+    urgentSortDirectionButton: must(
+      document.querySelector<HTMLButtonElement>('#urgent-sort-direction-btn'),
+      '#urgent-sort-direction-btn not found'
+    ),
     urgentTable: must(document.querySelector<HTMLDivElement>('#urgent-table'), '#urgent-table not found'),
     urgentOutputPanel: must(document.querySelector<HTMLElement>('#urgent-output-panel'), '#urgent-output-panel not found'),
     urgentOutput: must(document.querySelector<HTMLDivElement>('#urgent-output'), '#urgent-output not found'),

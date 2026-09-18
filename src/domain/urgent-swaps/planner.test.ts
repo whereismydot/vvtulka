@@ -35,7 +35,8 @@ describe('urgent swaps planner', () => {
     });
 
     expect(plan.rows[0].current?.count).toBe(3);
-    expect(plan.rows[0].replacement).toMatchObject({ name: 'Свободный Сергей', tag: '@free', count: 1, days: [5] });
+    expect(plan.rows[0].current?.team).toBe(1);
+    expect(plan.rows[0].replacement).toMatchObject({ name: 'Свободный Сергей', tag: '@free', team: 1, count: 1, days: [5] });
     expect(plan.text).toContain('Свободный Сергей  @free  08/20');
     expect(plan.text).not.toContain('Иванов Иван');
     expect(plan.checks.every((check) => check.ok)).toBe(true);
