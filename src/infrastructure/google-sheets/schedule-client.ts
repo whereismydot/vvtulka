@@ -105,6 +105,9 @@ export function createScheduleClient(options: ScheduleClientOptions): ScheduleLo
   }
 
   return async function loadSchedule(target, log = () => undefined): Promise<MonthSchedule> {
+    if (options.apiKey === '') {
+      throw new ScheduleLoadError('Ключ Google Sheets API не задан. Укажите VITE_SHEETS_API_KEY при сборке.');
+    }
     log('Запрашиваю список листов');
     const meta = await getJson<SheetMeta>('', [['fields', 'sheets.properties(title,hidden,sheetId)']]);
     const candidates = (meta.sheets ?? [])

@@ -30,7 +30,7 @@ npm run dev
 ```
 
 ### 🔑 Настройка вкладки «Срочные: замены»
-Вкладка читает график через Google Sheets API (только чтение). Ключ лежит в `src/config/google-sheets.ts` и виден в браузере, поэтому в Google Cloud он должен быть ограничен: только Google Sheets API и только HTTP referrers сайта. Для локальной разработки ключ можно задать в `.env.local`:
+Вкладка читает график через Google Sheets API (только чтение). Ключ не хранится в репозитории: при деплое он берётся из секрета GitHub Actions `SHEETS_API_KEY`. В собранном сайте ключ виден в браузере, поэтому в Google Cloud он должен быть ограничен: только Google Sheets API и только HTTP referrers сайта (на localhost такой ключ не работает). Для локальной разработки задайте свой ключ в `.env.local`:
 ```bash
 VITE_SHEETS_API_KEY=ваш_ключ
 ```

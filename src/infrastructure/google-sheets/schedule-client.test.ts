@@ -90,6 +90,14 @@ describe('schedule client', () => {
     expect(fetchFn.mock.calls.every(([url]) => String(url).includes('key=KEY'))).toBe(true);
   });
 
+  it('fails before any request when the API key is not configured', async () => {
+    const fetchFn = createFetch();
+    const load = createScheduleClient({ spreadsheetId: 'ID', apiKey: '', fetchFn });
+
+    await expect(load({ year: 2026, month: 9, day: 1 })).rejects.toThrow('Ключ Google Sheets API не задан');
+    expect(fetchFn).not.toHaveBeenCalled();
+  });
+
   it('fails clearly when there is no sheet for the requested month', async () => {
     const load = createScheduleClient({ spreadsheetId: 'ID', apiKey: 'KEY', fetchFn: createFetch() });
 
