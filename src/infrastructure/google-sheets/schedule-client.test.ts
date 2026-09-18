@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createScheduleClient, isUrgentColor, ScheduleLoadError, serialToDate, type FetchLike } from './schedule-client';
+import { createScheduleClient, isTemporaryLeaderColor, isUrgentColor, ScheduleLoadError, serialToDate, type FetchLike } from './schedule-client';
 
 // 46266 = 01.09.2026, 46267 = 02.09.2026 (дни от 30.12.1899)
 const SEP_FIRST = 46266;
@@ -11,8 +11,9 @@ function cell(value: string | undefined, urgent = false): object {
   };
 }
 
-function row(name: string | undefined, tag: string, first: string, second: string, urgentSecond = false): object {
-  const cells: object[] = [{}, {}, {}, { formattedValue: name }, { formattedValue: tag }, cell(first), cell(second, urgentSecond)];
+function row(name: string | undefined, tag: string, first: string, second: string, urgentSecond = false, nameColor?: object): object {
+  const nameCell = { formattedValue: name, effectiveFormat: { backgroundColor: nameColor } };
+  const cells: object[] = [{}, {}, {}, nameCell, { formattedValue: tag }, cell(first), cell(second, urgentSecond)];
   return { values: cells };
 }
 
@@ -34,12 +35,15 @@ function createFetch(overrides: { grid?: unknown; headerSerial?: number } = {}):
                 {
                   rowData: [
                     {}, {}, {}, {}, {}, {},
-                    row('Команда №1', '', '08/20', '08/20'),
+                    row('Команда №1 (Лидер Один)', ' @Lead1 ', '08/20', '08/20'),
                     row('Иванов Иван  Иванович', '@ivan', '8/20', '08/20', true),
                     row('Иванов Иван Иванович', '@dup', '08/20', '08/20'),
                     row(undefined, '', '08/20', '08/20'),
                     row('Одно', '', '08/20', '08/20'),
-                    row('Петров Пётр', '', 'В', '12/24')
+                    row('Петров Пётр', '', 'В', '12/24'),
+                    row('Временный Лидер Иванович', '@tmp', '08/20', '08/20', false, { red: 0.69, green: 0.988, blue: 0.988 }),
+                    row('Команда Ночная поддержка (ДВ)', '@night_lead', '', ''),
+                    row('Ночной Никита Ночевич', '@night', '08/20', '08/20')
                   ]
                 }
               ]
@@ -66,6 +70,14 @@ describe('schedule client helpers', () => {
     expect(isUrgentColor(undefined)).toBe(false);
   });
 
+  it('detects the turquoise temporary leader fill with small shade tolerance', () => {
+    expect(isTemporaryLeaderColor({ red: 0.69, green: 0.988, blue: 0.988 })).toBe(true);
+    expect(isTemporaryLeaderColor({ red: 0.686, green: 0.988, blue: 0.988 })).toBe(true);
+    expect(isTemporaryLeaderColor({ red: 0, green: 1, blue: 1 })).toBe(false);
+    expect(isTemporaryLeaderColor({ red: 1, green: 1, blue: 1 })).toBe(false);
+    expect(isTemporaryLeaderColor(undefined)).toBe(false);
+  });
+
   it('converts sheet serials to calendar dates in UTC', () => {
     expect(serialToDate(SEP_FIRST)).toEqual({ year: 2026, month: 9, day: 1 });
     expect(serialToDate(SEP_FIRST + 30)).toEqual({ year: 2026, month: 10, day: 1 });
@@ -83,9 +95,12 @@ describe('schedule client', () => {
 
     expect(schedule).toMatchObject({ sheetTitle: 'График операторов - СЕНТЯБРЬ', sheetGid: 42, spreadsheetId: 'ID' });
     expect(schedule.people).toEqual([
-      { name: 'Иванов Иван Иванович', tag: '@ivan', row: 8, shifts: { 1: '08/20', 2: '08/20' }, urgentDays: [2] },
-      { name: 'Петров Пётр', tag: '', row: 12, shifts: { 2: '12/24' }, urgentDays: [] }
+      { name: 'Иванов Иван Иванович', tag: '@ivan', team: 1, temporaryLeader: false, row: 8, shifts: { 1: '08/20', 2: '08/20' }, urgentDays: [2] },
+      { name: 'Петров Пётр', tag: '', team: 1, temporaryLeader: false, row: 12, shifts: { 2: '12/24' }, urgentDays: [] },
+      { name: 'Временный Лидер Иванович', tag: '@tmp', team: 1, temporaryLeader: true, row: 13, shifts: { 1: '08/20', 2: '08/20' }, urgentDays: [] },
+      { name: 'Ночной Никита Ночевич', tag: '@night', team: null, temporaryLeader: false, row: 15, shifts: { 1: '08/20', 2: '08/20' }, urgentDays: [] }
     ]);
+    expect(schedule.leaderTags).toEqual(['@lead1']);
     expect(progress.length).toBeGreaterThanOrEqual(4);
     expect(fetchFn.mock.calls.every(([url]) => String(url).includes('key=KEY'))).toBe(true);
   });

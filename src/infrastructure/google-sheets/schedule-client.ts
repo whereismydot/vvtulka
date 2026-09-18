@@ -8,6 +8,8 @@ const TAG_COLUMN = 4;
 const FIRST_DAY_COLUMN = 5;
 const FIRST_DATA_ROW = 6;
 const LAST_ROW = 700;
+const TEAM_HEADER_PATTERN = /^Команда\s*№\s*(\d+)/i;
+const TEAM_NUMBERS = [1, 2, 3, 4];
 const SHIFT_PATTERN = /^\d{1,2}\/\d{1,2}$/;
 const EPOCH_UTC = Date.UTC(1899, 11, 30);
 const MS_PER_DAY = 86_400_000;
@@ -59,6 +61,20 @@ export function isUrgentColor(color: { red?: number; green?: number; blue?: numb
     return false;
   }
   return (color.red ?? 0) > 0.95 && (color.green ?? 0) < 0.05 && (color.blue ?? 0) > 0.95;
+}
+
+/**
+ * Проверяет, что цвет заливки имени — бирюзовый «временный лидер» (#B0FCFC, допуск на оттенки вроде #AFFCFC).
+ *
+ * @param color Цвет из ответа API (компоненты 0..1, нулевые опускаются).
+ * @returns `true` для бирюзовой заливки.
+ */
+export function isTemporaryLeaderColor(color: { red?: number; green?: number; blue?: number } | undefined): boolean {
+  if (color === undefined) {
+    return false;
+  }
+  const near = (value: number | undefined, target: number): boolean => Math.abs((value ?? 0) - target) <= 0.03;
+  return near(color.red, 0xb0 / 255) && near(color.green, 0xfc / 255) && near(color.blue, 0xfc / 255);
 }
 
 /**
@@ -158,7 +174,9 @@ export function createScheduleClient(options: ScheduleClientOptions): ScheduleLo
     log(`Получено строк: ${rows.length}`);
 
     const people: SchedulePerson[] = [];
+    const leaderTags: string[] = [];
     const seen = new Set<string>();
+    let team: number | null = null;
     for (let rowIndex = FIRST_DATA_ROW; rowIndex < rows.length; rowIndex += 1) {
       const cells = rows[rowIndex].values ?? [];
       const rawName = cells[NAME_COLUMN]?.formattedValue;
@@ -166,7 +184,16 @@ export function createScheduleClient(options: ScheduleClientOptions): ScheduleLo
         continue;
       }
       const name = rawName.split(/\s+/).filter(Boolean).join(' ');
-      if (name.split(' ').length < 2 || name.startsWith('Команда') || seen.has(name)) {
+      if (name.startsWith('Команда')) {
+        const teamNumber = Number(TEAM_HEADER_PATTERN.exec(name)?.[1]);
+        team = TEAM_NUMBERS.includes(teamNumber) ? teamNumber : null;
+        const leaderTag = (cells[TAG_COLUMN]?.formattedValue ?? '').trim().toLowerCase();
+        if (team !== null && leaderTag !== '') {
+          leaderTags.push(leaderTag);
+        }
+        continue;
+      }
+      if (name.split(' ').length < 2 || seen.has(name)) {
         continue;
       }
       seen.add(name);
@@ -183,9 +210,17 @@ export function createScheduleClient(options: ScheduleClientOptions): ScheduleLo
           urgentDays.push(day);
         }
       });
-      people.push({ name, tag: cells[TAG_COLUMN]?.formattedValue ?? '', row: rowIndex + 1, shifts, urgentDays });
+      people.push({
+        name,
+        tag: (cells[TAG_COLUMN]?.formattedValue ?? '').trim(),
+        team,
+        temporaryLeader: isTemporaryLeaderColor(cells[NAME_COLUMN]?.effectiveFormat?.backgroundColor),
+        row: rowIndex + 1,
+        shifts,
+        urgentDays
+      });
     }
 
-    return { sheetTitle: title, sheetGid: gid, spreadsheetId: options.spreadsheetId, people };
+    return { sheetTitle: title, sheetGid: gid, spreadsheetId: options.spreadsheetId, people, leaderTags };
   };
 }

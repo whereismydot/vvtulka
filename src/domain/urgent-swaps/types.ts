@@ -4,6 +4,10 @@ export type UrgentGroup = 'Поздние' | 'Ранние';
 export interface SchedulePerson {
   readonly name: string;
   readonly tag: string;
+  /** Номер команды (1–4) или `null`, если человек вне команд 1–4 (ночная поддержка, стажёры и т.д.). */
+  readonly team: number | null;
+  /** Временный лидер (бирюзовая заливка имени) — на срочные не ставится. */
+  readonly temporaryLeader: boolean;
   /** Номер строки в листе (с 1). */
   readonly row: number;
   /** День месяца → смена вида `08/20`. */
@@ -18,6 +22,8 @@ export interface MonthSchedule {
   readonly sheetGid: number;
   readonly spreadsheetId: string;
   readonly people: readonly SchedulePerson[];
+  /** Теги лидеров команд (розовые строки «К») в нижнем регистре. */
+  readonly leaderTags: readonly string[];
 }
 
 /** Строка распределения из текста бота. */

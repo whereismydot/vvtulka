@@ -9,9 +9,10 @@ const SCHEDULE: MonthSchedule = {
   sheetTitle: 'График',
   sheetGid: 1,
   spreadsheetId: 'S',
+  leaderTags: [],
   people: [
-    { name: 'Иванов Иван', tag: '@ivan', row: 8, shifts: { 20: '08/20' }, urgentDays: [1, 2, 3] },
-    { name: 'Свободный Сергей', tag: '@free', row: 9, shifts: { 20: '08/20' }, urgentDays: [] }
+    { name: 'Иванов Иван', tag: '@ivan', team: 1, temporaryLeader: false, row: 8, shifts: { 20: '08/20' }, urgentDays: [1, 2, 3] },
+    { name: 'Свободный Сергей', tag: '@free', team: 1, temporaryLeader: false, row: 9, shifts: { 20: '08/20' }, urgentDays: [] }
   ]
 };
 const TEXT = 'Дежурные на линию "Срочные"\nПоздние:\nИванов Иван  @ivan  08/20';
