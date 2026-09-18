@@ -43,7 +43,7 @@ function urgentDaysBefore(person: SchedulePerson, day: number): number[] {
 }
 
 /**
- * Находит замену для одного дежурного среди свободных сотрудников с тем же графиком.
+ * Находит замену для одного дежурного среди свободных сотрудников команд 1–4 (кроме лидеров и временных лидеров) с тем же графиком.
  *
  * @returns Лучший кандидат (меньше всего срочных) или `null`.
  */
@@ -54,12 +54,19 @@ function pickReplacement(
   day: number,
   usedNames: ReadonlySet<string>,
   usedTags: ReadonlySet<string>,
+  leaderTags: ReadonlySet<string>,
   minDifference: number
 ): SchedulePerson | null {
   let best: { person: SchedulePerson; count: number } | null = null;
 
   for (const person of schedule.people) {
+    if (person.team === null || person.temporaryLeader) {
+      continue;
+    }
     if (usedNames.has(normalizeName(person.name))) {
+      continue;
+    }
+    if (leaderTags.has(person.tag.toLowerCase())) {
       continue;
     }
     if (person.tag !== '' && usedTags.has(person.tag.toLowerCase())) {
@@ -122,6 +129,7 @@ export function planUrgentSwaps(input: PlanInput): UrgentPlan {
 
   const usedNames = new Set<string>(parsed.leaders);
   const usedTags = new Set<string>();
+  const leaderTags = new Set(schedule.leaderTags);
   const currents = new Map<number, SchedulePerson>();
   parsed.duties.forEach((duty) => {
     const person = byName.get(normalizeName(duty.name));
@@ -147,7 +155,7 @@ export function planUrgentSwaps(input: PlanInput): UrgentPlan {
 
   for (const duty of ordered) {
     const currentUsage = usageOf(currents.get(duty.lineIndex)!);
-    const candidate = pickReplacement(duty, currentUsage.count, schedule, date.day, usedNames, usedTags, minDifference);
+    const candidate = pickReplacement(duty, currentUsage.count, schedule, date.day, usedNames, usedTags, leaderTags, minDifference);
     if (candidate === null) {
       emit(4, 'info', `${duty.name} (${currentUsage.count}): замена не найдена`);
       continue;

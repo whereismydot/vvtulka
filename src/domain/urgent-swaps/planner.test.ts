@@ -2,12 +2,18 @@ import { describe, expect, it } from 'vitest';
 import { formatPlanDate, planUrgentSwaps } from './planner';
 import type { MonthSchedule, ProgressEvent, SchedulePerson } from './types';
 
-function person(name: string, tag: string, shift: string | null, urgentDays: number[] = [], row = 10): SchedulePerson {
-  return { name, tag, row, shifts: shift === null ? {} : { 20: shift }, urgentDays };
+function person(
+  name: string,
+  tag: string,
+  shift: string | null,
+  urgentDays: number[] = [],
+  extra: Partial<Pick<SchedulePerson, 'team' | 'temporaryLeader' | 'row'>> = {}
+): SchedulePerson {
+  return { name, tag, team: 1, temporaryLeader: false, row: 10, shifts: shift === null ? {} : { 20: shift }, urgentDays, ...extra };
 }
 
 function scheduleOf(...people: SchedulePerson[]): MonthSchedule {
-  return { sheetTitle: 'График', sheetGid: 7, spreadsheetId: 'SHEET', people };
+  return { sheetTitle: 'График', sheetGid: 7, spreadsheetId: 'SHEET', people, leaderTags: ['@teamlead'] };
 }
 
 const DATE = { year: 2026, month: 9, day: 20 };
@@ -131,6 +137,32 @@ describe('urgent swaps planner', () => {
     expect(events.map((event) => event.stage)).toContain(3);
     expect(events.filter((event) => event.state === 'ok').map((event) => event.stage)).toEqual([3, 4]);
     expect(() => planUrgentSwaps({ date: DATE, botText: 'нет списка', schedule: scheduleOf() })).toThrow('Дежурные на линию');
+  });
+
+  it('never picks temporary leaders, team leaders or people outside teams 1-4', () => {
+    const plan = planUrgentSwaps({
+      date: DATE,
+      botText: botText('Иванов Иван  @ivan  08/20'),
+      schedule: scheduleOf(
+        person('Иванов Иван', '@ivan', '08/20', [1, 2, 3]),
+        person('Временный Тимур', '@tmp', '08/20', [], { temporaryLeader: true }),
+        person('Лидер Команды', '@TeamLead', '08/20', []),
+        person('Ночной Никита', '@night', '08/20', [], { team: null })
+      )
+    });
+
+    expect(plan.rows[0].replacement).toBeNull();
+  });
+
+  it('still recognises current duties who work outside teams 1-4', () => {
+    const plan = planUrgentSwaps({
+      date: DATE,
+      botText: botText('Ночной Никита  @night  08/20'),
+      schedule: scheduleOf(person('Ночной Никита', '@night', '08/20', [1, 2], { team: null }), person('Свободный Сергей', '@free', '08/20', []))
+    });
+
+    expect(plan.rows[0].current?.count).toBe(2);
+    expect(plan.rows[0].replacement?.name).toBe('Свободный Сергей');
   });
 
   it('respects minDifference', () => {
