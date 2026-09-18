@@ -1,0 +1,130 @@
+import { describe, expect, it, vi } from 'vitest';
+import { createScheduleClient, isUrgentColor, ScheduleLoadError, serialToDate, type FetchLike } from './schedule-client';
+
+// 46266 = 01.09.2026, 46267 = 02.09.2026 (дни от 30.12.1899)
+const SEP_FIRST = 46266;
+
+function cell(value: string | undefined, urgent = false): object {
+  return {
+    formattedValue: value,
+    effectiveFormat: { backgroundColor: urgent ? { red: 1, blue: 1 } : { red: 1, green: 1, blue: 1 } }
+  };
+}
+
+function row(name: string | undefined, tag: string, first: string, second: string, urgentSecond = false): object {
+  const cells: object[] = [{}, {}, {}, { formattedValue: name }, { formattedValue: tag }, cell(first), cell(second, urgentSecond)];
+  return { values: cells };
+}
+
+function okResponse(payload: unknown): Awaited<ReturnType<FetchLike>> {
+  return { ok: true, status: 200, text: async () => JSON.stringify(payload) };
+}
+
+function createFetch(overrides: { grid?: unknown; headerSerial?: number } = {}): ReturnType<typeof vi.fn> {
+  return vi.fn(async (url: string) => {
+    if (url.includes('values:batchGet')) {
+      return okResponse({ valueRanges: [{ values: [[overrides.headerSerial ?? SEP_FIRST, (overrides.headerSerial ?? SEP_FIRST) + 1]] }] });
+    }
+    if (url.includes('includeGridData')) {
+      return okResponse(
+        overrides.grid ?? {
+          sheets: [
+            {
+              data: [
+                {
+                  rowData: [
+                    {}, {}, {}, {}, {}, {},
+                    row('Команда №1', '', '08/20', '08/20'),
+                    row('Иванов Иван  Иванович', '@ivan', '8/20', '08/20', true),
+                    row('Иванов Иван Иванович', '@dup', '08/20', '08/20'),
+                    row(undefined, '', '08/20', '08/20'),
+                    row('Одно', '', '08/20', '08/20'),
+                    row('Петров Пётр', '', 'В', '12/24')
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      );
+    }
+    return okResponse({
+      sheets: [
+        { properties: { title: 'Лист1', sheetId: 1 } },
+        { properties: { title: 'График операторов - СЕНТЯБРЬ', sheetId: 42 } },
+        { properties: { title: 'График операторов - скрытый', hidden: true, sheetId: 5 } }
+      ]
+    });
+  });
+}
+
+describe('schedule client helpers', () => {
+  it('detects magenta fill only', () => {
+    expect(isUrgentColor({ red: 1, blue: 1 })).toBe(true);
+    expect(isUrgentColor({ red: 1, green: 1, blue: 1 })).toBe(false);
+    expect(isUrgentColor({ green: 1 })).toBe(false);
+    expect(isUrgentColor(undefined)).toBe(false);
+  });
+
+  it('converts sheet serials to calendar dates in UTC', () => {
+    expect(serialToDate(SEP_FIRST)).toEqual({ year: 2026, month: 9, day: 1 });
+    expect(serialToDate(SEP_FIRST + 30)).toEqual({ year: 2026, month: 10, day: 1 });
+    expect(serialToDate(Number.NaN)).toBeNull();
+  });
+});
+
+describe('schedule client', () => {
+  it('loads the month sheet, people, shifts and urgent days', async () => {
+    const fetchFn = createFetch();
+    const progress: string[] = [];
+    const load = createScheduleClient({ spreadsheetId: 'ID', apiKey: 'KEY', fetchFn });
+
+    const schedule = await load({ year: 2026, month: 9, day: 20 }, (message) => progress.push(message));
+
+    expect(schedule).toMatchObject({ sheetTitle: 'График операторов - СЕНТЯБРЬ', sheetGid: 42, spreadsheetId: 'ID' });
+    expect(schedule.people).toEqual([
+      { name: 'Иванов Иван Иванович', tag: '@ivan', row: 8, shifts: { 1: '08/20', 2: '08/20' }, urgentDays: [2] },
+      { name: 'Петров Пётр', tag: '', row: 12, shifts: { 2: '12/24' }, urgentDays: [] }
+    ]);
+    expect(progress.length).toBeGreaterThanOrEqual(4);
+    expect(fetchFn.mock.calls.every(([url]) => String(url).includes('key=KEY'))).toBe(true);
+  });
+
+  it('fails clearly when there is no sheet for the requested month', async () => {
+    const load = createScheduleClient({ spreadsheetId: 'ID', apiKey: 'KEY', fetchFn: createFetch() });
+
+    await expect(load({ year: 2026, month: 11, day: 2 })).rejects.toThrow('за 11.2026');
+  });
+
+  it('fails when the spreadsheet has no schedule sheets', async () => {
+    const fetchFn = vi.fn(async () => okResponse({ sheets: [{ properties: { title: 'Другое' } }] }));
+    const load = createScheduleClient({ spreadsheetId: 'ID', apiKey: 'KEY', fetchFn });
+
+    await expect(load({ year: 2026, month: 9, day: 1 })).rejects.toBeInstanceOf(ScheduleLoadError);
+  });
+
+  it('maps HTTP and network failures to readable messages', async () => {
+    const forbidden = createScheduleClient({
+      spreadsheetId: 'ID',
+      apiKey: 'KEY',
+      fetchFn: async () => ({ ok: false, status: 403, text: async () => '' })
+    });
+    const broken = createScheduleClient({
+      spreadsheetId: 'ID',
+      apiKey: 'KEY',
+      fetchFn: async () => ({ ok: false, status: 500, text: async () => '' })
+    });
+    const offline = createScheduleClient({
+      spreadsheetId: 'ID',
+      apiKey: 'KEY',
+      fetchFn: async () => {
+        throw new TypeError('Failed to fetch');
+      }
+    });
+    const target = { year: 2026, month: 9, day: 1 };
+
+    await expect(forbidden(target)).rejects.toThrow('ограничения по домену');
+    await expect(broken(target)).rejects.toThrow('ошибкой 500');
+    await expect(offline(target)).rejects.toThrow('Нет связи с Google');
+  });
+});
