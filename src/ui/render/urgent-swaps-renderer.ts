@@ -67,7 +67,7 @@ export function renderSteps(container: HTMLElement, views: Readonly<Partial<Reco
       const title = createElement('b');
       title.append(createElement('span', 'urgent-step-icon', STEP_ICONS[view.status]), `${stage}. ${STEP_TITLES[stage]}`);
       step.append(title);
-      if (view.status !== 'err') {
+      if (view.status !== 'err' && view.message !== '') {
         step.append(createElement('small', undefined, view.message));
       }
       return step;
