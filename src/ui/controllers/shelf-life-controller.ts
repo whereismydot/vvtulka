@@ -162,7 +162,7 @@ export function createShelfLifeController(dependencies: ShelfLifeControllerDepen
   });
 
   dateInput.addEventListener('blur', () => {
-    const normalized = normalizeDateInput(dateInput.value);
+    const normalized = normalizeDateInput(dateInput.value, now());
     if (normalized !== dateInput.value) {
       dateInput.value = normalized;
     }
@@ -219,7 +219,7 @@ export function createShelfLifeController(dependencies: ShelfLifeControllerDepen
     hideResult(elements);
     clearValidationState(elements);
 
-    const normalized = normalizeDateInput(dateInput.value);
+    const normalized = normalizeDateInput(dateInput.value, now());
     if (normalized !== dateInput.value) {
       dateInput.value = normalized;
     }

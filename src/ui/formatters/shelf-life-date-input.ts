@@ -177,16 +177,27 @@ export function formatDateTyping(value: string): string {
 
 /**
  * Приводит введённую дату к окончательному виду (при потере фокуса или отправке):
- * дополняет нулями день и месяц и расширяет двузначный год до `20YY`.
+ * дополняет нулями день и месяц, расширяет двузначный год до `20YY`,
+ * а недостающие месяц и год берёт из текущей даты (только день → текущие месяц и год; день и месяц → текущий год).
  *
  * @param value Значение поля.
+ * @param now Текущая дата (для тестов).
  * @returns Нормализованная строка; неполные даты возвращаются без завершающей точки.
  */
-export function normalizeDateInput(value: string): string {
+export function normalizeDateInput(value: string, now: Date = new Date()): string {
   const typed = formatDateTyping(value);
-  const [day = '', month = '', year = ''] = typed.split('.');
+  const [rawDay = '', rawMonth = '', year = ''] = typed.split('.');
+  const day = rawDay.length === 1 && rawDay !== '0' ? `0${rawDay}` : rawDay;
+  const month = rawMonth.length === 1 && rawMonth !== '0' ? `0${rawMonth}` : rawMonth;
+
   if (day.length === 2 && month.length === 2 && year.length === 2) {
     return `${day}.${month}.20${year}`;
+  }
+  if (day.length === 2 && month === '' && year === '') {
+    return `${day}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
+  }
+  if (day.length === 2 && month.length === 2 && year === '') {
+    return `${day}.${month}.${now.getFullYear()}`;
   }
   return typed.replace(/\.$/, '');
 }
