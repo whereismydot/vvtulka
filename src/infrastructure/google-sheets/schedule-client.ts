@@ -89,6 +89,20 @@ export function isTemporaryLeaderColor(color: { red?: number; green?: number; bl
 }
 
 /**
+ * Определяет заливку новичка (светло-зелёная, #D9EAD3) с небольшим допуском.
+ *
+ * @param color Цвет из ответа API (компоненты 0..1, нулевые опускаются).
+ * @returns `true` для светло-зелёной заливки.
+ */
+export function isNewbieColor(color: { red?: number; green?: number; blue?: number } | undefined): boolean {
+  if (color === undefined) {
+    return false;
+  }
+  const near = (value: number | undefined, target: number): boolean => Math.abs((value ?? 0) - target) <= 0.03;
+  return near(color.red, 0xd9 / 255) && near(color.green, 0xea / 255) && near(color.blue, 0xd3 / 255);
+}
+
+/**
  * Переводит серийный номер даты Google Sheets в год/месяц/день (UTC, без влияния часового пояса).
  *
  * @param serial Число дней от 30.12.1899.
@@ -245,6 +259,7 @@ export function createScheduleClient(options: ScheduleClientOptions): ScheduleLo
         tag: (cells[TAG_COLUMN]?.formattedValue ?? '').trim(),
         team,
         temporaryLeader: isTemporaryLeaderColor(cells[NAME_COLUMN]?.effectiveFormat?.backgroundColor),
+        newbie: isNewbieColor(cells[NAME_COLUMN]?.effectiveFormat?.backgroundColor),
         row: rowIndex + 1,
         shifts,
         urgentDays

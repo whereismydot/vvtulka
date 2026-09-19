@@ -15,8 +15,8 @@ const SCHEDULE: MonthSchedule = {
   truncated: false,
   duplicateNames: [],
   people: [
-    { name: 'Иванов Иван', tag: '@ivan', team: 1, temporaryLeader: false, row: 8, shifts: { 20: '08/20' }, urgentDays: [1, 2, 3] },
-    { name: 'Свободный Сергей', tag: '@free', team: 1, temporaryLeader: false, row: 9, shifts: { 20: '08/20' }, urgentDays: [] }
+    { name: 'Иванов Иван', tag: '@ivan', team: 1, temporaryLeader: false, newbie: false, row: 8, shifts: { 20: '08/20' }, urgentDays: [1, 2, 3] },
+    { name: 'Свободный Сергей', tag: '@free', team: 1, temporaryLeader: false, newbie: false, row: 9, shifts: { 20: '08/20' }, urgentDays: [] }
   ]
 };
 const TEXT = buildBotText('20.09.2026', ['Иванов Иван  @ivan  08/20']);
@@ -145,8 +145,8 @@ describe('urgent swaps controller', () => {
     const schedule: MonthSchedule = {
       ...SCHEDULE,
       people: [
-        { name: 'Иванов Иван', tag: '@ivan', team: 1, temporaryLeader: false, row: 8, shifts: { 20: '08/20' }, urgentDays: [1, 2, 3] },
-        { name: 'Петров Пётр', tag: '@petr', team: 2, temporaryLeader: false, row: 9, shifts: { 20: '08/20' }, urgentDays: [4] }
+        { name: 'Иванов Иван', tag: '@ivan', team: 1, temporaryLeader: false, newbie: false, row: 8, shifts: { 20: '08/20' }, urgentDays: [1, 2, 3] },
+        { name: 'Петров Пётр', tag: '@petr', team: 2, temporaryLeader: false, newbie: false, row: 9, shifts: { 20: '08/20' }, urgentDays: [4] }
       ]
     };
     const text = buildBotText('20.09.2026', ['Иванов Иван  @ivan  08/20', 'Петров Пётр  @petr  08/20']);

@@ -8,6 +8,8 @@ export interface SchedulePerson {
   readonly team: number | null;
   /** Временный лидер (бирюзовая заливка имени) — на срочные не ставится. */
   readonly temporaryLeader: boolean;
+  /** Новичок: имя в графике залито светло-зелёным, в замены и на срочные не ставится. */
+  readonly newbie: boolean;
   /** Номер строки в листе (с 1). */
   readonly row: number;
   /** День месяца → смена вида `08/20`. */
