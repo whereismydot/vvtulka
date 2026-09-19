@@ -5,6 +5,7 @@ import type { Order } from '../../domain/types';
 import type { AppElements } from '../dom/elements';
 import { renderMetrics } from '../render/metrics-renderer';
 import { renderOrders } from '../render/orders-renderer';
+import { appLog } from '../../infrastructure/diagnostics/app-log';
 import { createStatusRenderer } from '../render/status-renderer';
 import { createScrollTopController } from './scroll-top-controller';
 import { createServiceTabsController } from './service-tabs-controller';
@@ -177,6 +178,13 @@ export function createAppController(dependencies: AppControllerDependencies): vo
     setStatus: (message, tone) => statusRenderer.setStatus(message, tone)
   });
 
+  elements.copyReportButton.addEventListener('click', () => {
+    void clipboard.copyText(appLog.buildReport()).then((copied) => {
+      appLog.info('report', copied ? 'Отчёт скопирован' : 'Не удалось скопировать отчёт');
+      statusRenderer.setStatus(copied ? 'Отчёт скопирован — отправьте его в чат.' : 'Не удалось скопировать отчёт.', copied ? 'success' : 'error');
+    });
+  });
+
   elements.metricCashback.addEventListener('click', () => {
     void copyCashbackValue();
   });
@@ -189,6 +197,9 @@ export function createAppController(dependencies: AppControllerDependencies): vo
       renderAll();
     }
 
+    if (!result.orderAdded) {
+      appLog.warn('order', `Чек не добавлен: ${result.message}`);
+    }
     statusRenderer.setStatus(result.message, result.tone);
   });
 
@@ -217,5 +228,6 @@ export function createAppController(dependencies: AppControllerDependencies): vo
   });
 
   renderAll();
+  appLog.info('app', 'Сайт запущен');
   statusRenderer.setStatus('Готово к работе. Данные хранятся локально в браузере.', 'info');
 }

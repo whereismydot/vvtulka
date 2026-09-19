@@ -10,6 +10,8 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* Место под полосу прокрутки резервируется всегда: иначе при смене темы вёрстка сдвигается */
+  scrollbar-gutter: stable;
 }
 
 body {

@@ -1,5 +1,6 @@
 /** @vitest-environment jsdom */
 
+import { appLog } from '../../infrastructure/diagnostics/app-log';
 import { buildBotText } from '../../domain/urgent-swaps/bot-text-fixture';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MonthSchedule } from '../../domain/urgent-swaps/types';
@@ -39,9 +40,6 @@ function createElements(): AppElements {
     urgentTextInput: document.createElement('textarea'),
     urgentRunButton: document.createElement('button'),
     urgentSteps: document.createElement('div'),
-    urgentLogDetails: document.createElement('details'),
-    urgentLog: document.createElement('pre'),
-    urgentError: document.createElement('div'),
     urgentResult: document.createElement('section'),
     urgentStat: document.createElement('span'),
     urgentKpiTotal: document.createElement('p'),
@@ -86,8 +84,7 @@ describe('urgent swaps controller', () => {
     elements.urgentRunButton.click();
     await settle();
 
-    expect(elements.urgentError.hidden).toBe(false);
-    expect(elements.urgentError.textContent).toContain('вставьте текст');
+    expect(setStatus).toHaveBeenLastCalledWith('Сначала вставьте текст от бота.', 'warning');
     expect(loadSchedule).not.toHaveBeenCalled();
   });
 
@@ -111,8 +108,8 @@ describe('urgent swaps controller', () => {
     expect(elements.urgentKpiTotal.textContent).toBe('1');
     expect(elements.urgentKpiSwaps.textContent).toBe('1');
     expect(elements.urgentKpiUnchanged.textContent).toBe('0');
-    expect(elements.urgentLog.textContent).toContain('читаю лист');
-    expect(elements.urgentLog.textContent).toContain('Готово');
+    expect(appLog.buildReport()).toContain('Готово за');
+    expect(appLog.buildReport()).not.toContain('Иванов');
     expect(elements.urgentOutput.textContent).toContain('Свободный Сергей  @free  08/20');
     expect(elements.urgentSteps.querySelectorAll('.urgent-step-ok')).toHaveLength(4);
 
@@ -192,10 +189,10 @@ describe('urgent swaps controller', () => {
     elements.urgentRunButton.click();
     await settle();
 
-    expect(elements.urgentError.textContent).toBe('Нет связи с Google.');
+    expect(setStatus).toHaveBeenLastCalledWith('Нет связи с Google.', 'error');
     expect(elements.urgentSteps.querySelector('.urgent-step-err')).not.toBeNull();
-    expect(elements.urgentLogDetails.open).toBe(true);
-    expect(elements.urgentLog.textContent).toContain('ОШИБКА');
+    expect(elements.urgentSteps.querySelector('.urgent-step-err small')).toBeNull();
+    expect(appLog.buildReport()).toContain('Ошибка на шаге');
     expect(elements.urgentResult.hidden).toBe(true);
     expect(elements.urgentRunButton.disabled).toBe(false);
   });

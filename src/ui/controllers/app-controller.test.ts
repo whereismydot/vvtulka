@@ -78,9 +78,6 @@ function createElements(): AppElements {
     urgentTextInput: document.createElement('textarea'),
     urgentRunButton: document.createElement('button'),
     urgentSteps: document.createElement('div'),
-    urgentLogDetails: document.createElement('details'),
-    urgentLog: document.createElement('pre'),
-    urgentError: document.createElement('div'),
     urgentResult: document.createElement('section'),
     urgentStat: document.createElement('span'),
     urgentKpiTotal: document.createElement('p'),
@@ -133,6 +130,7 @@ function createElements(): AppElements {
     metricVkusback: document.createElement('p'),
     metricCashback: document.createElement('button'),
     statusBox: document.createElement('section'),
+    copyReportButton: document.createElement('button'),
     scrollTopButton: document.createElement('button')
   };
 }

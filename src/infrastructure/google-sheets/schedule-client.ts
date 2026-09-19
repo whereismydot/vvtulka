@@ -1,4 +1,5 @@
 import type { MonthSchedule, PlanDate, SchedulePerson } from '../../domain/urgent-swaps/types';
+import { appLog } from '../diagnostics/app-log';
 import { normalizeName, normalizeShift } from '../../domain/urgent-swaps/bot-text-parser';
 
 const API_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
@@ -114,13 +115,17 @@ export function createScheduleClient(options: ScheduleClientOptions): ScheduleLo
 
   async function getJson<T>(path: string, params: ReadonlyArray<readonly [string, string]>): Promise<T> {
     const query = new URLSearchParams([...params.map(([name, value]) => [name, value]), ['key', options.apiKey]]);
+    const label = `GET ${path || '/'} (${params.map(([name]) => name).join(',')})`;
+    const startedAt = Date.now();
     let response;
     try {
       response = await fetchFn(`${API_BASE}/${options.spreadsheetId}${path}?${query.toString()}`);
-    } catch {
+    } catch (error) {
+      appLog.error('sheets', `${label}: нет ответа (${error instanceof Error ? error.name : 'ошибка сети'}) за ${Date.now() - startedAt} мс`);
       throw new ScheduleLoadError('Нет связи с Google. Проверьте интернет и повторите.');
     }
     const body = await response.text();
+    appLog.info('sheets', `${label}: ${response.status}, ${Math.round(body.length / 1024)} КБ, ${Date.now() - startedAt} мс`);
     if (!response.ok) {
       if (response.status === 403 || response.status === 400) {
         throw new ScheduleLoadError(`Google отклонил запрос (${response.status}). Проверьте ключ API и его ограничения по домену.`);
@@ -130,6 +135,7 @@ export function createScheduleClient(options: ScheduleClientOptions): ScheduleLo
     try {
       return JSON.parse(body) as T;
     } catch {
+      appLog.error('sheets', `${label}: ответ не JSON`);
       throw new ScheduleLoadError('Google вернул неожиданный ответ (не JSON). Повторите попытку позже.');
     }
   }

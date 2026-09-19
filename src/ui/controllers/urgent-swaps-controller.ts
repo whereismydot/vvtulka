@@ -3,6 +3,7 @@ import { runUrgentSwaps, tomorrowIso } from '../../application/urgent-swaps-serv
 import { SCHEDULE_SPREADSHEET_ID, SHEETS_API_KEY } from '../../config/google-sheets';
 import type { PlanSortKey, SortDirection } from '../../domain/urgent-swaps/plan-sort';
 import type { ProgressEvent, ProgressStage, UrgentPlan } from '../../domain/urgent-swaps/types';
+import { appLog } from '../../infrastructure/diagnostics/app-log';
 import { createScheduleClient, type ScheduleLoader } from '../../infrastructure/google-sheets/schedule-client';
 import type { AppElements } from '../dom/elements';
 import {
@@ -37,10 +38,6 @@ export function createUrgentSwapsController(dependencies: UrgentSwapsControllerD
 
   elements.urgentDateInput.value = tomorrowIso(now());
 
-  const showError = (message: string): void => {
-    elements.urgentError.hidden = false;
-    elements.urgentError.textContent = message;
-  };
 
   /**
    * Читает выбранную сортировку из значения списка вида `ключ:направление` (`text` — порядок текста бота).
@@ -64,6 +61,9 @@ export function createUrgentSwapsController(dependencies: UrgentSwapsControllerD
 
   const copy = async (value: string): Promise<void> => {
     const copied = await copyText(value);
+    if (!copied) {
+      appLog.warn('urgent', 'Не удалось скопировать в буфер обмена');
+    }
     setStatus(copied ? `Скопировано: ${value.length > 60 ? `${value.slice(0, 57)}…` : value}` : 'Не удалось скопировать.', copied ? 'success' : 'error');
   };
 
@@ -86,38 +86,30 @@ export function createUrgentSwapsController(dependencies: UrgentSwapsControllerD
       return;
     }
     if (elements.urgentTextInput.value.trim() === '') {
-      showError('Сначала вставьте текст от бота.');
+      setStatus('Сначала вставьте текст от бота.', 'warning');
       return;
     }
 
     running = true;
     elements.urgentRunButton.disabled = true;
-    elements.urgentError.hidden = true;
     elements.urgentResult.hidden = true;
     elements.urgentOutputPanel.hidden = true;
     elements.urgentSteps.hidden = false;
-    elements.urgentLogDetails.hidden = false;
-    elements.urgentLogDetails.open = false;
-    elements.urgentLog.textContent = '';
 
     const startedAt = Date.now();
-    const log = (message: string): void => {
-      const seconds = ((Date.now() - startedAt) / 1000).toFixed(1);
-      elements.urgentLog.textContent += `${now().toLocaleTimeString('ru-RU')} (+${seconds} с)  ${message}\n`;
-      elements.urgentLog.scrollTop = elements.urgentLog.scrollHeight;
-    };
 
     let views: Partial<Record<ProgressStage, StepView>> = {};
     let lastStage: ProgressStage | null = null;
     renderSteps(elements.urgentSteps, views);
-    log(`Запрос: дата ${elements.urgentDateInput.value}, текст ${elements.urgentTextInput.value.length} симв.`);
+    appLog.info('urgent', `Запуск: дата ${elements.urgentDateInput.value}, текст ${elements.urgentTextInput.value.length} симв.`);
 
     const onProgress = (event: ProgressEvent): void => {
       lastStage = event.stage;
       views = applyProgressEvent(views, event);
       renderSteps(elements.urgentSteps, views);
-      const prefix = event.state === 'ok' ? '✓ ' : '';
-      log(`[${event.stage}] ${event.state === 'info' ? '  ' : ''}${prefix}${event.message}`);
+      if (event.state !== 'info') {
+        appLog.info('urgent', `шаг ${event.stage} ${event.state}: ${event.message}`);
+      }
     };
 
     try {
@@ -126,16 +118,15 @@ export function createUrgentSwapsController(dependencies: UrgentSwapsControllerD
         { loadSchedule, onProgress }
       );
       showPlan(result);
-      log('Готово');
+      appLog.info('urgent', `Готово за ${((Date.now() - startedAt) / 1000).toFixed(1)} с: дежурных ${result.rows.length}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Неизвестная ошибка.';
       if (lastStage !== null) {
         views = applyProgressEvent(views, { stage: lastStage, state: 'err', message });
         renderSteps(elements.urgentSteps, views);
       }
-      elements.urgentLogDetails.open = true;
-      log(`ОШИБКА: ${message}`);
-      showError(message);
+      appLog.error('urgent', `Ошибка на шаге ${lastStage ?? 0}: ${message}`);
+      setStatus(message, 'error');
     } finally {
       running = false;
       elements.urgentRunButton.disabled = false;

@@ -1,4 +1,4 @@
-﻿import { must } from './must';
+import { must } from './must';
 
 export interface AppElements {
   readonly serviceTabVkusbackButton: HTMLButtonElement;
@@ -13,9 +13,6 @@ export interface AppElements {
   readonly urgentTextInput: HTMLTextAreaElement;
   readonly urgentRunButton: HTMLButtonElement;
   readonly urgentSteps: HTMLDivElement;
-  readonly urgentLogDetails: HTMLDetailsElement;
-  readonly urgentLog: HTMLPreElement;
-  readonly urgentError: HTMLDivElement;
   readonly urgentResult: HTMLElement;
   readonly urgentStat: HTMLElement;
   readonly urgentKpiTotal: HTMLElement;
@@ -68,6 +65,7 @@ export interface AppElements {
   readonly metricVkusback: HTMLParagraphElement;
   readonly metricCashback: HTMLButtonElement;
   readonly statusBox: HTMLElement;
+  readonly copyReportButton: HTMLButtonElement;
   readonly scrollTopButton: HTMLButtonElement;
 }
 
@@ -98,9 +96,6 @@ export function getAppElements(): AppElements {
     urgentTextInput: must(document.querySelector<HTMLTextAreaElement>('#urgent-text-input'), '#urgent-text-input not found'),
     urgentRunButton: must(document.querySelector<HTMLButtonElement>('#urgent-run-btn'), '#urgent-run-btn not found'),
     urgentSteps: must(document.querySelector<HTMLDivElement>('#urgent-steps'), '#urgent-steps not found'),
-    urgentLogDetails: must(document.querySelector<HTMLDetailsElement>('#urgent-log-details'), '#urgent-log-details not found'),
-    urgentLog: must(document.querySelector<HTMLPreElement>('#urgent-log'), '#urgent-log not found'),
-    urgentError: must(document.querySelector<HTMLDivElement>('#urgent-error'), '#urgent-error not found'),
     urgentResult: must(document.querySelector<HTMLElement>('#urgent-result'), '#urgent-result not found'),
     urgentStat: must(document.querySelector<HTMLElement>('#urgent-stat'), '#urgent-stat not found'),
     urgentKpiTotal: must(document.querySelector<HTMLElement>('#urgent-kpi-total'), '#urgent-kpi-total not found'),
@@ -196,6 +191,7 @@ export function getAppElements(): AppElements {
     metricOrders: must(document.querySelector<HTMLParagraphElement>('#metric-orders'), '#metric-orders not found'),
     metricVkusback: must(document.querySelector<HTMLParagraphElement>('#metric-vkusback'), '#metric-vkusback not found'),
     metricCashback: must(document.querySelector<HTMLButtonElement>('#metric-cashback'), '#metric-cashback not found'),
+    copyReportButton: must(document.querySelector<HTMLButtonElement>('#copy-report-btn'), '#copy-report-btn not found'),
     statusBox: must(document.querySelector<HTMLElement>('#status-box'), '#status-box not found'),
     scrollTopButton: must(document.querySelector<HTMLButtonElement>('#scroll-top-btn'), '#scroll-top-btn not found')
   };
