@@ -520,6 +520,7 @@
   display: grid;
   gap: 2px;
   align-content: start;
+  min-height: 4rem;
   padding: var(--space-3);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
