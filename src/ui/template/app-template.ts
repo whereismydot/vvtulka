@@ -224,12 +224,10 @@ export const APP_TEMPLATE = `
                 <button id="shelf-life-calendar-btn" class="date-field-btn" type="button" aria-label="Открыть календарь" title="Календарь">
                   ${ICON_CALENDAR}
                 </button>
+                <button id="shelf-life-yesterday-btn" class="date-field-btn date-field-btn-text" type="button" title="Подставить вчерашнюю дату">Вчера</button>
                 <input id="shelf-life-date-picker" class="date-picker-hidden" type="date" tabindex="-1" aria-hidden="true" />
               </div>
-              <div class="date-quick">
-                <button id="shelf-life-yesterday-btn" class="btn btn-chip" type="button">Вчера</button>
-                <span class="field-hint">Точки ставятся сами: достаточно набрать цифры</span>
-              </div>
+              <p class="field-hint">Точки ставятся сами: достаточно набрать цифры</p>
               <p id="shelf-life-date-error" class="field-error" role="alert" hidden></p>
             </div>
 

@@ -392,7 +392,7 @@
   align-items: center;
   justify-content: center;
   flex: none;
-  width: var(--tap-target);
+  min-width: var(--tap-target);
   height: var(--tap-target);
   padding: 0;
   border: 1px solid var(--color-line-strong);
@@ -434,24 +434,11 @@
   pointer-events: none;
 }
 
-.date-quick {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.btn-chip {
-  min-height: var(--tap-target);
-  border-radius: var(--radius-pill);
-  border-color: var(--color-accent-line);
-  background: var(--color-accent-soft);
-  color: var(--color-accent);
-}
-
-.btn-chip:hover {
-  border-color: var(--color-accent);
-  background: var(--color-accent-soft);
+.date-field-btn-text {
+  padding: 0 var(--space-4);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text-main);
 }
 
 .field-hint {
