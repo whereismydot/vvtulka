@@ -265,16 +265,22 @@
               <span>Сортировка</span>
               <select id="urgent-sort-select">
                 <option value="text">Как в тексте бота</option>
-                <option value="name-current">ФИО (было)</option>
-                <option value="name-replacement">ФИО (станет)</option>
-                <option value="count-current">Срочных (было)</option>
-                <option value="count-replacement">Срочных (станет)</option>
-                <option value="team-current">Команда (было)</option>
-                <option value="team-replacement">Команда (станет)</option>
-                <option value="shift">График</option>
+                <option value="name-current:asc">ФИО (было): А → Я</option>
+                <option value="name-current:desc">ФИО (было): Я → А</option>
+                <option value="name-replacement:asc">ФИО (станет): А → Я</option>
+                <option value="name-replacement:desc">ФИО (станет): Я → А</option>
+                <option value="count-current:desc">Срочных (было): больше → меньше</option>
+                <option value="count-current:asc">Срочных (было): меньше → больше</option>
+                <option value="count-replacement:desc">Срочных (станет): больше → меньше</option>
+                <option value="count-replacement:asc">Срочных (станет): меньше → больше</option>
+                <option value="team-current:asc">Команда (было): 1 → 4</option>
+                <option value="team-current:desc">Команда (было): 4 → 1</option>
+                <option value="team-replacement:asc">Команда (станет): 1 → 4</option>
+                <option value="team-replacement:desc">Команда (станет): 4 → 1</option>
+                <option value="shift:asc">График: раньше → позже</option>
+                <option value="shift:desc">График: позже → раньше</option>
               </select>
             </label>
-            <button id="urgent-sort-direction-btn" class="btn urgent-sort-direction" type="button" aria-label="Направление сортировки" title="Направление сортировки" disabled>↑</button>
             <span class="urgent-hint">Клик по ФИО или тегу копирует его. Порядок итогового текста не меняется.</span>
           </div>
           <div id="urgent-table" class="urgent-table-wrap"></div>

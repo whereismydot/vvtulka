@@ -1624,16 +1624,6 @@ summary {
   box-shadow: var(--focus-ring);
 }
 
-.urgent-sort-direction {
-  min-width: 2.6rem;
-  padding: 0.5rem 0.8rem;
-}
-
-.urgent-sort-direction:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-
 .urgent-group-chip {
   display: inline-block;
   border-radius: var(--radius-pill);

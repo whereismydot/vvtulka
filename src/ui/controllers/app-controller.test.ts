@@ -87,7 +87,6 @@ function createElements(): AppElements {
     urgentSearchInput: document.createElement('input'),
     urgentOnlySwapsInput: document.createElement('input'),
     urgentSortSelect: document.createElement('select'),
-    urgentSortDirectionButton: document.createElement('button'),
     urgentTable: document.createElement('div'),
     urgentOutputPanel: document.createElement('section'),
     urgentOutput: document.createElement('div'),
