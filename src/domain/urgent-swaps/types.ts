@@ -88,7 +88,7 @@ export interface PlanDate {
 }
 
 export type ProgressStage = 1 | 2 | 3 | 4;
-export type ProgressState = 'run' | 'info' | 'ok' | 'err';
+type ProgressState = 'run' | 'info' | 'ok' | 'err';
 
 export interface ProgressEvent {
   readonly stage: ProgressStage;

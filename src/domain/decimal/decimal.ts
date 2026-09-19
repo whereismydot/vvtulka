@@ -6,7 +6,7 @@ Decimal.set({
   toExpPos: 1000000
 });
 
-export const ZERO_RAW = '0';
+const ZERO_RAW = '0';
 
 /**
  * Удаляет незначащие нули в начале целой части числа.

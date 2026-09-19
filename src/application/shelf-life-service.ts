@@ -17,13 +17,13 @@ export interface CalculateShelfLifeInput {
   readonly manufactureTimeRaw: string | null | undefined;
 }
 
-export interface CalculateShelfLifeSuccess {
+interface CalculateShelfLifeSuccess {
   readonly ok: true;
   readonly validUntil: Date;
   readonly formattedValidUntil: string;
 }
 
-export interface CalculateShelfLifeFailure {
+interface CalculateShelfLifeFailure {
   readonly ok: false;
   readonly invalidFields: readonly ShelfLifeField[];
   readonly message: string;

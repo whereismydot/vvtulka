@@ -1,7 +1,7 @@
 import type { TextCleanerSettings } from '../../domain/types';
 
 export const TEXT_CLEANER_SETTINGS_STORAGE_KEY = 'vv_local_tool_text_cleaner_settings_v1';
-export const TEXT_CLEANER_SETTINGS_VERSION = 1;
+const TEXT_CLEANER_SETTINGS_VERSION = 1;
 
 const DEFAULT_TEXT_CLEANER_SETTINGS: TextCleanerSettings = {
   version: TEXT_CLEANER_SETTINGS_VERSION,
