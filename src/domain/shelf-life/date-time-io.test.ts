@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildShelfLifeDateTime,
+  explainShelfLifeDateInput,
+  formatDateForInput,
   formatShelfLifeDateTime,
   parseShelfLifeDateInput,
-  parseShelfLifeTimeInput
+  parseShelfLifeTimeInput,
+  yesterdayOf
 } from './date-time-io';
 
 describe('parseShelfLifeDateInput', () => {
@@ -126,5 +129,31 @@ describe('buildShelfLifeDateTime', () => {
     expect(value.getDate()).toBe(3);
     expect(value.getHours()).toBe(14);
     expect(value.getMinutes()).toBe(0);
+  });
+});
+
+describe('explainShelfLifeDateInput', () => {
+  it('reports empty, incomplete, impossible and valid dates with readable messages', () => {
+    expect(explainShelfLifeDateInput('')).toEqual({ status: 'empty', message: null });
+    expect(explainShelfLifeDateInput('   ')).toEqual({ status: 'empty', message: null });
+    expect(explainShelfLifeDateInput('01.09')).toEqual({ status: 'incomplete', message: 'Введите дату полностью: ДД.ММ.ГГГГ' });
+    expect(explainShelfLifeDateInput('01.09.26')).toEqual({ status: 'incomplete', message: 'Введите дату полностью: ДД.ММ.ГГГГ' });
+    expect(explainShelfLifeDateInput('31.02.2026')).toEqual({ status: 'invalid', message: 'Такой даты нет: 31.02.2026' });
+    expect(explainShelfLifeDateInput('29.02.2025')).toEqual({ status: 'invalid', message: 'Такой даты нет: 29.02.2025' });
+    expect(explainShelfLifeDateInput('29.02.2028')).toEqual({ status: 'ok', message: null });
+    expect(explainShelfLifeDateInput(' 01.09.2026 ')).toEqual({ status: 'ok', message: null });
+  });
+});
+
+describe('yesterdayOf and formatDateForInput', () => {
+  it('returns the previous local calendar day across month, year and leap boundaries', () => {
+    expect(formatDateForInput(yesterdayOf(new Date(2026, 8, 19, 10, 30)))).toBe('18.09.2026');
+    expect(formatDateForInput(yesterdayOf(new Date(2026, 2, 1, 0, 5)))).toBe('28.02.2026');
+    expect(formatDateForInput(yesterdayOf(new Date(2028, 2, 1, 23, 59)))).toBe('29.02.2028');
+    expect(formatDateForInput(yesterdayOf(new Date(2027, 0, 1, 12, 0)))).toBe('31.12.2026');
+  });
+
+  it('formats dates with leading zeros', () => {
+    expect(formatDateForInput(new Date(2026, 0, 5))).toBe('05.01.2026');
   });
 });

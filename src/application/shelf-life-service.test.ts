@@ -59,7 +59,7 @@ describe('calculateShelfLife', () => {
     expect(result).toEqual({
       ok: false,
       invalidFields: ['time'],
-      message: 'Invalid manufacture time.'
+      message: 'Некорректное время изготовления.'
     });
   });
 
@@ -82,12 +82,12 @@ describe('calculateShelfLife', () => {
     expect(nullCase).toEqual({
       ok: false,
       invalidFields: ['time'],
-      message: 'Invalid manufacture time.'
+      message: 'Некорректное время изготовления.'
     });
     expect(undefinedCase).toEqual({
       ok: false,
       invalidFields: ['time'],
-      message: 'Invalid manufacture time.'
+      message: 'Некорректное время изготовления.'
     });
   });
 
@@ -121,7 +121,7 @@ describe('calculateShelfLife', () => {
       expect(result).toEqual({
         ok: false,
         invalidFields: ['date'],
-        message: 'Invalid manufacture date.'
+        message: 'Некорректная дата изготовления.'
       });
     });
   });
@@ -140,7 +140,7 @@ describe('calculateShelfLife', () => {
       expect(result).toEqual({
         ok: false,
         invalidFields: ['time'],
-        message: 'Invalid manufacture time.'
+        message: 'Некорректное время изготовления.'
       });
     });
   });
@@ -160,7 +160,7 @@ describe('calculateShelfLife', () => {
       expect(result).toEqual({
         ok: false,
         invalidFields: ['term'],
-        message: 'Invalid shelf-life term.'
+        message: 'Укажите срок годности целым числом больше нуля.'
       });
     });
   });
@@ -192,7 +192,7 @@ describe('calculateShelfLife', () => {
     expect(result).toEqual({
       ok: false,
       invalidFields: ['unit'],
-      message: 'Unknown shelf-life unit.'
+      message: 'Неизвестная единица срока годности.'
     });
   });
 

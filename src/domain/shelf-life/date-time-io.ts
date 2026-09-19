@@ -92,3 +92,54 @@ export function formatShelfLifeDateTime(value: Date, includeTime: boolean): stri
 
   return `${datePart} ${pad2(value.getHours())}:${pad2(value.getMinutes())}`;
 }
+
+export type ShelfLifeDateInputStatus = 'empty' | 'incomplete' | 'invalid' | 'ok';
+
+export interface ShelfLifeDateInputExplanation {
+  readonly status: ShelfLifeDateInputStatus;
+  /** Понятное пользователю сообщение для статусов `incomplete` и `invalid`. */
+  readonly message: string | null;
+}
+
+/**
+ * Объясняет состояние введённой даты изготовления: пусто, не дописана, такой даты нет или всё в порядке.
+ *
+ * @param value Значение поля даты.
+ * @returns Статус и сообщение для показа под полем.
+ */
+export function explainShelfLifeDateInput(value: string): ShelfLifeDateInputExplanation {
+  const trimmed = value.trim();
+  if (trimmed === '') {
+    return { status: 'empty', message: null };
+  }
+
+  if (!DATE_PATTERN.test(trimmed)) {
+    return { status: 'incomplete', message: 'Введите дату полностью: ДД.ММ.ГГГГ' };
+  }
+
+  if (!parseShelfLifeDateInput(trimmed).ok) {
+    return { status: 'invalid', message: `Такой даты нет: ${trimmed}` };
+  }
+
+  return { status: 'ok', message: null };
+}
+
+/**
+ * Возвращает вчерашнюю дату в локальном календаре (без сдвигов из-за часового пояса).
+ *
+ * @param now Текущий момент.
+ * @returns Дата «вчера» с временем 00:00 по местному времени.
+ */
+export function yesterdayOf(now: Date): Date {
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+}
+
+/**
+ * Форматирует дату как `ДД.ММ.ГГГГ` по местному календарю для подстановки в поле ввода.
+ *
+ * @param value Дата.
+ * @returns Строка `ДД.ММ.ГГГГ`.
+ */
+export function formatDateForInput(value: Date): string {
+  return `${pad2(value.getDate())}.${pad2(value.getMonth() + 1)}.${String(value.getFullYear()).padStart(4, '0')}`;
+}
