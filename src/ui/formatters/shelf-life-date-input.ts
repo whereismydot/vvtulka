@@ -101,3 +101,92 @@ export function formatDateInputWithCaret(value: string, caret: number | null | u
     caret: nextCaret
   };
 }
+
+const ISO_DATE_PATTERN = /^\s*(\d{4})[-./](\d{1,2})[-./](\d{1,2})\s*$/;
+
+/**
+ * Форматирует дату при наборе «в конец» строки: ставит точки автоматически и дополняет цифры нулями.
+ *
+ * Правила: день начинается с 4–9 → `04.`; месяц начинается с 2–9 → `02.`; ручной разделитель после одной цифры
+ * дополняет ноль (`1.` → `01.`); после полного дня и месяца точка ставится сама; год — не больше 4 цифр.
+ * Вставка вида `2026-09-01` приводится к `01.09.2026`. Календарную корректность функция не проверяет.
+ *
+ * @param value Текущее значение поля.
+ * @returns Значение в формате `ДД.ММ.ГГГГ` (возможно, неполное, с завершающей точкой).
+ */
+export function formatDateTyping(value: string): string {
+  const iso = ISO_DATE_PATTERN.exec(value);
+  if (iso !== null) {
+    const [, isoYear, isoMonth, isoDay] = iso;
+    return `${isoDay.padStart(2, '0')}.${isoMonth.padStart(2, '0')}.${isoYear}`;
+  }
+
+  let day = '';
+  let month = '';
+  let year = '';
+  let stage: 'day' | 'month' | 'year' = 'day';
+
+  for (const char of value) {
+    const isDigit = char >= '0' && char <= '9';
+
+    if (stage === 'day') {
+      if (isDigit) {
+        if (day === '' && char >= '4') {
+          day = `0${char}`;
+          stage = 'month';
+        } else {
+          day += char;
+          if (day.length === 2) {
+            stage = 'month';
+          }
+        }
+      } else if (day.length === 1) {
+        day = `0${day}`;
+        stage = 'month';
+      }
+    } else if (stage === 'month') {
+      if (isDigit) {
+        if (month === '' && char >= '2') {
+          month = `0${char}`;
+          stage = 'year';
+        } else {
+          month += char;
+          if (month.length === 2) {
+            stage = 'year';
+          }
+        }
+      } else if (month.length === 1) {
+        month = `0${month}`;
+        stage = 'year';
+      }
+    } else if (isDigit && year.length < 4) {
+      year += char;
+    }
+  }
+
+  let result = day;
+  if (stage !== 'day') {
+    result += '.';
+  }
+  result += month;
+  if (stage === 'year') {
+    result += '.';
+  }
+  return result + year;
+}
+
+/**
+ * Приводит введённую дату к окончательному виду (при потере фокуса или отправке):
+ * дополняет нулями день и месяц и расширяет двузначный год до `20YY`.
+ *
+ * @param value Значение поля.
+ * @returns Нормализованная строка; неполные даты возвращаются без завершающей точки.
+ */
+export function normalizeDateInput(value: string): string {
+  const typed = formatDateTyping(value);
+  const [day = '', month = '', year = ''] = typed.split('.');
+  if (day.length === 2 && month.length === 2 && year.length === 2) {
+    return `${day}.${month}.20${year}`;
+  }
+  return typed.replace(/\.$/, '');
+}

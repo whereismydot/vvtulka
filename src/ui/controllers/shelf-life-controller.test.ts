@@ -30,6 +30,14 @@ function buildUnitSelect(): HTMLSelectElement {
 function createElements(): AppElements {
   const form = document.createElement('form');
   const dateInput = document.createElement('input');
+  const dateError = document.createElement('p');
+  dateError.hidden = true;
+  const yesterdayButton = document.createElement('button');
+  yesterdayButton.type = 'button';
+  const calendarButton = document.createElement('button');
+  calendarButton.type = 'button';
+  const datePicker = document.createElement('input');
+  datePicker.type = 'date';
   const termInput = document.createElement('input');
   termInput.type = 'number';
   const unitSelect = buildUnitSelect();
@@ -47,7 +55,7 @@ function createElements(): AppElements {
   result.appendChild(resultText);
 
   timeRow.appendChild(timeInput);
-  form.append(dateInput, termInput, unitSelect, useTimeInput, timeRow, checkButton);
+  form.append(dateInput, dateError, yesterdayButton, calendarButton, datePicker, termInput, unitSelect, useTimeInput, timeRow, checkButton);
 
   const host = document.createElement('div');
   host.append(form, result);
@@ -56,6 +64,10 @@ function createElements(): AppElements {
   return {
     shelfLifeForm: form,
     shelfLifeDateInput: dateInput,
+    shelfLifeDateError: dateError,
+    shelfLifeYesterdayButton: yesterdayButton,
+    shelfLifeCalendarButton: calendarButton,
+    shelfLifeDatePicker: datePicker,
     shelfLifeTermInput: termInput,
     shelfLifeUnitSelect: unitSelect,
     shelfLifeUseTimeInput: useTimeInput,
@@ -65,6 +77,30 @@ function createElements(): AppElements {
     shelfLifeResult: result,
     shelfLifeResultText: resultText
   } as unknown as AppElements;
+}
+
+function typeText(elements: AppElements, text: string): void {
+  for (const char of text) {
+    const input = elements.shelfLifeDateInput;
+    input.value = `${input.value}${char}`;
+    input.setSelectionRange(input.value.length, input.value.length);
+    input.dispatchEvent(new InputEvent('input', { inputType: 'insertText', data: char }));
+  }
+}
+
+function pressBackspace(elements: AppElements): void {
+  const input = elements.shelfLifeDateInput;
+  input.value = input.value.slice(0, -1);
+  input.setSelectionRange(input.value.length, input.value.length);
+  input.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward' }));
+}
+
+function setup(now?: () => Date): AppElements {
+  const elements = createElements();
+  createShelfLifeController({ elements, setStatus: vi.fn(), now });
+  elements.shelfLifeTermInput.value = '1';
+  elements.shelfLifeUnitSelect.value = 'days';
+  return elements;
 }
 
 function submitForm(elements: AppElements): void {
@@ -115,7 +151,7 @@ describe('shelf life controller', () => {
 
     expect(elements.shelfLifeTimeInput.classList.contains('field-invalid')).toBe(true);
     expect(elements.shelfLifeResult.hidden).toBe(true);
-    expect(setStatus).toHaveBeenCalledWith('Invalid manufacture time.', 'warning');
+    expect(setStatus).toHaveBeenCalledWith('Некорректное время изготовления.', 'warning');
   });
 
   it('allows empty time when includeTime is disabled', () => {
@@ -246,7 +282,7 @@ describe('shelf life controller', () => {
     expect(elements.shelfLifeResultText.textContent).toBe(`${VALID_UNTIL_PREFIX}01.01.2027`);
   });
 
-  it('rejects date with two-digit year', () => {
+  it('expands a two-digit year on submit', () => {
     const elements = createElements();
 
     createShelfLifeController({
@@ -260,11 +296,12 @@ describe('shelf life controller', () => {
 
     submitForm(elements);
 
-    expect(elements.shelfLifeDateInput.classList.contains('field-invalid')).toBe(true);
-    expect(elements.shelfLifeResult.hidden).toBe(true);
+    expect(elements.shelfLifeDateInput.value).toBe('03.05.2026');
+    expect(elements.shelfLifeDateInput.classList.contains('field-invalid')).toBe(false);
+    expect(elements.shelfLifeResultText.textContent).toBe(`${VALID_UNTIL_PREFIX}06.05.2026`);
   });
 
-  it('keeps DD.MM.YY invalid after autoformatting digits-only input', () => {
+  it('expands DD.MM.YY typed as digits on submit', () => {
     const elements = createElements();
 
     createShelfLifeController({
@@ -272,16 +309,15 @@ describe('shelf life controller', () => {
       setStatus: vi.fn()
     });
 
-    elements.shelfLifeDateInput.value = '030526';
-    elements.shelfLifeDateInput.dispatchEvent(new Event('input'));
+    typeText(elements, '030526');
+    expect(elements.shelfLifeDateInput.value).toBe('03.05.26');
     elements.shelfLifeTermInput.value = '3';
     elements.shelfLifeUnitSelect.value = 'days';
 
     submitForm(elements);
 
-    expect(elements.shelfLifeDateInput.value).toBe('03.05.26');
-    expect(elements.shelfLifeDateInput.classList.contains('field-invalid')).toBe(true);
-    expect(elements.shelfLifeResult.hidden).toBe(true);
+    expect(elements.shelfLifeDateInput.value).toBe('03.05.2026');
+    expect(elements.shelfLifeResult.hidden).toBe(false);
   });
 
   it('highlights date input when format is invalid', () => {
@@ -292,7 +328,7 @@ describe('shelf life controller', () => {
       setStatus: vi.fn()
     });
 
-    elements.shelfLifeDateInput.value = '03/05/2026';
+    elements.shelfLifeDateInput.value = '03/05';
     elements.shelfLifeTermInput.value = '3';
     elements.shelfLifeUnitSelect.value = 'days';
 
@@ -487,5 +523,171 @@ describe('shelf life controller', () => {
     elements.shelfLifeUnitSelect.classList.add('field-invalid');
     elements.shelfLifeUnitSelect.dispatchEvent(new Event('change'));
     expect(elements.shelfLifeUnitSelect.classList.contains('field-invalid')).toBe(false);
+  });
+
+  describe('smart date field', () => {
+    it('adds dots while typing digits and keeps the final value', () => {
+      const elements = setup();
+
+      typeText(elements, '01');
+      expect(elements.shelfLifeDateInput.value).toBe('01.');
+      typeText(elements, '09');
+      expect(elements.shelfLifeDateInput.value).toBe('01.09.');
+      typeText(elements, '2026');
+      expect(elements.shelfLifeDateInput.value).toBe('01.09.2026');
+    });
+
+    it('pads a lone digit when a separator or a large first digit is typed', () => {
+      const elements = setup();
+
+      typeText(elements, '1.');
+      expect(elements.shelfLifeDateInput.value).toBe('01.');
+
+      elements.shelfLifeDateInput.value = '';
+      typeText(elements, '7');
+      expect(elements.shelfLifeDateInput.value).toBe('07.');
+    });
+
+    it('lets Backspace remove characters without re-adding the automatic dot', () => {
+      const elements = setup();
+
+      typeText(elements, '0109');
+      expect(elements.shelfLifeDateInput.value).toBe('01.09.');
+
+      pressBackspace(elements);
+      expect(elements.shelfLifeDateInput.value).toBe('01.09');
+      pressBackspace(elements);
+      expect(elements.shelfLifeDateInput.value).toBe('01.0');
+      pressBackspace(elements);
+      expect(elements.shelfLifeDateInput.value).toBe('01');
+      pressBackspace(elements);
+      expect(elements.shelfLifeDateInput.value).toBe('0');
+    });
+
+    it('shows the result immediately once the date and the term are valid', () => {
+      const elements = setup();
+
+      typeText(elements, '3112202');
+      expect(elements.shelfLifeResult.hidden).toBe(true);
+      typeText(elements, '6');
+
+      expect(elements.shelfLifeResult.hidden).toBe(false);
+      expect(elements.shelfLifeResultText.textContent).toBe(`${VALID_UNTIL_PREFIX}01.01.2027`);
+
+      elements.shelfLifeTermInput.value = '2';
+      elements.shelfLifeTermInput.dispatchEvent(new Event('input'));
+      expect(elements.shelfLifeResultText.textContent).toBe(`${VALID_UNTIL_PREFIX}02.01.2027`);
+
+      elements.shelfLifeTermInput.value = '';
+      elements.shelfLifeTermInput.dispatchEvent(new Event('input'));
+      expect(elements.shelfLifeResult.hidden).toBe(true);
+      expect(elements.shelfLifeTermInput.classList.contains('field-invalid')).toBe(false);
+    });
+
+    it('shows a hint under the field when a complete date does not exist', () => {
+      const elements = setup();
+
+      typeText(elements, '31022026');
+
+      expect(elements.shelfLifeDateError.hidden).toBe(false);
+      expect(elements.shelfLifeDateError.textContent).toBe('Такой даты нет: 31.02.2026');
+      expect(elements.shelfLifeDateInput.getAttribute('aria-invalid')).toBe('true');
+      expect(elements.shelfLifeDateInput.classList.contains('field-invalid')).toBe(true);
+      expect(elements.shelfLifeResult.hidden).toBe(true);
+
+      pressBackspace(elements);
+      expect(elements.shelfLifeDateInput.value).toBe('31.02.202');
+      expect(elements.shelfLifeDateError.hidden).toBe(true);
+      expect(elements.shelfLifeDateInput.getAttribute('aria-invalid')).toBeNull();
+    });
+
+    it('does not nag about incomplete dates while typing but does after leaving the field', () => {
+      const elements = setup();
+
+      typeText(elements, '0109');
+      expect(elements.shelfLifeDateError.hidden).toBe(true);
+
+      elements.shelfLifeDateInput.dispatchEvent(new Event('blur'));
+      expect(elements.shelfLifeDateError.hidden).toBe(false);
+      expect(elements.shelfLifeDateError.textContent).toBe('Введите дату полностью: ДД.ММ.ГГГГ');
+    });
+
+    it('does not show an error for an empty field on blur', () => {
+      const elements = setup();
+
+      elements.shelfLifeDateInput.dispatchEvent(new Event('blur'));
+
+      expect(elements.shelfLifeDateError.hidden).toBe(true);
+    });
+
+    it('expands a two-digit year and pads zeros on blur', () => {
+      const elements = setup();
+
+      elements.shelfLifeDateInput.value = '1.9.26';
+      elements.shelfLifeDateInput.dispatchEvent(new Event('blur'));
+
+      expect(elements.shelfLifeDateInput.value).toBe('01.09.2026');
+      expect(elements.shelfLifeDateError.hidden).toBe(true);
+      expect(elements.shelfLifeResult.hidden).toBe(false);
+    });
+
+    it('fills yesterday with the button and recalculates', () => {
+      const elements = setup(() => new Date(2026, 2, 1, 10, 0));
+
+      elements.shelfLifeYesterdayButton.click();
+
+      expect(elements.shelfLifeDateInput.value).toBe('28.02.2026');
+      expect(elements.shelfLifeResultText.textContent).toBe(`${VALID_UNTIL_PREFIX}01.03.2026`);
+    });
+
+    it('clears a previous error when yesterday is chosen', () => {
+      const elements = setup(() => new Date(2026, 8, 19, 12, 0));
+      typeText(elements, '31022026');
+      expect(elements.shelfLifeDateError.hidden).toBe(false);
+
+      elements.shelfLifeYesterdayButton.click();
+
+      expect(elements.shelfLifeDateError.hidden).toBe(true);
+      expect(elements.shelfLifeDateInput.value).toBe('18.09.2026');
+    });
+
+    it('takes the date from the calendar picker', () => {
+      const elements = setup();
+
+      elements.shelfLifeDatePicker.value = '2026-09-01';
+      elements.shelfLifeDatePicker.dispatchEvent(new Event('change'));
+
+      expect(elements.shelfLifeDateInput.value).toBe('01.09.2026');
+      expect(elements.shelfLifeResultText.textContent).toBe(`${VALID_UNTIL_PREFIX}02.09.2026`);
+    });
+
+    it('opens the calendar with the current date preselected and falls back without showPicker', () => {
+      const elements = setup();
+      const showPicker = vi.fn();
+      (elements.shelfLifeDatePicker as unknown as { showPicker: () => void }).showPicker = showPicker;
+      elements.shelfLifeDateInput.value = '05.06.2026';
+
+      elements.shelfLifeCalendarButton.click();
+
+      expect(showPicker).toHaveBeenCalledTimes(1);
+      expect(elements.shelfLifeDatePicker.value).toBe('2026-06-05');
+
+      showPicker.mockImplementation(() => {
+        throw new DOMException('not allowed', 'NotAllowedError');
+      });
+      const click = vi.spyOn(elements.shelfLifeDatePicker, 'click');
+      elements.shelfLifeCalendarButton.click();
+      expect(click).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows the reason under the field when submitting an incomplete date', () => {
+      const elements = setup();
+      elements.shelfLifeDateInput.value = '01.09';
+
+      submitForm(elements);
+
+      expect(elements.shelfLifeDateError.textContent).toBe('Введите дату полностью: ДД.ММ.ГГГГ');
+      expect(elements.shelfLifeDateInput.classList.contains('field-invalid')).toBe(true);
+    });
   });
 });

@@ -374,6 +374,97 @@
   gap: var(--space-2);
 }
 
+.date-field {
+  position: relative;
+  display: flex;
+  gap: var(--space-2);
+}
+
+.date-field > input[type='text'] {
+  flex: 1;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.date-field-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  padding: 0;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-soft);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease), border-color var(--duration-fast) var(--ease),
+    color var(--duration-fast) var(--ease);
+}
+
+.date-field-btn:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.date-field-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.date-field-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Скрытое системное поле выбора даты: не display:none, чтобы календарь открывался во всех браузерах */
+.date-picker-hidden {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  min-height: 0;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.date-quick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.btn-chip {
+  min-height: var(--tap-target);
+  border-radius: var(--radius-pill);
+  border-color: var(--color-accent-line);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.btn-chip:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.field-hint {
+  color: var(--color-text-faint);
+  font-size: var(--text-xs);
+}
+
+.field-error {
+  color: var(--color-danger-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
 .shelf-life-time-toggle {
   display: flex;
   align-items: center;

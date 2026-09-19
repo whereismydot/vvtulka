@@ -211,14 +211,26 @@ export const APP_TEMPLATE = `
           <form id="shelf-life-form" class="shelf-life-form" novalidate>
             <div class="shelf-life-row">
               <label for="shelf-life-date-input">Дата изготовления</label>
-              <input
-                id="shelf-life-date-input"
-                type="text"
-                inputmode="numeric"
-                autocomplete="off"
-                placeholder="ДД.ММ.ГГГГ"
-                maxlength="10"
-              />
+              <div class="date-field">
+                <input
+                  id="shelf-life-date-input"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  enterkeyhint="done"
+                  placeholder="ДД.ММ.ГГГГ"
+                  aria-describedby="shelf-life-date-error"
+                />
+                <button id="shelf-life-calendar-btn" class="date-field-btn" type="button" aria-label="Открыть календарь" title="Календарь">
+                  ${ICON_CALENDAR}
+                </button>
+                <input id="shelf-life-date-picker" class="date-picker-hidden" type="date" tabindex="-1" aria-hidden="true" />
+              </div>
+              <div class="date-quick">
+                <button id="shelf-life-yesterday-btn" class="btn btn-chip" type="button">Вчера</button>
+                <span class="field-hint">Точки ставятся сами: достаточно набрать цифры</span>
+              </div>
+              <p id="shelf-life-date-error" class="field-error" role="alert" hidden></p>
             </div>
 
             <div class="shelf-life-row">

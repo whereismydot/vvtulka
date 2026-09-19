@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDateInput, formatDateInputWithCaret } from './shelf-life-date-input';
+import { formatDateInput, formatDateInputWithCaret, formatDateTyping, normalizeDateInput } from './shelf-life-date-input';
 
 describe('formatDateInput', () => {
   it('formats incremental typing as DD.MM.YYYY shape', () => {
@@ -134,5 +134,71 @@ describe('formatDateInputWithCaret', () => {
       formatted: '31.12.2026',
       caret: 10
     });
+  });
+});
+
+describe('formatDateTyping', () => {
+  it('puts dots automatically right after a complete day and month', () => {
+    expect(formatDateTyping('')).toBe('');
+    expect(formatDateTyping('0')).toBe('0');
+    expect(formatDateTyping('01')).toBe('01.');
+    expect(formatDateTyping('01.0')).toBe('01.0');
+    expect(formatDateTyping('01.09')).toBe('01.09.');
+    expect(formatDateTyping('01.09.2')).toBe('01.09.2');
+    expect(formatDateTyping('01.09.2026')).toBe('01.09.2026');
+  });
+
+  it('is stable when the already formatted value is fed back', () => {
+    for (const value of ['01.', '01.0', '01.09.', '01.09.2', '01.09.2026']) {
+      expect(formatDateTyping(value)).toBe(value);
+    }
+  });
+
+  it('pads day and month when the first digit cannot start two-digit values', () => {
+    expect(formatDateTyping('4')).toBe('04.');
+    expect(formatDateTyping('9')).toBe('09.');
+    expect(formatDateTyping('3')).toBe('3');
+    expect(formatDateTyping('04.7')).toBe('04.07.');
+    expect(formatDateTyping('04.1')).toBe('04.1');
+  });
+
+  it('pads a single digit when a separator is typed by hand', () => {
+    expect(formatDateTyping('1.')).toBe('01.');
+    expect(formatDateTyping('1.9')).toBe('01.09.');
+    expect(formatDateTyping('1.9.')).toBe('01.09.');
+    expect(formatDateTyping('1/9/26')).toBe('01.09.26');
+    expect(formatDateTyping('1,9,2026')).toBe('01.09.2026');
+    expect(formatDateTyping('1 9 2026')).toBe('01.09.2026');
+  });
+
+  it('formats pasted digits and other pasted shapes', () => {
+    expect(formatDateTyping('01092026')).toBe('01.09.2026');
+    expect(formatDateTyping('010926')).toBe('01.09.26');
+    expect(formatDateTyping('2026-09-01')).toBe('01.09.2026');
+    expect(formatDateTyping('2026.9.1')).toBe('01.09.2026');
+    expect(formatDateTyping('abc')).toBe('');
+  });
+
+  it('limits the year to four digits and ignores extra separators', () => {
+    expect(formatDateTyping('01.09.20261')).toBe('01.09.2026');
+    expect(formatDateTyping('01.09.2026.')).toBe('01.09.2026');
+    expect(formatDateTyping('..01')).toBe('01.');
+  });
+});
+
+describe('normalizeDateInput', () => {
+  it('expands a two-digit year to 20YY and pads day and month', () => {
+    expect(normalizeDateInput('01.09.26')).toBe('01.09.2026');
+    expect(normalizeDateInput('1.9.26')).toBe('01.09.2026');
+    expect(normalizeDateInput('010926')).toBe('01.09.2026');
+    expect(normalizeDateInput('1.9.2026')).toBe('01.09.2026');
+  });
+
+  it('keeps incomplete input without a trailing dot and complete dates unchanged', () => {
+    expect(normalizeDateInput('01.09.')).toBe('01.09');
+    expect(normalizeDateInput('01.')).toBe('01');
+    expect(normalizeDateInput('')).toBe('');
+    expect(normalizeDateInput('01.09.2026')).toBe('01.09.2026');
+    expect(normalizeDateInput('01.09.202')).toBe('01.09.202');
   });
 });

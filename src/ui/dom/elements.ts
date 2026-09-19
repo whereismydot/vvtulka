@@ -50,6 +50,10 @@ export interface AppElements {
   readonly textCleanerTrimWholeTextInput: HTMLInputElement;
   readonly shelfLifeForm: HTMLFormElement;
   readonly shelfLifeDateInput: HTMLInputElement;
+  readonly shelfLifeDateError: HTMLElement;
+  readonly shelfLifeYesterdayButton: HTMLButtonElement;
+  readonly shelfLifeCalendarButton: HTMLButtonElement;
+  readonly shelfLifeDatePicker: HTMLInputElement;
   readonly shelfLifeTermInput: HTMLInputElement;
   readonly shelfLifeUnitSelect: HTMLSelectElement;
   readonly shelfLifeUseTimeInput: HTMLInputElement;
@@ -163,6 +167,16 @@ export function getAppElements(): AppElements {
     ),
     shelfLifeForm: must(document.querySelector<HTMLFormElement>('#shelf-life-form'), '#shelf-life-form not found'),
     shelfLifeDateInput: must(document.querySelector<HTMLInputElement>('#shelf-life-date-input'), '#shelf-life-date-input not found'),
+    shelfLifeDateError: must(document.querySelector<HTMLElement>('#shelf-life-date-error'), '#shelf-life-date-error not found'),
+    shelfLifeYesterdayButton: must(
+      document.querySelector<HTMLButtonElement>('#shelf-life-yesterday-btn'),
+      '#shelf-life-yesterday-btn not found'
+    ),
+    shelfLifeCalendarButton: must(
+      document.querySelector<HTMLButtonElement>('#shelf-life-calendar-btn'),
+      '#shelf-life-calendar-btn not found'
+    ),
+    shelfLifeDatePicker: must(document.querySelector<HTMLInputElement>('#shelf-life-date-picker'), '#shelf-life-date-picker not found'),
     shelfLifeTermInput: must(document.querySelector<HTMLInputElement>('#shelf-life-term-input'), '#shelf-life-term-input not found'),
     shelfLifeUnitSelect: must(document.querySelector<HTMLSelectElement>('#shelf-life-unit-select'), '#shelf-life-unit-select not found'),
     shelfLifeUseTimeInput: must(

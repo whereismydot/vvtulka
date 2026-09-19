@@ -31,7 +31,7 @@ describe('calculateShelfLife fallback guards', () => {
     expect(result).toEqual({
       ok: false,
       invalidFields: ['term'],
-      message: 'Shelf-life term is out of supported range.'
+      message: 'Срок годности выходит за поддерживаемый диапазон.'
     });
     expect(calculateExpiryDateMock).toHaveBeenCalledTimes(1);
   });
@@ -46,7 +46,7 @@ describe('calculateShelfLife fallback guards', () => {
     expect(result).toEqual({
       ok: false,
       invalidFields: ['term'],
-      message: 'Shelf-life term is out of supported range.'
+      message: 'Срок годности выходит за поддерживаемый диапазон.'
     });
     expect(calculateExpiryDateMock).toHaveBeenCalledTimes(1);
   });

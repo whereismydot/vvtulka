@@ -60,22 +60,22 @@ function fail(invalidFields: readonly ShelfLifeField[], message: string): Calcul
 export function calculateShelfLife(input: CalculateShelfLifeInput): CalculateShelfLifeResult {
   const unit = input.shelfLifeUnitRaw;
   if (!isShelfLifeUnit(unit)) {
-    return fail(['unit'], 'Unknown shelf-life unit.');
+    return fail(['unit'], 'Неизвестная единица срока годности.');
   }
 
   const parsedDate = parseShelfLifeDateInput(input.manufactureDateRaw);
   if (!parsedDate.ok) {
-    return fail(['date'], 'Invalid manufacture date.');
+    return fail(['date'], 'Некорректная дата изготовления.');
   }
 
   const parsedTime = parseShelfLifeTimeInput(input.manufactureTimeRaw, input.includeTime);
   if (!parsedTime.ok) {
-    return fail(['time'], 'Invalid manufacture time.');
+    return fail(['time'], 'Некорректное время изготовления.');
   }
 
   const term = parseTerm(input.shelfLifeTermRaw);
   if (term === null) {
-    return fail(['term'], 'Invalid shelf-life term.');
+    return fail(['term'], 'Укажите срок годности целым числом больше нуля.');
   }
 
   const manufacturedAt = buildShelfLifeDateTime(parsedDate.value, parsedTime.value);
@@ -83,7 +83,7 @@ export function calculateShelfLife(input: CalculateShelfLifeInput): CalculateShe
   try {
     const validUntil = calculateExpiryDate(manufacturedAt, term, unit);
     if (Number.isNaN(validUntil.getTime())) {
-      return fail(['term'], 'Shelf-life term is out of supported range.');
+      return fail(['term'], 'Срок годности выходит за поддерживаемый диапазон.');
     }
 
     return {
@@ -92,6 +92,6 @@ export function calculateShelfLife(input: CalculateShelfLifeInput): CalculateShe
       formattedValidUntil: formatShelfLifeDateTime(validUntil, input.includeTime)
     };
   } catch {
-    return fail(['term'], 'Shelf-life term is out of supported range.');
+    return fail(['term'], 'Срок годности выходит за поддерживаемый диапазон.');
   }
 }
