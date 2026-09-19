@@ -1,4 +1,5 @@
 import type { ThemeMode, ThemePreference } from '../../infrastructure/browser/theme-preference';
+import { createThemeIcon } from '../dom/icons';
 
 /**
  * Обновляет подпись и иконку кнопки переключения темы.
@@ -10,7 +11,7 @@ function renderThemeToggleLabel(themeToggleButton: HTMLButtonElement, mode: Them
   const currentModeName = mode === 'dark' ? 'тёмная' : 'светлая';
   const nextMode = mode === 'dark' ? 'light' : 'dark';
   const nextModeName = nextMode === 'dark' ? 'тёмную' : 'светлую';
-  themeToggleButton.textContent = mode === 'dark' ? '☀' : '🌙';
+  themeToggleButton.replaceChildren(createThemeIcon(mode === 'dark' ? 'sun' : 'moon'));
   themeToggleButton.setAttribute('aria-label', `Сейчас ${currentModeName} тема. Переключить на ${nextModeName}.`);
   themeToggleButton.setAttribute('title', `Переключить на ${nextModeName} тему`);
 }
