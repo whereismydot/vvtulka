@@ -1,4 +1,4 @@
-﻿const icon = (paths: string): string =>
+const icon = (paths: string): string =>
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${paths}</svg>`;
 
 const ICON_RECEIPT = icon('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"/><path d="M9 8h6M9 12h6"/>');
@@ -282,11 +282,6 @@ export const APP_TEMPLATE = `
             <button id="urgent-run-btn" class="btn btn-primary" type="button">Подобрать замены</button>
           </div>
           <div id="urgent-steps" class="urgent-steps" hidden></div>
-          <details id="urgent-log-details" class="urgent-log-details" hidden>
-            <summary>Лог работы</summary>
-            <pre id="urgent-log" class="urgent-log"></pre>
-          </details>
-          <div id="urgent-error" class="urgent-error" role="alert" hidden></div>
         </section>
 
         <section id="urgent-result" class="urgent-results" hidden>
@@ -369,6 +364,9 @@ export const APP_TEMPLATE = `
         <a class="site-footer-link" href="https://t.me/gleb_perveev" target="_blank" rel="noopener noreferrer">@gleb_perveev</a>
         <span class="site-footer-separator" aria-hidden="true">·</span>
         <a class="site-footer-link" href="mailto:sanlovty@yandex.ru">sanlovty@yandex.ru</a>
+      </p>
+      <p class="site-footer-text site-footer-report">
+        <button id="copy-report-btn" class="link-quiet" type="button">Скопировать отчёт о работе</button>
       </p>
     </footer>
   </div>

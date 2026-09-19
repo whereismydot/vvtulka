@@ -1,3 +1,4 @@
+import { appLog } from '../../infrastructure/diagnostics/app-log';
 import type { AppElements } from '../dom/elements';
 
 type ServiceTabId = 'vkusback' | 'service-2' | 'service-3' | 'urgent';
@@ -69,6 +70,7 @@ function getBindings(elements: AppElements): readonly ServiceTabBinding[] {
 }
 
 function applyActiveTab(elements: AppElements, tab: ServiceTabId): void {
+  appLog.info('tab', `Открыта вкладка ${tab}`);
   getBindings(elements).forEach((binding) => {
     const isActive = binding.id === tab;
     binding.button.classList.toggle('service-tab-active', isActive);

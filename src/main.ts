@@ -3,12 +3,16 @@ import './style.css';
 import { AppService } from './application/app-service';
 import { parseOrderText } from './domain/receipt/parser';
 import { createClock } from './infrastructure/browser/clock';
+import { appLog, installGlobalErrorLogging } from './infrastructure/diagnostics/app-log';
 import { createIdGenerator } from './infrastructure/browser/id-generator';
 import { createThemePreference } from './infrastructure/browser/theme-preference';
 import { buildStorageState, loadState, saveState } from './infrastructure/storage/local-storage-state';
 import { createAppController } from './ui/controllers/app-controller';
 import { getAppElements, getAppRoot } from './ui/dom/elements';
 import { APP_TEMPLATE } from './ui/template/app-template';
+
+installGlobalErrorLogging();
+appLog.info('app', `Загрузка, версия ${typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev'}`);
 
 const appRoot = getAppRoot();
 appRoot.innerHTML = APP_TEMPLATE;
@@ -27,7 +31,13 @@ const service = new AppService(
     parseOrderText,
     createOrderId: () => idGenerator.nextId(),
     nowIso: () => clock.nowIso(),
-    persistState: (state) => saveState(buildStorageState(state.orders, state.percentRaw))
+    persistState: (state) => {
+      const saved = saveState(buildStorageState(state.orders, state.percentRaw));
+      if (saved === false) {
+        appLog.warn('storage', 'Не удалось сохранить данные в браузере');
+      }
+      return saved;
+    }
   }
 );
 

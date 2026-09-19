@@ -1,6 +1,7 @@
 import type { StatusTone } from '../../application/app-results';
 import { calculateShelfLife, type CalculateShelfLifeInput, type ShelfLifeField } from '../../application/shelf-life-service';
 import { explainShelfLifeDateInput, formatDateForInput, parseShelfLifeDateInput, yesterdayOf } from '../../domain/shelf-life/date-time-io';
+import { appLog } from '../../infrastructure/diagnostics/app-log';
 import type { AppElements } from '../dom/elements';
 import { formatDateInputWithCaret, formatDateTyping, normalizeDateInput } from '../formatters/shelf-life-date-input';
 
@@ -227,6 +228,7 @@ export function createShelfLifeController(dependencies: ShelfLifeControllerDepen
     const result = calculateShelfLife(readCalculationInput(elements));
 
     if (!result.ok) {
+      appLog.warn('shelf-life', `Расчёт отклонён, поля: ${result.invalidFields.join(',') || 'не указаны'}`);
       highlightInvalidFields(elements, result.invalidFields);
       if (result.invalidFields.includes('date')) {
         const explanation = explainShelfLifeDateInput(dateInput.value);
