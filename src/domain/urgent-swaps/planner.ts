@@ -113,6 +113,13 @@ export function planUrgentSwaps(input: PlanInput): UrgentPlan {
     return { name: person.name, tag: person.tag, team: person.team, count: days.length, days, link: linkFor(person) };
   };
 
+  if (schedule.truncated) {
+    warnings.push('Лист прочитан не полностью: данные обрезаны по последней строке диапазона, часть сотрудников могла не попасть в подбор.');
+  }
+  schedule.duplicateNames.forEach((name) => {
+    warnings.push(`В таблице несколько человек с ФИО «${name}»: учитывается первая строка.`);
+  });
+
   const nameCounts = new Map<string, number>();
   parsed.duties.forEach((duty) => {
     const key = normalizeName(duty.name);

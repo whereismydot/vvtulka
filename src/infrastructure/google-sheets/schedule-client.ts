@@ -1,5 +1,5 @@
 import type { MonthSchedule, PlanDate, SchedulePerson } from '../../domain/urgent-swaps/types';
-import { normalizeShift } from '../../domain/urgent-swaps/bot-text-parser';
+import { normalizeName, normalizeShift } from '../../domain/urgent-swaps/bot-text-parser';
 
 const API_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
 const SHEET_TITLE_MARKER = 'график операторов';
@@ -7,7 +7,7 @@ const NAME_COLUMN = 3;
 const TAG_COLUMN = 4;
 const FIRST_DAY_COLUMN = 5;
 const FIRST_DATA_ROW = 6;
-const LAST_ROW = 700;
+const LAST_ROW = 1000;
 const TEAM_HEADER_PATTERN = /^Команда\s*№\s*(\d+)/i;
 const TEAM_NUMBERS = [1, 2, 3, 4];
 const SHIFT_PATTERN = /^\d{1,2}\/\d{1,2}$/;
@@ -43,6 +43,16 @@ interface GridResponse {
 
 interface ValuesResponse {
   readonly valueRanges?: ReadonlyArray<{ values?: unknown[][] }>;
+}
+
+/**
+ * Оборачивает название листа для A1-нотации: апострофы внутри названия удваиваются.
+ *
+ * @param title Название листа.
+ * @returns Название в одинарных кавычках.
+ */
+function quoteSheetTitle(title: string): string {
+  return `'${title.replace(/'/g, "''")}'`;
 }
 
 /**
@@ -117,7 +127,11 @@ export function createScheduleClient(options: ScheduleClientOptions): ScheduleLo
       }
       throw new ScheduleLoadError(`Google ответил ошибкой ${response.status}.`);
     }
-    return JSON.parse(body) as T;
+    try {
+      return JSON.parse(body) as T;
+    } catch {
+      throw new ScheduleLoadError('Google вернул неожиданный ответ (не JSON). Повторите попытку позже.');
+    }
   }
 
   return async function loadSchedule(target, log = () => undefined): Promise<MonthSchedule> {
@@ -135,7 +149,7 @@ export function createScheduleClient(options: ScheduleClientOptions): ScheduleLo
     }
 
     const headers = await getJson<ValuesResponse>('/values:batchGet', [
-      ...candidates.map((props) => ['ranges', `'${props.title}'!F3:AJ3`] as const),
+      ...candidates.map((props) => ['ranges', `${quoteSheetTitle(props.title)}!F3:AJ3`] as const),
       ['valueRenderOption', 'UNFORMATTED_VALUE'],
       ['dateTimeRenderOption', 'SERIAL_NUMBER']
     ]);
@@ -166,7 +180,7 @@ export function createScheduleClient(options: ScheduleClientOptions): ScheduleLo
     const { title, gid, dayColumns } = chosen;
     log(`Выбран лист «${title}». Запрашиваю ячейки A1:AK${LAST_ROW}`);
     const grid = await getJson<GridResponse>('', [
-      ['ranges', `'${title}'!A1:AK${LAST_ROW}`],
+      ['ranges', `${quoteSheetTitle(title)}!A1:AK${LAST_ROW}`],
       ['includeGridData', 'true'],
       ['fields', 'sheets.data.rowData.values(formattedValue,effectiveFormat.backgroundColor)']
     ]);
@@ -175,10 +189,11 @@ export function createScheduleClient(options: ScheduleClientOptions): ScheduleLo
 
     const people: SchedulePerson[] = [];
     const leaderTags: string[] = [];
-    const seen = new Set<string>();
+    const firstByKey = new Map<string, { name: string; team: number | null }>();
+    const duplicateNames = new Set<string>();
     let team: number | null = null;
     for (let rowIndex = FIRST_DATA_ROW; rowIndex < rows.length; rowIndex += 1) {
-      const cells = rows[rowIndex].values ?? [];
+      const cells = rows[rowIndex]?.values ?? [];
       const rawName = cells[NAME_COLUMN]?.formattedValue;
       if (rawName === undefined) {
         continue;
@@ -193,10 +208,19 @@ export function createScheduleClient(options: ScheduleClientOptions): ScheduleLo
         }
         continue;
       }
-      if (name.split(' ').length < 2 || seen.has(name)) {
+      if (name.split(' ').length < 2) {
         continue;
       }
-      seen.add(name);
+      const nameKey = normalizeName(name);
+      const first = firstByKey.get(nameKey);
+      if (first !== undefined) {
+        // Неоднозначность важна только внутри команд 1–4: повтор ФИО у стажёров или в ночной смене не мешает.
+        if (first.team !== null && team !== null) {
+          duplicateNames.add(first.name);
+        }
+        continue;
+      }
+      firstByKey.set(nameKey, { name, team });
 
       const shifts: Record<number, string> = {};
       const urgentDays: number[] = [];
@@ -221,6 +245,15 @@ export function createScheduleClient(options: ScheduleClientOptions): ScheduleLo
       });
     }
 
-    return { sheetTitle: title, sheetGid: gid, spreadsheetId: options.spreadsheetId, people, leaderTags };
+    const lastRowName = rows.length >= LAST_ROW ? rows[rows.length - 1]?.values?.[NAME_COLUMN]?.formattedValue : undefined;
+    return {
+      sheetTitle: title,
+      sheetGid: gid,
+      spreadsheetId: options.spreadsheetId,
+      people,
+      leaderTags,
+      truncated: lastRowName !== undefined && lastRowName.trim() !== '',
+      duplicateNames: [...duplicateNames]
+    };
   };
 }

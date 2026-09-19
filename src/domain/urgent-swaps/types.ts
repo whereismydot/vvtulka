@@ -24,6 +24,10 @@ export interface MonthSchedule {
   readonly people: readonly SchedulePerson[];
   /** Теги лидеров команд (розовые строки «К») в нижнем регистре. */
   readonly leaderTags: readonly string[];
+  /** `true`, если лист длиннее прочитанного диапазона и хвост мог быть потерян. */
+  readonly truncated: boolean;
+  /** ФИО (без учёта регистра и «ё»), которые встречаются в листе несколько раз; учитывается первая строка. */
+  readonly duplicateNames: readonly string[];
 }
 
 /** Строка распределения из текста бота. */

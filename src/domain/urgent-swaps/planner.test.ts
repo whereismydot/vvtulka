@@ -13,7 +13,7 @@ function person(
 }
 
 function scheduleOf(...people: SchedulePerson[]): MonthSchedule {
-  return { sheetTitle: 'График', sheetGid: 7, spreadsheetId: 'SHEET', people, leaderTags: ['@teamlead'] };
+  return { sheetTitle: 'График', sheetGid: 7, spreadsheetId: 'SHEET', people, leaderTags: ['@teamlead'], truncated: false, duplicateNames: [] };
 }
 
 const DATE = { year: 2026, month: 9, day: 20 };
@@ -164,6 +164,17 @@ describe('urgent swaps planner', () => {
 
     expect(plan.rows[0].current?.count).toBe(2);
     expect(plan.rows[0].replacement?.name).toBe('Свободный Сергей');
+  });
+
+  it('warns when the schedule was truncated or has duplicate names', () => {
+    const plan = planUrgentSwaps({
+      date: DATE,
+      botText: botText('Иванов Иван  @ivan  08/20'),
+      schedule: { ...scheduleOf(person('Иванов Иван', '@ivan', '08/20', [])), truncated: true, duplicateNames: ['Петров Пётр'] }
+    });
+
+    expect(plan.warnings.some((warning) => warning.includes('не полностью'))).toBe(true);
+    expect(plan.warnings.some((warning) => warning.includes('«Петров Пётр»'))).toBe(true);
   });
 
   it('respects minDifference', () => {
