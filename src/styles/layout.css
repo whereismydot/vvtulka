@@ -1,0 +1,388 @@
+/* Каркас: верхняя панель, навигация (сверху на десктопе, снизу на телефоне), заголовок страницы, панели, подвал. */
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ---------- Верхняя панель ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-topbar);
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-surface);
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: var(--page-max);
+  min-height: var(--topbar-height);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap-target);
+  color: var(--color-text-main);
+  font-size: var(--text-lg);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+
+.btn-theme {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  margin-left: auto;
+  padding: 0;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-main);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease), border-color var(--duration-fast) var(--ease);
+}
+
+.btn-theme:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.btn-theme:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.btn-theme svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ---------- Навигация: телефон — нижняя панель вкладок ---------- */
+.services-nav {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--z-bottom-nav);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px;
+  padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--color-line);
+  background: var(--color-surface);
+}
+
+.service-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 56px;
+  padding: 6px 2px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-soft);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease), color var(--duration-fast) var(--ease);
+}
+
+.service-tab-icon {
+  display: inline-flex;
+}
+
+.service-tab-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.service-tab:hover {
+  background: var(--color-surface-muted);
+  color: var(--color-text-main);
+}
+
+.service-tab:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.service-tab-active,
+.service-tab-active:hover {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.service-tab-title {
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Страница ---------- */
+.layout {
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding: var(--space-5) var(--page-gutter) calc(96px + env(safe-area-inset-bottom));
+}
+
+.service-pane {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.service-pane[hidden] {
+  display: none;
+}
+
+.page-head {
+  display: grid;
+  gap: var(--space-1);
+  margin-bottom: var(--space-1);
+}
+
+.page-title {
+  font-size: var(--text-xl);
+  font-weight: 800;
+}
+
+.page-subtitle {
+  color: var(--color-text-soft);
+  font-size: var(--text-sm);
+}
+
+.panel {
+  padding: var(--space-4);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.panel h2 {
+  margin-bottom: var(--space-3);
+  font-size: var(--text-md);
+  font-weight: 800;
+}
+
+.workspace {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.workspace-side {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+}
+
+.panel-controls {
+  padding: var(--space-4);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- Подвал ---------- */
+.site-footer {
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding: 0 var(--page-gutter) calc(88px + env(safe-area-inset-bottom));
+}
+
+.site-footer-text {
+  color: var(--color-text-faint);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.site-footer-text + .site-footer-text {
+  margin-top: var(--space-1);
+}
+
+.site-footer-label {
+  font-weight: 700;
+}
+
+.site-footer-separator {
+  margin-inline: var(--space-1);
+}
+
+.site-footer-link {
+  color: inherit;
+  text-underline-offset: 2px;
+}
+
+.site-footer-link:hover {
+  color: var(--color-accent);
+}
+
+/* ---------- Плавающие элементы ---------- */
+.status {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.status-floating {
+  position: fixed;
+  right: var(--space-4);
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  left: var(--space-4);
+  z-index: var(--z-floating);
+  max-width: 32rem;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity var(--duration-normal) var(--ease), transform var(--duration-normal) var(--ease);
+}
+
+.status-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.status-info {
+  border-color: var(--color-info-line);
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+.status-success {
+  border-color: var(--color-success-line);
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+.status-warning {
+  border-color: var(--color-warning-line);
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+.status-error {
+  border-color: var(--color-danger-line);
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
+
+.scroll-top-btn {
+  position: fixed;
+  right: var(--space-4);
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  z-index: var(--z-floating);
+  width: var(--tap-target);
+  min-width: var(--tap-target);
+  padding: 0;
+  border-color: var(--color-accent);
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: var(--color-text-on-accent);
+  font-size: 1.2rem;
+  line-height: 1;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity var(--duration-normal) var(--ease), transform var(--duration-normal) var(--ease);
+}
+
+.scroll-top-btn:hover {
+  background: var(--color-accent-hover);
+}
+
+.scroll-top-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* ---------- Планшет и десктоп: навигация переезжает в верхнюю панель ---------- */
+@media (min-width: 768px) {
+  .services-nav {
+    position: static;
+    display: flex;
+    gap: var(--space-1);
+    padding: 0;
+    border-top: 0;
+    background: transparent;
+  }
+
+  .service-tab {
+    flex-direction: row;
+    gap: var(--space-2);
+    min-height: 40px;
+    padding: 0.4rem 0.85rem;
+    font-size: var(--text-sm);
+    text-align: left;
+  }
+
+  .service-tab-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .layout {
+    padding-top: var(--space-6);
+    padding-bottom: var(--space-7);
+  }
+
+  .site-footer {
+    padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom));
+  }
+
+  .page-title {
+    font-size: var(--text-2xl);
+  }
+
+  .panel {
+    padding: var(--space-5);
+  }
+
+  .status-floating {
+    right: auto;
+    bottom: var(--space-5);
+    left: var(--space-5);
+  }
+
+  .scroll-top-btn {
+    right: var(--space-5);
+    bottom: var(--space-5);
+  }
+
+  .workspace {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}

@@ -1,7 +1,7 @@
 {
   "name": "vvtulka",
   "private": true,
-  "version": "1.2.5",
+  "version": "1.3.0",
   "license": "Apache-2.0",
   "author": "Gleb Perveev",
   "type": "module",
@@ -16,6 +16,7 @@
     "test:shelf-life:tz": "node scripts/run-shelf-life-tz-tests.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/manrope": "5.3.0",
     "decimal.js": "^10.6.0"
   },
   "devDependencies": {
