@@ -1,7 +1,7 @@
 import { sortPlanRows, type PlanSortKey, type SortDirection } from '../../domain/urgent-swaps/plan-sort';
 import type { PersonUsage, PlanRow, ProgressEvent, ProgressStage, UrgentPlan } from '../../domain/urgent-swaps/types';
 
-export type StepStatus = 'wait' | 'run' | 'ok' | 'err';
+type StepStatus = 'wait' | 'run' | 'ok' | 'err';
 
 export interface StepView {
   readonly status: StepStatus;

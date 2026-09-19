@@ -49,7 +49,7 @@ export interface TextCleanerSettings {
   readonly trimWholeText: boolean;
 }
 
-export interface TextCleanerStats {
+interface TextCleanerStats {
   readonly inputLength: number;
   readonly outputLength: number;
   readonly inputLines: number;
