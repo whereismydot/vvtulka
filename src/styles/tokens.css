@@ -146,15 +146,18 @@
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
+/* :root[data-theme] нужен, чтобы адаптивные значения перекрывали токены светлой темы (иначе в светлой теме они не применялись) */
 @media (min-width: 768px) {
-  :root {
+  :root,
+  :root[data-theme] {
     --page-gutter: 1.5rem;
     --text-base: 0.9375rem;
   }
 }
 
 @media (min-width: 1100px) {
-  :root {
+  :root,
+  :root[data-theme] {
     --page-gutter: 2rem;
   }
 }
