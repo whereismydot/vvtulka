@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createScheduleClient, isNewbieColor, isTemporaryLeaderColor, isUrgentColor, ScheduleLoadError, serialToDate, type FetchLike } from './schedule-client';
+import { createScheduleClient, isNewbieColor, isReservedColor, isTemporaryLeaderColor, isUrgentColor, ScheduleLoadError, serialToDate, type FetchLike } from './schedule-client';
 
 // 46266 = 01.09.2026, 46267 = 02.09.2026 (дни от 30.12.1899)
 const SEP_FIRST = 46266;
@@ -85,6 +85,15 @@ describe('schedule client helpers', () => {
     expect(isNewbieColor(undefined)).toBe(false);
   });
 
+  it('detects yellow and light pink fills of people reserved for other lines', () => {
+    expect(isReservedColor({ red: 1, green: 1 })).toBe(true);
+    expect(isReservedColor({ red: 0.957, green: 0.8, blue: 0.8 })).toBe(true);
+    expect(isReservedColor({ red: 1, green: 0.6 })).toBe(false);
+    expect(isReservedColor({ red: 1, blue: 1 })).toBe(false);
+    expect(isReservedColor({ red: 1, green: 1, blue: 1 })).toBe(false);
+    expect(isReservedColor(undefined)).toBe(false);
+  });
+
   it('converts sheet serials to calendar dates in UTC', () => {
     expect(serialToDate(SEP_FIRST)).toEqual({ year: 2026, month: 9, day: 1 });
     expect(serialToDate(SEP_FIRST + 30)).toEqual({ year: 2026, month: 10, day: 1 });
@@ -102,10 +111,10 @@ describe('schedule client', () => {
 
     expect(schedule).toMatchObject({ sheetTitle: 'График операторов - СЕНТЯБРЬ', sheetGid: 42, spreadsheetId: 'ID' });
     expect(schedule.people).toEqual([
-      { name: 'Иванов Иван Иванович', tag: '@ivan', team: 1, temporaryLeader: false, newbie: false, row: 8, shifts: { 1: '08/20', 2: '08/20' }, urgentDays: [2] },
-      { name: 'Петров Пётр', tag: '', team: 1, temporaryLeader: false, newbie: false, row: 12, shifts: { 2: '12/24' }, urgentDays: [] },
-      { name: 'Временный Лидер Иванович', tag: '@tmp', team: 1, temporaryLeader: true, newbie: false, row: 13, shifts: { 1: '08/20', 2: '08/20' }, urgentDays: [] },
-      { name: 'Ночной Никита Ночевич', tag: '@night', team: null, temporaryLeader: false, newbie: false, row: 15, shifts: { 1: '08/20', 2: '08/20' }, urgentDays: [] }
+      { name: 'Иванов Иван Иванович', tag: '@ivan', team: 1, temporaryLeader: false, newbie: false, reserved: false, row: 8, shifts: { 1: '08/20', 2: '08/20' }, urgentDays: [2] },
+      { name: 'Петров Пётр', tag: '', team: 1, temporaryLeader: false, newbie: false, reserved: false, row: 12, shifts: { 2: '12/24' }, urgentDays: [] },
+      { name: 'Временный Лидер Иванович', tag: '@tmp', team: 1, temporaryLeader: true, newbie: false, reserved: false, row: 13, shifts: { 1: '08/20', 2: '08/20' }, urgentDays: [] },
+      { name: 'Ночной Никита Ночевич', tag: '@night', team: null, temporaryLeader: false, newbie: false, reserved: false, row: 15, shifts: { 1: '08/20', 2: '08/20' }, urgentDays: [] }
     ]);
     expect(schedule.leaderTags).toEqual(['@lead1']);
     expect(progress.length).toBeGreaterThanOrEqual(4);

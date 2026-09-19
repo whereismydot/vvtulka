@@ -7,9 +7,9 @@ function person(
   tag: string,
   shift: string | null,
   urgentDays: number[] = [],
-  extra: Partial<Pick<SchedulePerson, 'team' | 'temporaryLeader' | 'newbie' | 'row'>> = {}
+  extra: Partial<Pick<SchedulePerson, 'team' | 'temporaryLeader' | 'newbie' | 'reserved' | 'row'>> = {}
 ): SchedulePerson {
-  return { name, tag, team: 1, temporaryLeader: false, newbie: false, row: 10, shifts: shift === null ? {} : { 20: shift }, urgentDays, ...extra };
+  return { name, tag, team: 1, temporaryLeader: false, newbie: false, reserved: false, row: 10, shifts: shift === null ? {} : { 20: shift }, urgentDays, ...extra };
 }
 
 function scheduleOf(...people: SchedulePerson[]): MonthSchedule {
@@ -149,7 +149,8 @@ describe('urgent swaps planner', () => {
         person('Временный Тимур', '@tmp', '08/20', [], { temporaryLeader: true }),
         person('Лидер Команды', '@TeamLead', '08/20', []),
         person('Ночной Никита', '@night', '08/20', [], { team: null }),
-        person('Новичок Нина', '@nina', '08/20', [], { newbie: true })
+        person('Новичок Нина', '@nina', '08/20', [], { newbie: true }),
+        person('Лояльный Лев', '@lev', '08/20', [], { reserved: true })
       )
     });
 

@@ -10,6 +10,8 @@ export interface SchedulePerson {
   readonly temporaryLeader: boolean;
   /** Новичок: имя в графике залито светло-зелёным, в замены и на срочные не ставится. */
   readonly newbie: boolean;
+  /** Закреплён за другой линией (имя залито жёлтым: лояльность, или светло-розовым: опоздавшие), в замены не ставится. */
+  readonly reserved: boolean;
   /** Номер строки в листе (с 1). */
   readonly row: number;
   /** День месяца → смена вида `08/20`. */
