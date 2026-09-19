@@ -1,4 +1,3 @@
-import { parseBotText } from './bot-text-parser';
 import type { PlanDate } from './types';
 
 const HEADER_PATTERN = /^Распределение на (\d{2})\.(\d{2})\.(\d{4})/i;
@@ -40,43 +39,22 @@ export function checkBotTextTemplate(text: string, date: PlanDate): string[] {
   const lower = lines.map((line) => line.toLowerCase());
 
   const header = lines.map((line) => HEADER_PATTERN.exec(line)).find((match) => match !== null);
-  if (header === undefined || header === null) {
-    problems.push('нет строки «Распределение на ДД.ММ.ГГГГ»');
-  } else {
+  if (header !== undefined && header !== null) {
     const [, day, month, year] = header;
     if (Number(day) !== date.day || Number(month) !== date.month || Number(year) !== date.year) {
       problems.push(`в тексте дата ${day}.${month}.${year}, а выбрана ${pad(date.day)}.${pad(date.month)}.${date.year}`);
     }
   }
 
-  if (!lower.some((line) => line.includes('график лидеров'))) {
-    problems.push('нет блока «График лидеров»');
+  // Достаточно узнаваемого костяка: заголовок блока срочных, хотя бы один из списков и хотя бы одна строка «ФИО @тег ЧЧ/ЧЧ».
+  if (!lower.some((line) => line.includes('дежурные на линию'))) {
+    problems.push('нет заголовка «Дежурные на линию»');
   }
-  if (!lower.some((line) => line.includes('дежурные на линию') && line.includes('срочные'))) {
-    problems.push('нет заголовка «Дежурные на линию "Срочные"»');
+  if (!lower.some((line) => line.startsWith('поздние') || line.startsWith('ранние'))) {
+    problems.push('нет списков «Поздние»/«Ранние»');
   }
-  if (!lower.some((line) => line.startsWith('поздние'))) {
-    problems.push('нет списка «Поздние:»');
-  }
-  if (!lower.some((line) => line.startsWith('ранние'))) {
-    problems.push('нет списка «Ранние:»');
-  }
-  if (!lower.some((line) => line.startsWith('продуктивного'))) {
-    problems.push('нет последней строки «Продуктивного рабочего дня» (текст скопирован не целиком?)');
-  }
-
-  const urgentStart = lower.findIndex((line) => line.includes('дежурные на линию'));
-  const urgentEnd = lower.findIndex((line, index) => index > urgentStart && line.startsWith('продуктивного'));
-  if (urgentStart >= 0) {
-    const block = lines.slice(urgentStart + 1, urgentEnd > urgentStart ? urgentEnd : lines.length);
-    const odd = block.filter((line) => line !== '' && !/^(поздние|ранние)/i.test(line) && !DUTY_LINE_PATTERN.test(line));
-    if (odd.length > 0) {
-      problems.push(`строки не похожи на «ФИО @тег ЧЧ/ЧЧ»: ${odd.length} (например: «${odd[0].slice(0, 40)}»)`);
-    }
-  }
-
-  if (parseBotText(text).leaders.size === 0) {
-    problems.push('в графике лидеров нет ни одной строки «ФИО @тег ЧЧ/ЧЧ»');
+  if (lines.filter((line) => DUTY_LINE_PATTERN.test(line)).length < 1) {
+    problems.push('нет строк вида «ФИО @тег ЧЧ/ЧЧ»');
   }
 
   return problems;
