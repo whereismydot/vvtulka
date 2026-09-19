@@ -195,10 +195,31 @@ describe('normalizeDateInput', () => {
   });
 
   it('keeps incomplete input without a trailing dot and complete dates unchanged', () => {
-    expect(normalizeDateInput('01.09.')).toBe('01.09');
-    expect(normalizeDateInput('01.')).toBe('01');
+    expect(normalizeDateInput('01.0')).toBe('01.0');
+    expect(normalizeDateInput('01.09.2')).toBe('01.09.2');
     expect(normalizeDateInput('')).toBe('');
     expect(normalizeDateInput('01.09.2026')).toBe('01.09.2026');
     expect(normalizeDateInput('01.09.202')).toBe('01.09.202');
+  });
+});
+
+describe('normalizeDateInput autofill', () => {
+  const now = new Date(2026, 8, 19);
+
+  it('fills current month and year when only the day is entered', () => {
+    expect(normalizeDateInput('19', now)).toBe('19.09.2026');
+    expect(normalizeDateInput('19.', now)).toBe('19.09.2026');
+    expect(normalizeDateInput('5', now)).toBe('05.09.2026');
+  });
+
+  it('fills current year when day and month are entered', () => {
+    expect(normalizeDateInput('19.03', now)).toBe('19.03.2026');
+    expect(normalizeDateInput('1.3.', now)).toBe('01.03.2026');
+  });
+
+  it('does not fill obviously incomplete input', () => {
+    expect(normalizeDateInput('0', now)).toBe('0');
+    expect(normalizeDateInput('19.0', now)).toBe('19.0');
+    expect(normalizeDateInput('19.03.202', now)).toBe('19.03.202');
   });
 });

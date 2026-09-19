@@ -328,7 +328,7 @@ describe('shelf life controller', () => {
       setStatus: vi.fn()
     });
 
-    elements.shelfLifeDateInput.value = '03/05';
+    elements.shelfLifeDateInput.value = '03.0';
     elements.shelfLifeTermInput.value = '3';
     elements.shelfLifeUnitSelect.value = 'days';
 
@@ -604,12 +604,21 @@ describe('shelf life controller', () => {
     it('does not nag about incomplete dates while typing but does after leaving the field', () => {
       const elements = setup();
 
-      typeText(elements, '0109');
+      typeText(elements, '01.0');
       expect(elements.shelfLifeDateError.hidden).toBe(true);
 
       elements.shelfLifeDateInput.dispatchEvent(new Event('blur'));
       expect(elements.shelfLifeDateError.hidden).toBe(false);
       expect(elements.shelfLifeDateError.textContent).toBe('Введите дату полностью: ДД.ММ.ГГГГ');
+    });
+
+    it('fills current month and year when only the day is entered and focus is lost', () => {
+      const elements = setup(() => new Date(2026, 8, 5));
+
+      typeText(elements, '19');
+      elements.shelfLifeDateInput.dispatchEvent(new Event('blur'));
+
+      expect(elements.shelfLifeDateInput.value).toBe('19.09.2026');
     });
 
     it('does not show an error for an empty field on blur', () => {
@@ -682,7 +691,7 @@ describe('shelf life controller', () => {
 
     it('shows the reason under the field when submitting an incomplete date', () => {
       const elements = setup();
-      elements.shelfLifeDateInput.value = '01.09';
+      elements.shelfLifeDateInput.value = '01.0';
 
       submitForm(elements);
 
