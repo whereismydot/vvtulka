@@ -30,6 +30,14 @@ describe('urgent swaps service', () => {
     expect(tomorrowIso(new Date(2026, 11, 31, 10, 0))).toBe('2027-01-01');
   });
 
+  it('names both dates when the text is for another day', async () => {
+    const loadSchedule = vi.fn();
+    await expect(runUrgentSwaps({ dateIso: '2026-09-21', botText: TEXT }, { loadSchedule, onProgress: vi.fn() })).rejects.toThrow(
+      'В тексте распределение на 20.09.2026, а в поле выбрано 21.09.2026'
+    );
+    expect(loadSchedule).not.toHaveBeenCalled();
+  });
+
   it('runs all steps and returns a plan', async () => {
     const events: ProgressEvent[] = [];
     const loadSchedule = vi.fn(async (_date, onProgress?: (message: string) => void) => {

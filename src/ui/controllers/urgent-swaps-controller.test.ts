@@ -77,6 +77,15 @@ describe('urgent swaps controller', () => {
     expect(elements.urgentDateInput.value).toBe('2026-09-20');
   });
 
+  it('takes the date from the pasted bot text', () => {
+    createUrgentSwapsController({ elements, copyText, setStatus, loadSchedule: vi.fn() });
+
+    elements.urgentTextInput.value = buildBotText('19.09.2026', ['Иванов Иван  @ivan  08/20']);
+    elements.urgentTextInput.dispatchEvent(new Event('input'));
+
+    expect(elements.urgentDateInput.value).toBe('2026-09-19');
+  });
+
   it('asks for text when the input is empty', async () => {
     const loadSchedule = vi.fn();
     createUrgentSwapsController({ elements, copyText, setStatus, loadSchedule });
