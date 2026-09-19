@@ -54,8 +54,7 @@
   color: var(--color-info-text);
 }
 
-.kpi-card > p,
-.kpi-card > .metric-copy {
+.kpi-card > .kpi-value {
   grid-area: value;
   font-size: var(--text-2xl);
   font-variant-numeric: tabular-nums;
@@ -64,7 +63,7 @@
   overflow-wrap: anywhere;
 }
 
-.kpi-card > h3 {
+.kpi-card > .kpi-label {
   grid-area: label;
   margin-top: 2px;
   color: var(--color-text-faint);
@@ -76,7 +75,8 @@
 
 .metric-copy {
   width: fit-content;
-  padding: 0;
+  padding: 0.6rem 0;
+  margin-block: -0.6rem;
   border: 0;
   border-bottom: 1px dashed transparent;
   background: transparent;
@@ -618,11 +618,19 @@
 .urgent-copy {
   padding: 0 4px;
   margin: 0 -4px;
+  border: 0;
   border-radius: var(--radius-xs);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
-  -webkit-user-select: all;
-  user-select: all;
   overflow-wrap: anywhere;
+}
+
+.urgent-copy:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .urgent-copy:hover {
@@ -726,69 +734,105 @@
   font-weight: 600;
 }
 
-/* «Срочные»: таблица на телефоне превращается в карточки строк */
-@media (max-width: 639px) {
-  .urgent-table,
-  .urgent-table tbody {
-    display: block;
-  }
+/* «Срочные»: на телефоне таблица — карточки строк «Было → Станет», с 640px — обычная таблица */
+.urgent-table,
+.urgent-table tbody {
+  display: block;
+}
 
-  .urgent-table thead {
-    display: none;
-  }
+.urgent-table thead {
+  display: none;
+}
 
-  .urgent-table tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--space-2) var(--space-3);
-    align-items: start;
-    padding: var(--space-3) 0;
-    border-bottom: 1px solid var(--color-line);
-  }
+.urgent-table tr {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2) var(--space-3);
+  align-items: start;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-line);
+}
 
-  .urgent-table td {
-    padding: 0;
-    border: 0;
-  }
+.urgent-table td {
+  padding: 0;
+  border: 0;
+}
 
-  .urgent-table tr.urgent-group {
-    display: block;
-    padding: 0;
-    border: 0;
-  }
+.urgent-table tr.urgent-group {
+  display: block;
+  padding: 0;
+  border: 0;
+}
 
-  .urgent-table td.urgent-arrow {
-    grid-column: 1 / -1;
-    width: auto;
-    text-align: left;
-  }
+.urgent-table td.urgent-arrow {
+  grid-column: 1 / -1;
+  width: auto;
+  text-align: left;
+}
 
-  .urgent-table td.urgent-hint {
-    grid-column: 1 / -1;
-  }
+.urgent-table td.urgent-hint {
+  grid-column: 1 / -1;
+}
 
-  .urgent-table tr:not(.urgent-group) td:nth-child(1)::before,
-  .urgent-table tr:not(.urgent-group):not(.urgent-row-same) td:nth-child(4)::before {
-    display: block;
-    margin-bottom: 2px;
-    color: var(--color-text-faint);
-    font-size: var(--text-xs);
-    font-weight: 600;
-    letter-spacing: var(--tracking-caps);
-    text-transform: uppercase;
-  }
+.urgent-table tr:not(.urgent-group) td:nth-child(1)::before,
+.urgent-table tr:not(.urgent-group):not(.urgent-row-same) td:nth-child(4)::before {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--color-text-faint);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
 
-  .urgent-table tr:not(.urgent-group) td:nth-child(1)::before {
-    content: 'Было';
-  }
+.urgent-table tr:not(.urgent-group) td:nth-child(1)::before {
+  content: 'Было';
+}
 
-  .urgent-table tr:not(.urgent-group):not(.urgent-row-same) td:nth-child(4)::before {
-    content: 'Станет';
-  }
+.urgent-table tr:not(.urgent-group):not(.urgent-row-same) td:nth-child(4)::before {
+  content: 'Станет';
 }
 
 /* ---------- Планшет и выше ---------- */
 @media (min-width: 640px) {
+  .urgent-table {
+    display: table;
+  }
+
+  .urgent-table thead {
+    display: table-header-group;
+  }
+
+  .urgent-table tbody {
+    display: table-row-group;
+  }
+
+  .urgent-table tr,
+  .urgent-table tr.urgent-group {
+    display: table-row;
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  .urgent-table td {
+    display: table-cell;
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .urgent-table td.urgent-arrow {
+    width: 2.5rem;
+    text-align: center;
+  }
+
+  .urgent-table tr td::before {
+    content: none !important;
+  }
+
+  .urgent-group td {
+    padding: 0.35rem 0.75rem;
+  }
+
   .urgent-date-row {
     grid-template-columns: auto auto 1fr;
     align-items: center;

@@ -124,11 +124,15 @@ function createPersonCells(
   const personCell = createElement('td');
   const box = createElement('div', 'urgent-person');
 
-  const name = createElement('span', 'urgent-copy urgent-name');
+  const name = createElement('button', 'urgent-copy urgent-name');
+  name.type = 'button';
+  name.title = 'Скопировать ФИО';
   name.dataset.copy = person.name;
   appendHighlighted(name, person.name, query);
 
-  const tag = createElement('span', 'urgent-copy urgent-tag');
+  const tag = createElement('button', 'urgent-copy urgent-tag');
+  tag.type = 'button';
+  tag.title = 'Скопировать тег';
   tag.dataset.copy = person.tag;
   appendHighlighted(tag, person.tag === '' ? 'нет тега' : person.tag, query);
 

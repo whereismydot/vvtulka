@@ -104,7 +104,7 @@
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-text-soft);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 600;
   line-height: 1.15;
   text-align: center;
@@ -328,8 +328,28 @@
   transform: translateY(0);
 }
 
-/* ---------- Планшет и десктоп: навигация переезжает в верхнюю панель ---------- */
+/* ---------- Планшет ---------- */
 @media (min-width: 768px) {
+  .layout {
+    padding-top: var(--space-6);
+  }
+
+  .page-title {
+    font-size: var(--text-2xl);
+  }
+
+  .panel {
+    padding: var(--space-5);
+  }
+
+  .workspace {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+/* ---------- Десктоп: навигация переезжает в верхнюю панель ---------- */
+@media (min-width: 1024px) {
   .services-nav {
     position: static;
     display: flex;
@@ -342,10 +362,11 @@
   .service-tab {
     flex-direction: row;
     gap: var(--space-2);
-    min-height: 40px;
-    padding: 0.4rem 0.85rem;
+    min-height: var(--tap-target);
+    padding: 0.4rem 0.9rem;
     font-size: var(--text-sm);
     text-align: left;
+    white-space: nowrap;
   }
 
   .service-tab-icon svg {
@@ -354,20 +375,11 @@
   }
 
   .layout {
-    padding-top: var(--space-6);
     padding-bottom: var(--space-7);
   }
 
   .site-footer {
     padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom));
-  }
-
-  .page-title {
-    font-size: var(--text-2xl);
-  }
-
-  .panel {
-    padding: var(--space-5);
   }
 
   .status-floating {
@@ -379,10 +391,5 @@
   .scroll-top-btn {
     right: var(--space-5);
     bottom: var(--space-5);
-  }
-
-  .workspace {
-    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-    align-items: start;
   }
 }

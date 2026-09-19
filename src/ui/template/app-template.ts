@@ -26,20 +26,20 @@ export const APP_TEMPLATE = `
             class="service-tab service-tab-active"
             type="button"
             data-service-tab="vkusback"
-            aria-selected="true"
+            aria-current="page"
           >
             <span class="service-tab-icon">${ICON_RECEIPT}</span>
             <span class="service-tab-title">ВкусБэк</span>
           </button>
-          <button id="service-tab-2" class="service-tab" type="button" data-service-tab="service-2" aria-selected="false">
+          <button id="service-tab-2" class="service-tab" type="button" data-service-tab="service-2" aria-current="false">
             <span class="service-tab-icon">${ICON_TEXT}</span>
             <span class="service-tab-title">Очистка текста</span>
           </button>
-          <button id="service-tab-3" class="service-tab" type="button" data-service-tab="service-3" aria-selected="false">
+          <button id="service-tab-3" class="service-tab" type="button" data-service-tab="service-3" aria-current="false">
             <span class="service-tab-icon">${ICON_CALENDAR}</span>
             <span class="service-tab-title">Срок годности</span>
           </button>
-          <button id="service-tab-4" class="service-tab" type="button" data-service-tab="urgent" aria-selected="false">
+          <button id="service-tab-4" class="service-tab" type="button" data-service-tab="urgent" aria-current="false">
             <span class="service-tab-icon">${ICON_BOLT}</span>
             <span class="service-tab-title">Срочные</span>
           </button>
@@ -90,20 +90,20 @@ export const APP_TEMPLATE = `
             <section class="metrics metrics-vertical" aria-live="polite">
               <article class="metric-card kpi-card">
                 <span class="kpi-icon">${ICON_BOX}</span>
-                <h3>Заказов</h3>
-                <p id="metric-orders">0</p>
+                <p class="kpi-label">Заказов</p>
+                <p class="kpi-value" id="metric-orders">0</p>
               </article>
               <article class="metric-card kpi-card">
                 <span class="kpi-icon">${ICON_PERCENT}</span>
-                <h3>Сумма ВкусБэк</h3>
-                <p id="metric-vkusback">0</p>
+                <p class="kpi-label">Сумма ВкусБэк</p>
+                <p class="kpi-value" id="metric-vkusback">0</p>
               </article>
               <article class="metric-card metric-card-cashback kpi-card">
                 <span class="kpi-icon">${ICON_WALLET}</span>
-                <h3>Итоговый кэшбэк</h3>
+                <p class="kpi-label">Итоговый кэшбэк</p>
                 <button
                   id="metric-cashback"
-                  class="metric-copy"
+                  class="metric-copy kpi-value"
                   type="button"
                   aria-label="Скопировать итоговый кэшбэк"
                   title="Нажмите, чтобы скопировать"
@@ -283,18 +283,18 @@ export const APP_TEMPLATE = `
           <div class="kpi-grid">
             <article class="kpi-card">
               <span class="kpi-icon">${ICON_USERS}</span>
-              <h3>Всего дежурных</h3>
-              <p id="urgent-kpi-total">0</p>
+              <p class="kpi-label">Всего дежурных</p>
+              <p class="kpi-value" id="urgent-kpi-total">0</p>
             </article>
             <article class="kpi-card">
               <span class="kpi-icon">${ICON_SWAP}</span>
-              <h3>Замен</h3>
-              <p id="urgent-kpi-swaps">0</p>
+              <p class="kpi-label">Замен</p>
+              <p class="kpi-value" id="urgent-kpi-swaps">0</p>
             </article>
             <article class="kpi-card">
               <span class="kpi-icon kpi-icon-info">${ICON_CHECK}</span>
-              <h3>Без замены</h3>
-              <p id="urgent-kpi-unchanged">0</p>
+              <p class="kpi-label">Без замены</p>
+              <p class="kpi-value" id="urgent-kpi-unchanged">0</p>
             </article>
           </div>
           <div class="panel panel-urgent-result">

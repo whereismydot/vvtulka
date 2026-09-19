@@ -72,7 +72,7 @@ function applyActiveTab(elements: AppElements, tab: ServiceTabId): void {
   getBindings(elements).forEach((binding) => {
     const isActive = binding.id === tab;
     binding.button.classList.toggle('service-tab-active', isActive);
-    binding.button.setAttribute('aria-selected', String(isActive));
+    binding.button.setAttribute('aria-current', isActive ? 'page' : 'false');
     binding.pane.classList.toggle('service-pane-active', isActive);
     binding.pane.hidden = !isActive;
   });

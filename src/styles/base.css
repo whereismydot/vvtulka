@@ -254,7 +254,8 @@ td {
 }
 
 details > summary {
-  min-height: 2rem;
+  min-height: var(--tap-target);
+  padding-block: 0.6rem;
   cursor: pointer;
   color: var(--color-accent);
   font-weight: 600;
