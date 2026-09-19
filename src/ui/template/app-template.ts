@@ -1,16 +1,25 @@
-﻿export const APP_TEMPLATE = `
+﻿const icon = (paths: string): string =>
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${paths}</svg>`;
+
+const ICON_RECEIPT = icon('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"/><path d="M9 8h6M9 12h6"/>');
+const ICON_TEXT = icon('<path d="M4 6h16M4 12h10M4 18h7"/><path d="M15 15l5 5m0-5l-5 5"/>');
+const ICON_CALENDAR = icon('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>');
+const ICON_BOLT = icon('<path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/>');
+const ICON_BOX = icon('<path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4M12 11v10"/>');
+const ICON_PERCENT = icon('<path d="M19 5L5 19"/><circle cx="7" cy="7" r="2"/><circle cx="17" cy="17" r="2"/>');
+const ICON_WALLET = icon('<path d="M3 7a2 2 0 012-2h13v4"/><path d="M3 7v11a2 2 0 002 2h15V9H5a2 2 0 01-2-2z"/><path d="M16 14.5h2"/>');
+const ICON_USERS = icon('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14.2a6.5 6.5 0 013.5 5.8"/>');
+const ICON_SWAP = icon('<path d="M7 7h12l-3-3M17 17H5l3 3"/>');
+const ICON_CHECK = icon('<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/>');
+
+export const APP_TEMPLATE = `
   <div class="app-shell">
-    <div class="topbar">
-      <button id="theme-toggle" type="button" class="btn btn-theme" aria-label="Переключить тему" title="Переключить тему"></button>
-    </div>
-    <span class="bg-shape bg-shape-left" aria-hidden="true"></span>
-    <span class="bg-shape bg-shape-right" aria-hidden="true"></span>
-    <span class="bg-grid" aria-hidden="true"></span>
-    <main class="layout">
-      <header class="services-toolbar">
-        <div class="services-toolbar-head">
-          <p class="services-toolbar-label">Сервисы</p>
-        </div>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="./" aria-label="ВВТулка">
+          <img class="brand-mark" src="./favicon.svg" alt="" width="28" height="28" />
+          <span class="brand-name">ВВТулка</span>
+        </a>
         <nav class="services-nav" aria-label="Сервисы">
           <button
             id="service-tab-vkusback"
@@ -19,25 +28,31 @@
             data-service-tab="vkusback"
             aria-selected="true"
           >
-            <span class="service-tab-title">Калькулятор ВкусБэка</span>
-            <span class="service-tab-subtitle">Разбор чеков и расчёт</span>
+            <span class="service-tab-icon">${ICON_RECEIPT}</span>
+            <span class="service-tab-title">ВкусБэк</span>
           </button>
           <button id="service-tab-2" class="service-tab" type="button" data-service-tab="service-2" aria-selected="false">
+            <span class="service-tab-icon">${ICON_TEXT}</span>
             <span class="service-tab-title">Очистка текста</span>
-            <span class="service-tab-subtitle">Уборка лишних пробелов и пустых строк</span>
           </button>
           <button id="service-tab-3" class="service-tab" type="button" data-service-tab="service-3" aria-selected="false">
-            <span class="service-tab-title">Калькулятор срока годности</span>
-            <span class="service-tab-subtitle">Проверка срока по дате изготовления</span>
+            <span class="service-tab-icon">${ICON_CALENDAR}</span>
+            <span class="service-tab-title">Срок годности</span>
           </button>
           <button id="service-tab-4" class="service-tab" type="button" data-service-tab="urgent" aria-selected="false">
-            <span class="service-tab-title">Срочные: замены</span>
-            <span class="service-tab-subtitle">Подбор замен по графику и числу срочных</span>
+            <span class="service-tab-icon">${ICON_BOLT}</span>
+            <span class="service-tab-title">Срочные</span>
           </button>
         </nav>
-      </header>
-
+        <button id="theme-toggle" type="button" class="btn-theme" aria-label="Переключить тему" title="Переключить тему"></button>
+      </div>
+    </header>
+    <main class="layout">
       <section id="service-pane-vkusback" class="service-pane service-pane-active">
+        <header class="page-head">
+          <h1 class="page-title">Калькулятор ВкусБэка</h1>
+          <p class="page-subtitle">Разбор чеков и расчёт кэшбэка</p>
+        </header>
         <section class="workspace">
           <section class="panel panel-input">
             <h2>Новый заказ</h2>
@@ -73,15 +88,18 @@
             </section>
 
             <section class="metrics metrics-vertical" aria-live="polite">
-              <article class="metric-card">
+              <article class="metric-card kpi-card">
+                <span class="kpi-icon">${ICON_BOX}</span>
                 <h3>Заказов</h3>
                 <p id="metric-orders">0</p>
               </article>
-              <article class="metric-card">
+              <article class="metric-card kpi-card">
+                <span class="kpi-icon">${ICON_PERCENT}</span>
                 <h3>Сумма ВкусБэк</h3>
                 <p id="metric-vkusback">0</p>
               </article>
-              <article class="metric-card metric-card-cashback">
+              <article class="metric-card metric-card-cashback kpi-card">
+                <span class="kpi-icon">${ICON_WALLET}</span>
                 <h3>Итоговый кэшбэк</h3>
                 <button
                   id="metric-cashback"
@@ -106,6 +124,10 @@
       </section>
 
       <section id="service-pane-2" class="service-pane service-pane-secondary" hidden>
+        <header class="page-head">
+          <h1 class="page-title">Очистка текста</h1>
+          <p class="page-subtitle">Уборка лишних пробелов и пустых строк в реальном времени</p>
+        </header>
         <section class="panel panel-cleaner">
           <h2>Очистка текста в реальном времени</h2>
 
@@ -179,6 +201,10 @@
       </section>
 
       <section id="service-pane-3" class="service-pane service-pane-secondary" hidden>
+        <header class="page-head">
+          <h1 class="page-title">Калькулятор срока годности</h1>
+          <p class="page-subtitle">Проверка срока по дате изготовления</p>
+        </header>
         <section class="panel panel-shelf-life">
           <h2>Калькулятор срока годности</h2>
 
@@ -230,6 +256,10 @@
       </section>
 
       <section id="service-pane-4" class="service-pane service-pane-secondary" hidden>
+        <header class="page-head">
+          <h1 class="page-title">Срочные: замены</h1>
+          <p class="page-subtitle">Подбор замен по графику и числу срочных выходов</p>
+        </header>
         <section class="panel panel-urgent">
           <h2>Срочные: подбор замен</h2>
           <div class="urgent-date-row">
@@ -249,7 +279,25 @@
           <div id="urgent-error" class="urgent-error" role="alert" hidden></div>
         </section>
 
-        <section id="urgent-result" class="panel panel-urgent-result" hidden>
+        <section id="urgent-result" class="urgent-results" hidden>
+          <div class="kpi-grid">
+            <article class="kpi-card">
+              <span class="kpi-icon">${ICON_USERS}</span>
+              <h3>Всего дежурных</h3>
+              <p id="urgent-kpi-total">0</p>
+            </article>
+            <article class="kpi-card">
+              <span class="kpi-icon">${ICON_SWAP}</span>
+              <h3>Замен</h3>
+              <p id="urgent-kpi-swaps">0</p>
+            </article>
+            <article class="kpi-card">
+              <span class="kpi-icon kpi-icon-info">${ICON_CHECK}</span>
+              <h3>Без замены</h3>
+              <p id="urgent-kpi-unchanged">0</p>
+            </article>
+          </div>
+          <div class="panel panel-urgent-result">
           <div class="urgent-result-head">
             <h2>Кого на кого меняем</h2>
             <span id="urgent-stat" class="urgent-hint"></span>
@@ -284,6 +332,7 @@
             <span class="urgent-hint">Клик по ФИО или тегу копирует его. Порядок итогового текста не меняется.</span>
           </div>
           <div id="urgent-table" class="urgent-table-wrap"></div>
+          </div>
         </section>
 
         <section id="urgent-output-panel" class="panel panel-urgent-output" hidden>

@@ -18,6 +18,9 @@ export interface AppElements {
   readonly urgentError: HTMLDivElement;
   readonly urgentResult: HTMLElement;
   readonly urgentStat: HTMLElement;
+  readonly urgentKpiTotal: HTMLElement;
+  readonly urgentKpiSwaps: HTMLElement;
+  readonly urgentKpiUnchanged: HTMLElement;
   readonly urgentWarnings: HTMLDivElement;
   readonly urgentSearchInput: HTMLInputElement;
   readonly urgentOnlySwapsInput: HTMLInputElement;
@@ -96,6 +99,9 @@ export function getAppElements(): AppElements {
     urgentError: must(document.querySelector<HTMLDivElement>('#urgent-error'), '#urgent-error not found'),
     urgentResult: must(document.querySelector<HTMLElement>('#urgent-result'), '#urgent-result not found'),
     urgentStat: must(document.querySelector<HTMLElement>('#urgent-stat'), '#urgent-stat not found'),
+    urgentKpiTotal: must(document.querySelector<HTMLElement>('#urgent-kpi-total'), '#urgent-kpi-total not found'),
+    urgentKpiSwaps: must(document.querySelector<HTMLElement>('#urgent-kpi-swaps'), '#urgent-kpi-swaps not found'),
+    urgentKpiUnchanged: must(document.querySelector<HTMLElement>('#urgent-kpi-unchanged'), '#urgent-kpi-unchanged not found'),
     urgentWarnings: must(document.querySelector<HTMLDivElement>('#urgent-warnings'), '#urgent-warnings not found'),
     urgentSearchInput: must(document.querySelector<HTMLInputElement>('#urgent-search-input'), '#urgent-search-input not found'),
     urgentOnlySwapsInput: must(document.querySelector<HTMLInputElement>('#urgent-only-swaps-input'), '#urgent-only-swaps-input not found'),

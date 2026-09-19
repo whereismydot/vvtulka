@@ -71,6 +71,9 @@ export function createUrgentSwapsController(dependencies: UrgentSwapsControllerD
     plan = result;
     const swaps = result.rows.filter((row) => row.replacement !== null).length;
     elements.urgentStat.textContent = `На ${result.dateLabel} · дежурных: ${result.rows.length} · замен: ${swaps}`;
+    elements.urgentKpiTotal.textContent = String(result.rows.length);
+    elements.urgentKpiSwaps.textContent = String(swaps);
+    elements.urgentKpiUnchanged.textContent = String(result.rows.length - swaps);
     renderWarnings(elements.urgentWarnings, result.warnings);
     renderTable();
     renderOutput(elements.urgentOutput, result);

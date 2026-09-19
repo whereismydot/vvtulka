@@ -43,6 +43,9 @@ function createElements(): AppElements {
     urgentError: document.createElement('div'),
     urgentResult: document.createElement('section'),
     urgentStat: document.createElement('span'),
+    urgentKpiTotal: document.createElement('p'),
+    urgentKpiSwaps: document.createElement('p'),
+    urgentKpiUnchanged: document.createElement('p'),
     urgentWarnings: document.createElement('div'),
     urgentSearchInput: searchInput,
     urgentOnlySwapsInput: onlySwaps,
@@ -104,6 +107,9 @@ describe('urgent swaps controller', () => {
     expect(elements.urgentResult.hidden).toBe(false);
     expect(elements.urgentOutputPanel.hidden).toBe(false);
     expect(elements.urgentStat.textContent).toContain('20.09.2026');
+    expect(elements.urgentKpiTotal.textContent).toBe('1');
+    expect(elements.urgentKpiSwaps.textContent).toBe('1');
+    expect(elements.urgentKpiUnchanged.textContent).toBe('0');
     expect(elements.urgentLog.textContent).toContain('читаю лист');
     expect(elements.urgentLog.textContent).toContain('Готово');
     expect(elements.urgentOutput.textContent).toContain('Свободный Сергей  @free  08/20');
