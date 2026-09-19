@@ -277,7 +277,7 @@ export const APP_TEMPLATE = `
             <input id="urgent-date-input" type="date" />
             <span class="urgent-hint">Срочные считаются с 1-го числа месяца до этой даты (сам день не входит).</span>
           </div>
-          <textarea id="urgent-text-input" rows="9" placeholder="Вставьте текст распределения от бота."></textarea>
+          <textarea id="urgent-text-input" rows="9" placeholder="Вставьте базовое сообщение, которое подготовил бот Коллега Поддержкин"></textarea>
           <div class="input-actions">
             <button id="urgent-run-btn" class="btn btn-primary" type="button">Подобрать замены</button>
           </div>
