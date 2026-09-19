@@ -3,6 +3,7 @@ import { runUrgentSwaps, tomorrowIso } from '../../application/urgent-swaps-serv
 import { SCHEDULE_SPREADSHEET_ID, SHEETS_API_KEY } from '../../config/google-sheets';
 import type { PlanSortKey, SortDirection } from '../../domain/urgent-swaps/plan-sort';
 import type { ProgressEvent, ProgressStage, UrgentPlan } from '../../domain/urgent-swaps/types';
+import { findBotTextDate } from '../../domain/urgent-swaps/bot-text-template';
 import { appLog } from '../../infrastructure/diagnostics/app-log';
 import { createScheduleClient, type ScheduleLoader } from '../../infrastructure/google-sheets/schedule-client';
 import type { AppElements } from '../dom/elements';
@@ -135,6 +136,14 @@ export function createUrgentSwapsController(dependencies: UrgentSwapsControllerD
 
   elements.urgentRunButton.addEventListener('click', () => {
     void run();
+  });
+  /** Дата берётся из строки «Распределение на …» вставленного текста, чтобы не путаться с полем даты. */
+  elements.urgentTextInput.addEventListener('input', () => {
+    const textDate = findBotTextDate(elements.urgentTextInput.value);
+    if (textDate !== null) {
+      const pad = (value: number): string => String(value).padStart(2, '0');
+      elements.urgentDateInput.value = `${textDate.year}-${pad(textDate.month)}-${pad(textDate.day)}`;
+    }
   });
   elements.urgentSearchInput.addEventListener('input', renderTable);
   elements.urgentOnlySwapsInput.addEventListener('change', renderTable);

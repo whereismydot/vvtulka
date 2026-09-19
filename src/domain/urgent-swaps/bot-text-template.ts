@@ -5,6 +5,25 @@ const HEADER_PATTERN = /^Распределение на (\d{2})\.(\d{2})\.(\d{4
 const DUTY_LINE_PATTERN = /^(\S.*?)\s+(@\S+)\s+(\d{1,2}\/\d{1,2})$/;
 
 /**
+ * Находит дату в строке «Распределение на ДД.ММ.ГГГГ».
+ *
+ * @param text Текст бота.
+ * @returns Дата или `null`, если строки с датой нет.
+ */
+export function findBotTextDate(text: string): PlanDate | null {
+  for (const line of text.split('\n')) {
+    const match = HEADER_PATTERN.exec(line.trim());
+    if (match !== null) {
+      const [day, month, year] = [Number(match[1]), Number(match[2]), Number(match[3])];
+      const probe = new Date(Date.UTC(year, month - 1, day));
+      const valid = probe.getUTCFullYear() === year && probe.getUTCMonth() === month - 1 && probe.getUTCDate() === day;
+      return valid ? { year, month, day } : null;
+    }
+  }
+  return null;
+}
+
+/**
  * Проверяет, что вставленный текст похож на привычное сообщение бота, до обращения к таблице.
  * Это защита от случайного мусора (не тот текст, обрезанное сообщение, не та дата), а не от злоумышленника.
  *

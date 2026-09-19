@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildBotText } from './bot-text-fixture';
-import { checkBotTextTemplate } from './bot-text-template';
+import { checkBotTextTemplate, findBotTextDate } from './bot-text-template';
 
 const DATE = { year: 2026, month: 9, day: 19 };
 const LATE = ['Джалилов Равшан Рахман Оглы  @ravshan2114  07/19', 'Иванов Данила Сергеевич 0024184118  @xdanila_ivanov  13/01'];
@@ -33,5 +33,16 @@ describe('checkBotTextTemplate', () => {
     const problems = checkBotTextTemplate(buildBotText('19.09.2026', [...LATE, 'что-то постороннее']), DATE);
     expect(problems).toHaveLength(1);
     expect(problems[0]).toContain('что-то постороннее');
+  });
+});
+
+describe('findBotTextDate', () => {
+  it('reads the date from the header line', () => {
+    expect(findBotTextDate(buildBotText('19.09.2026', LATE))).toEqual(DATE);
+  });
+
+  it('returns null when there is no valid header date', () => {
+    expect(findBotTextDate('привет')).toBeNull();
+    expect(findBotTextDate('Распределение на 31.02.2026')).toBeNull();
   });
 });
