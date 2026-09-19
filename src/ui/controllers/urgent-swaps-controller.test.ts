@@ -25,7 +25,7 @@ function createElements(): AppElements {
   const dateInput = document.createElement('input');
   dateInput.type = 'date';
   const sortSelect = document.createElement('select');
-  ['text', 'name-current', 'count-current'].forEach((value) => {
+  ['text', 'name-current:asc', 'name-current:desc', 'count-current:desc', 'count-current:asc'].forEach((value) => {
     const option = document.createElement('option');
     option.value = value;
     sortSelect.append(option);
@@ -45,7 +45,6 @@ function createElements(): AppElements {
     urgentSearchInput: searchInput,
     urgentOnlySwapsInput: onlySwaps,
     urgentSortSelect: sortSelect,
-    urgentSortDirectionButton: document.createElement('button'),
     urgentTable: document.createElement('div'),
     urgentOutputPanel: document.createElement('section'),
     urgentOutput: document.createElement('div'),
@@ -145,27 +144,27 @@ describe('urgent swaps controller', () => {
 
     const tags = (): (string | null)[] => [...elements.urgentTable.querySelectorAll('.urgent-tag')].map((element) => element.textContent);
     const outputBefore = elements.urgentOutput.innerHTML;
-    expect(tags()).toEqual(['@ivan', '@petr']);
-    expect(elements.urgentSortDirectionButton.disabled).toBe(true);
-
-    elements.urgentSortSelect.value = 'name-current';
-    elements.urgentSortSelect.dispatchEvent(new Event('change'));
-    expect(elements.urgentSortDirectionButton.disabled).toBe(false);
+    const choose = (value: string): void => {
+      elements.urgentSortSelect.value = value;
+      elements.urgentSortSelect.dispatchEvent(new Event('change'));
+    };
     expect(tags()).toEqual(['@ivan', '@petr']);
 
-    elements.urgentSortDirectionButton.click();
+    choose('name-current:asc');
+    expect(tags()).toEqual(['@ivan', '@petr']);
+
+    choose('name-current:desc');
     expect(tags()).toEqual(['@petr', '@ivan']);
-    expect(elements.urgentSortDirectionButton.textContent).toBe('↓');
 
-    elements.urgentSortSelect.value = 'count-current';
-    elements.urgentSortSelect.dispatchEvent(new Event('change'));
+    choose('count-current:desc');
     expect(tags()).toEqual(['@ivan', '@petr']);
-    expect(elements.urgentSortDirectionButton.textContent).toBe('↓');
 
-    elements.urgentSortSelect.value = 'text';
-    elements.urgentSortSelect.dispatchEvent(new Event('change'));
-    expect(elements.urgentSortDirectionButton.disabled).toBe(true);
+    choose('count-current:asc');
+    expect(tags()).toEqual(['@petr', '@ivan']);
+
+    choose('text');
     expect(tags()).toEqual(['@ivan', '@petr']);
+    expect(elements.urgentTable.querySelectorAll('.urgent-group')).toHaveLength(1);
 
     elements.urgentCopyButton.click();
     await settle();
