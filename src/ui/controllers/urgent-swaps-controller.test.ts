@@ -1,5 +1,6 @@
 /** @vitest-environment jsdom */
 
+import { buildBotText } from '../../domain/urgent-swaps/bot-text-fixture';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MonthSchedule } from '../../domain/urgent-swaps/types';
 import type { AppElements } from '../dom/elements';
@@ -17,7 +18,7 @@ const SCHEDULE: MonthSchedule = {
     { name: 'Свободный Сергей', tag: '@free', team: 1, temporaryLeader: false, row: 9, shifts: { 20: '08/20' }, urgentDays: [] }
   ]
 };
-const TEXT = 'Дежурные на линию "Срочные"\nПоздние:\nИванов Иван  @ivan  08/20';
+const TEXT = buildBotText('20.09.2026', ['Иванов Иван  @ivan  08/20']);
 
 function createElements(): AppElements {
   const searchInput = document.createElement('input');
@@ -142,7 +143,7 @@ describe('urgent swaps controller', () => {
         { name: 'Петров Пётр', tag: '@petr', team: 2, temporaryLeader: false, row: 9, shifts: { 20: '08/20' }, urgentDays: [4] }
       ]
     };
-    const text = 'Дежурные на линию "Срочные"\nПоздние:\nИванов Иван  @ivan  08/20\nПетров Пётр  @petr  08/20';
+    const text = buildBotText('20.09.2026', ['Иванов Иван  @ivan  08/20', 'Петров Пётр  @petr  08/20']);
     createUrgentSwapsController({ elements, copyText, setStatus, loadSchedule: vi.fn(async () => schedule) });
     elements.urgentDateInput.value = '2026-09-20';
     elements.urgentTextInput.value = text;

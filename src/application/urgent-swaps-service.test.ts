@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { buildBotText } from '../domain/urgent-swaps/bot-text-fixture';
 import type { MonthSchedule, ProgressEvent } from '../domain/urgent-swaps/types';
 import { parsePlanDate, runUrgentSwaps, tomorrowIso } from './urgent-swaps-service';
 
@@ -14,7 +15,7 @@ const SCHEDULE: MonthSchedule = {
     { name: 'Свободный Сергей', tag: '@free', team: 1, temporaryLeader: false, row: 9, shifts: { 20: '08/20' }, urgentDays: [] }
   ]
 };
-const TEXT = 'Дежурные на линию "Срочные"\nПоздние:\nИванов Иван  @ivan  08/20';
+const TEXT = buildBotText('20.09.2026', ['Иванов Иван  @ivan  08/20']);
 
 describe('urgent swaps service', () => {
   it('parses valid ISO dates and rejects invalid ones', () => {
@@ -49,7 +50,7 @@ describe('urgent swaps service', () => {
     const onProgress = vi.fn();
 
     await expect(runUrgentSwaps({ dateIso: 'x', botText: TEXT }, { loadSchedule, onProgress })).rejects.toThrow('дату');
-    await expect(runUrgentSwaps({ dateIso: '2026-09-20', botText: 'пусто' }, { loadSchedule, onProgress })).rejects.toThrow('Дежурные');
+    await expect(runUrgentSwaps({ dateIso: '2026-09-20', botText: 'пусто' }, { loadSchedule, onProgress })).rejects.toThrow('не похож');
     expect(loadSchedule).not.toHaveBeenCalled();
   });
 });

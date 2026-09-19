@@ -1,4 +1,5 @@
 import { parseBotText } from '../domain/urgent-swaps/bot-text-parser';
+import { checkBotTextTemplate } from '../domain/urgent-swaps/bot-text-template';
 import { planUrgentSwaps } from '../domain/urgent-swaps/planner';
 import type { PlanDate, ProgressEvent, UrgentPlan } from '../domain/urgent-swaps/types';
 import type { ScheduleLoader } from '../infrastructure/google-sheets/schedule-client';
@@ -61,6 +62,13 @@ export async function runUrgentSwaps(request: UrgentSwapsRequest, dependencies: 
   if (date === null) {
     throw new Error('Укажите корректную дату распределения.');
   }
+
+  onProgress({ stage: 1, state: 'run', message: 'Сверяю текст с привычным шаблоном' });
+  const problems = checkBotTextTemplate(request.botText, date);
+  if (problems.length > 0) {
+    throw new Error('Текст не похож на базовое сообщение бота на выбранную дату.');
+  }
+  onProgress({ stage: 1, state: 'info', message: 'Шаблон совпал' });
 
   onProgress({ stage: 1, state: 'run', message: 'Читаю текст бота' });
   const parsed = parseBotText(request.botText);
