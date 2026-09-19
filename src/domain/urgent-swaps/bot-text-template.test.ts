@@ -16,7 +16,7 @@ describe('checkBotTextTemplate', () => {
   });
 
   it('rejects random text', () => {
-    expect(checkBotTextTemplate('привет', DATE).length).toHaveLength(3);
+    expect(checkBotTextTemplate('привет', DATE)).toHaveLength(3);
   });
 
   it('rejects a message for another date', () => {
