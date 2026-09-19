@@ -40,6 +40,9 @@ jobs:
           VITE_SHEETS_API_KEY: ${{ secrets.SHEETS_API_KEY }}
         run: npx vite build
 
+      - name: Prepare Pages artifact
+        run: node scripts/prepare-pages-dist.mjs
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
