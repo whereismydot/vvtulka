@@ -4,7 +4,7 @@
 
 <h1 align="center">VVTulka</h1>
 <p align="center">Набор небольших рабочих инструментов в браузере: разбор чека и ВкусБэк, очистка текста, срок годности и замены на линию «Срочные».</p>
-<p align="center"><a href="https://sanlover.ru/vvtulka/"><b>Открыть сайт → sanlover.ru/vvtulka</b></a></p>
+<p align="center"><a href="https://sanlover.ru/"><b>Открыть сайт → sanlover.ru</b></a></p>
 
 ---
 
