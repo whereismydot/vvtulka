@@ -105,6 +105,101 @@ describe('schedule client', () => {
     expect(fetchFn.mock.calls.every(([url]) => String(url).includes('key=KEY'))).toBe(true);
   });
 
+  it('keeps the first of people with the same name ignoring case and yo and reports duplicates', async () => {
+    const grid = {
+      sheets: [
+        {
+          data: [
+            {
+              rowData: [
+                {}, {}, {}, {}, {}, {},
+                row('Команда №1 (Лидер Один)', '@lead1', '', ''),
+                row('Королёв Пётр', '@a', '08/20', '08/20'),
+                row('королев пётр', '@b', '08/20', '08/20'),
+                row('Королёв  Пётр', '@c', '08/20', '08/20')
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    const load = createScheduleClient({ spreadsheetId: 'ID', apiKey: 'KEY', fetchFn: createFetch({ grid }) });
+
+    const schedule = await load({ year: 2026, month: 9, day: 1 });
+
+    expect(schedule.people.map((person) => person.tag)).toEqual(['@a']);
+    expect(schedule.duplicateNames).toEqual(['Королёв Пётр']);
+    expect(schedule.truncated).toBe(false);
+  });
+
+  it('does not report duplicate names outside teams 1-4', async () => {
+    const grid = {
+      sheets: [
+        {
+          data: [
+            {
+              rowData: [
+                {}, {}, {}, {}, {}, {},
+                row('Команда №1 (Лидер Один)', '@lead1', '', ''),
+                row('Королёв Пётр', '@a', '08/20', '08/20'),
+                row('Команда Стажёры', '', '', ''),
+                row('Королёв Пётр', '@b', '08/20', '08/20')
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    const load = createScheduleClient({ spreadsheetId: 'ID', apiKey: 'KEY', fetchFn: createFetch({ grid }) });
+
+    const schedule = await load({ year: 2026, month: 9, day: 1 });
+
+    expect(schedule.people.map((person) => person.tag)).toEqual(['@a']);
+    expect(schedule.duplicateNames).toEqual([]);
+  });
+
+  it('marks the schedule as truncated when the last requested row still has a name', async () => {
+    const filler = Array.from({ length: 6 }, () => ({}));
+    const middle = Array.from({ length: 1000 - 6 - 1 }, () => ({}));
+    const grid = { sheets: [{ data: [{ rowData: [...filler, ...middle, row('Хвостов Хвост', '@tail', '08/20', '08/20')] }] }] };
+    const load = createScheduleClient({ spreadsheetId: 'ID', apiKey: 'KEY', fetchFn: createFetch({ grid }) });
+
+    const schedule = await load({ year: 2026, month: 9, day: 1 });
+
+    expect(schedule.truncated).toBe(true);
+  });
+
+  it('escapes apostrophes in sheet titles inside A1 ranges', async () => {
+    const calls: string[] = [];
+    const fetchFn = vi.fn(async (url: string) => {
+      calls.push(url);
+      if (url.includes('values:batchGet')) {
+        return okResponse({ valueRanges: [{ values: [[SEP_FIRST]] }] });
+      }
+      if (url.includes('includeGridData')) {
+        return okResponse({ sheets: [{ data: [{ rowData: [] }] }] });
+      }
+      return okResponse({ sheets: [{ properties: { title: "График операторов - Иван's", sheetId: 3 } }] });
+    });
+    const load = createScheduleClient({ spreadsheetId: 'ID', apiKey: 'KEY', fetchFn });
+
+    await load({ year: 2026, month: 9, day: 1 });
+
+    const decoded = calls.map((url) => decodeURIComponent(url.replace(/\+/g, ' ')));
+    expect(decoded.some((url) => url.includes("'График операторов - Иван''s'!F3:AJ3"))).toBe(true);
+    expect(decoded.some((url) => url.includes("'График операторов - Иван''s'!A1:AK1000"))).toBe(true);
+  });
+
+  it('reports a readable error when Google returns a non-JSON body', async () => {
+    const load = createScheduleClient({
+      spreadsheetId: 'ID',
+      apiKey: 'KEY',
+      fetchFn: async () => ({ ok: true, status: 200, text: async () => '<html>oops</html>' })
+    });
+
+    await expect(load({ year: 2026, month: 9, day: 1 })).rejects.toThrow('неожиданный ответ');
+  });
+
   it('fails before any request when the API key is not configured', async () => {
     const fetchFn = createFetch();
     const load = createScheduleClient({ spreadsheetId: 'ID', apiKey: '', fetchFn });
