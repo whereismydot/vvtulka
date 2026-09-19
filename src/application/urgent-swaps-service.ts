@@ -64,12 +64,7 @@ export async function runUrgentSwaps(request: UrgentSwapsRequest, dependencies: 
   }
 
   onProgress({ stage: 1, state: 'run', message: 'Сверяю текст с привычным шаблоном' });
-  const textDate = findBotTextDate(request.botText);
-  if (textDate !== null && (textDate.day !== date.day || textDate.month !== date.month || textDate.year !== date.year)) {
-    const label = (value: PlanDate): string => `${String(value.day).padStart(2, '0')}.${String(value.month).padStart(2, '0')}.${value.year}`;
-    throw new Error(`В тексте распределение на ${label(textDate)}, а в поле выбрано ${label(date)}. Исправьте дату.`);
-  }
-  const problems = checkBotTextTemplate(request.botText, date);
+  const problems = checkBotTextTemplate(request.botText);
   if (problems.length > 0) {
     throw new Error('Текст не похож на базовое сообщение бота на выбранную дату.');
   }
@@ -90,5 +85,11 @@ export async function runUrgentSwaps(request: UrgentSwapsRequest, dependencies: 
   const seconds = ((Date.now() - startedAt) / 1000).toFixed(1);
   onProgress({ stage: 2, state: 'ok', message: `Лист «${schedule.sheetTitle}»: ${schedule.people.length} сотрудников, ${seconds} с` });
 
-  return planUrgentSwaps({ date, botText: request.botText, schedule, onProgress });
+  const plan = planUrgentSwaps({ date, botText: request.botText, schedule, onProgress });
+  const textDate = findBotTextDate(request.botText);
+  if (textDate !== null && (textDate.day !== date.day || textDate.month !== date.month || textDate.year !== date.year)) {
+    const label = (value: PlanDate): string => `${String(value.day).padStart(2, '0')}.${String(value.month).padStart(2, '0')}.${value.year}`;
+    return { ...plan, warnings: [`В тексте бота распределение на ${label(textDate)}, а расчёт выполнен на ${label(date)}.`, ...plan.warnings] };
+  }
+  return plan;
 }

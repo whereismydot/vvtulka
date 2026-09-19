@@ -7,36 +7,35 @@ const LATE = ['Джалилов Равшан Рахман Оглы  @ravshan2114
 
 describe('checkBotTextTemplate', () => {
   it('accepts the usual bot message, including names with an employee number', () => {
-    expect(checkBotTextTemplate(buildBotText('19.09.2026', LATE, ['Самолдина Ольга Геннадьевна  @samoldos  07/19']), DATE)).toEqual([]);
+    expect(checkBotTextTemplate(buildBotText('19.09.2026', LATE, ['Самолдина Ольга Геннадьевна  @samoldos  07/19']))).toEqual([]);
   });
 
   it('accepts Windows line endings and typographic quotes', () => {
     const text = buildBotText('19.09.2026', LATE).replace(/\n/g, '\r\n').replace(/"Срочные"/, '«Срочные»');
-    expect(checkBotTextTemplate(text, DATE)).toEqual([]);
+    expect(checkBotTextTemplate(text)).toEqual([]);
   });
 
   it('rejects random text', () => {
-    expect(checkBotTextTemplate('привет', DATE)).toHaveLength(3);
+    expect(checkBotTextTemplate('привет')).toHaveLength(3);
   });
 
-  it('rejects a message for another date', () => {
-    const problems = checkBotTextTemplate(buildBotText('18.09.2026', LATE), DATE);
-    expect(problems).toEqual(['в тексте дата 18.09.2026, а выбрана 19.09.2026']);
+  it('does not care which date the message is for', () => {
+    expect(checkBotTextTemplate(buildBotText('18.09.2026', LATE))).toEqual([]);
   });
 
   it('is not strict about the rest of the template', () => {
     const noFooter = buildBotText('19.09.2026', LATE).replace(/\n\nПродуктивного.*$/, '');
-    expect(checkBotTextTemplate(noFooter, DATE)).toEqual([]);
+    expect(checkBotTextTemplate(noFooter)).toEqual([]);
 
     const extraLine = buildBotText('19.09.2026', [...LATE, 'что-то постороннее']);
-    expect(checkBotTextTemplate(extraLine, DATE)).toEqual([]);
+    expect(checkBotTextTemplate(extraLine)).toEqual([]);
 
     const noHeader = buildBotText('19.09.2026', LATE).replace(/^Распределение[^\n]*\n/, '');
-    expect(checkBotTextTemplate(noHeader, DATE)).toEqual([]);
+    expect(checkBotTextTemplate(noHeader)).toEqual([]);
   });
 
   it('still rejects text without the duty block skeleton', () => {
-    expect(checkBotTextTemplate('Дежурные на линию\nПоздние:\nпусто', DATE)).toEqual(['нет строк вида «ФИО @тег ЧЧ/ЧЧ»']);
+    expect(checkBotTextTemplate('Дежурные на линию\nПоздние:\nпусто')).toEqual(['нет строк вида «ФИО @тег ЧЧ/ЧЧ»']);
   });
 });
 
