@@ -1,4 +1,4 @@
-import '@fontsource-variable/manrope/wght.css';
+import '@fontsource-variable/nunito/wght.css';
 import './style.css';
 import { AppService } from './application/app-service';
 import { parseOrderText } from './domain/receipt/parser';

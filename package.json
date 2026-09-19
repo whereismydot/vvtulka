@@ -16,7 +16,7 @@
     "test:shelf-life:tz": "node scripts/run-shelf-life-tz-tests.mjs"
   },
   "dependencies": {
-    "@fontsource-variable/manrope": "5.3.0",
+    "@fontsource-variable/nunito": "5.3.0",
     "decimal.js": "^10.6.0"
   },
   "devDependencies": {
