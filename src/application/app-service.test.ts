@@ -31,7 +31,32 @@ const validParseResult: ParseResult = {
   errors: []
 };
 
+function createFailingSaveService(): AppService {
+  return new AppService(
+    { orders: [], percentRaw: '5' },
+    {
+      parseOrderText: () => validParseResult,
+      createOrderId: () => 'id-1',
+      nowIso: () => '2026-01-01T10:00:00.000Z',
+      persistState: () => false
+    }
+  );
+}
+
 describe('AppService', () => {
+  it('warns when the state could not be saved after adding, renaming, deleting and clearing', () => {
+    const service = createFailingSaveService();
+
+    const added = service.addOrder('чек', '');
+    expect(added.orderAdded).toBe(true);
+    expect(added.tone).toBe('warning');
+    expect(added.message).toContain('сохранить в браузере не удалось');
+
+    expect(service.renameOrder('id-1', 'Новое').tone).toBe('warning');
+    expect(service.deleteOrder('id-1').message).toContain('сохранить в браузере не удалось');
+    expect(service.clearOrders().tone).toBe('warning');
+  });
+
   it('adds order successfully', () => {
     const { service, persistedSnapshots } = createService(validParseResult);
 

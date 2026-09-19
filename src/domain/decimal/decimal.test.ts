@@ -20,6 +20,14 @@ describe('decimal helpers', () => {
     expect(normalizeDecimalInput('1.234,56')).toBe('1234.56');
   });
 
+  it('treats unicode minus signs and parentheses as negative numbers', () => {
+    expect(normalizeDecimalInput('\u2212100,00')).toBe('-100.00');
+    expect(normalizeDecimalInput('\u2013 1 250,5')).toBe('-1250.5');
+    expect(normalizeDecimalInput('(100)')).toBe('-100');
+    expect(normalizeDecimalInput('( 12,5 )')).toBe('-12.5');
+    expect(normalizeDecimalInput('()')).toBe('0');
+  });
+
   it('normalizes signed zero variants to plain zero', () => {
     expect(normalizeDecimalInput('-0')).toBe('0');
     expect(normalizeDecimalInput('-0,000')).toBe('0');

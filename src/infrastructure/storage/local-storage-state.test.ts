@@ -110,6 +110,39 @@ describe('local storage state', () => {
     expect(restored.orders).toEqual([]);
   });
 
+  it('does not throw and reports failure when the storage quota is exceeded', () => {
+    const storage = {
+      getItem: () => null,
+      setItem: () => {
+        throw new DOMException('quota', 'QuotaExceededError');
+      }
+    } as unknown as Storage;
+
+    expect(saveState(buildStorageState([], '5'), storage)).toBe(false);
+  });
+
+  it('reports success and failure when the storage is missing', () => {
+    expect(saveState(buildStorageState([], '5'), null)).toBe(false);
+  });
+
+  it('does not treat string flags as eligible when hydrating items', () => {
+    const state = hydrateState({
+      orders: [
+        {
+          id: 'o1',
+          title: 'T',
+          createdAt: '2026-01-01T00:00:00.000Z',
+          rawInput: 'raw',
+          items: [{ name: 'A', quantityRaw: '1', sumRaw: '100', isVkusbackEligible: 'false', sourceRow: 1 }]
+        }
+      ],
+      percentRaw: '5'
+    });
+
+    expect(state.orders[0].items[0].isVkusbackEligible).toBe(false);
+    expect(state.orders[0].vkusbackSumRaw).toBe('0');
+  });
+
   it('returns defaults when storage is unavailable', () => {
     const restored = loadState(null);
 
