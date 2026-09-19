@@ -52,7 +52,7 @@ function sanitizeItem(input: unknown): OrderItem | null {
     name: input.name,
     quantityRaw: normalizeDecimalInput(String(input.quantityRaw ?? '0')),
     sumRaw: normalizeDecimalInput(String(input.sumRaw ?? '0')),
-    isVkusbackEligible: Boolean(input.isVkusbackEligible),
+    isVkusbackEligible: input.isVkusbackEligible === true,
     sourceRow: input.sourceRow
   };
 }
@@ -102,11 +102,12 @@ function getStorage(storageOverride?: Storage | null): Storage | null {
     return storageOverride;
   }
 
-  if (typeof localStorage === 'undefined') {
+  try {
+    return typeof localStorage === 'undefined' ? null : localStorage;
+  } catch {
+    // Доступ к localStorage может выбрасывать SecurityError (запрещённые cookies/сайт-данные).
     return null;
   }
-
-  return localStorage;
 }
 
 /**
@@ -188,12 +189,18 @@ export function loadState(storageOverride?: Storage | null): StorageState {
  *
  * @param state Состояние для сохранения.
  * @param storageOverride Явно переданное хранилище для тестов или подмены.
+ * @returns `false`, если сохранить не удалось (нет хранилища, переполнена квота и т.п.); иначе `true`.
  */
-export function saveState(state: StorageState, storageOverride?: Storage | null): void {
+export function saveState(state: StorageState, storageOverride?: Storage | null): boolean {
   const storage = getStorage(storageOverride);
   if (!storage) {
-    return;
+    return false;
   }
 
-  storage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try {
+    storage.setItem(STORAGE_KEY, JSON.stringify(state));
+    return true;
+  } catch {
+    return false;
+  }
 }

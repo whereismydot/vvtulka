@@ -8,7 +8,21 @@ interface AppServiceDependencies {
   readonly parseOrderText: (rawInput: string) => ParseResult;
   readonly createOrderId: () => string;
   readonly nowIso: () => string;
-  readonly persistState: (state: AppState) => void;
+  /** Возвращает `false`, если сохранить состояние не удалось. */
+  readonly persistState: (state: AppState) => boolean | void;
+}
+
+const SAVE_FAILED_NOTE = 'Но сохранить в браузере не удалось (память переполнена или недоступна): после перезагрузки страницы данные пропадут.';
+
+/**
+ * Добавляет к результату предупреждение, если состояние не удалось сохранить.
+ *
+ * @param result Результат операции.
+ * @param saved Удалось ли сохранить состояние.
+ * @returns Исходный результат или его копия с предупреждением.
+ */
+function withSaveNote<T extends AppActionResult>(result: T, saved: boolean): T {
+  return saved ? result : { ...result, tone: 'warning', message: `${result.message} ${SAVE_FAILED_NOTE}` };
 }
 
 /**
@@ -129,25 +143,31 @@ export class AppService {
     };
 
     this.orders = [order, ...this.orders];
-    this.persistState();
+    const saved = this.persistState();
 
     if (parseResult.warnings.length > 0) {
-      return {
-        changed: true,
-        orderAdded: true,
-        warningsCount: parseResult.warnings.length,
-        tone: 'warning',
-        message: `Заказ добавлен. Предупреждений: ${parseResult.warnings.length}.`
-      };
+      return withSaveNote(
+        {
+          changed: true,
+          orderAdded: true,
+          warningsCount: parseResult.warnings.length,
+          tone: 'warning',
+          message: `Заказ добавлен. Предупреждений: ${parseResult.warnings.length}.`
+        },
+        saved
+      );
     }
 
-    return {
-      changed: true,
-      orderAdded: true,
-      warningsCount: 0,
-      tone: 'success',
-      message: 'Заказ успешно добавлен.'
-    };
+    return withSaveNote(
+      {
+        changed: true,
+        orderAdded: true,
+        warningsCount: 0,
+        tone: 'success',
+        message: 'Заказ успешно добавлен.'
+      },
+      saved
+    );
   }
 
   /**
@@ -180,13 +200,9 @@ export class AppService {
     const nextOrder: Order = { ...order, title: nextTitle };
 
     this.orders = [...this.orders.slice(0, orderIndex), nextOrder, ...this.orders.slice(orderIndex + 1)];
-    this.persistState();
+    const saved = this.persistState();
 
-    return {
-      changed: true,
-      tone: 'success',
-      message: 'Название заказа обновлено.'
-    };
+    return withSaveNote({ changed: true, tone: 'success', message: 'Название заказа обновлено.' }, saved);
   }
 
   /**
@@ -206,13 +222,9 @@ export class AppService {
     }
 
     this.orders = nextOrders;
-    this.persistState();
+    const saved = this.persistState();
 
-    return {
-      changed: true,
-      tone: 'info',
-      message: 'Заказ удален.'
-    };
+    return withSaveNote({ changed: true, tone: 'info', message: 'Заказ удален.' }, saved);
   }
 
   /**
@@ -222,13 +234,9 @@ export class AppService {
    */
   clearOrders(): AppActionResult {
     this.orders = [];
-    this.persistState();
+    const saved = this.persistState();
 
-    return {
-      changed: true,
-      tone: 'info',
-      message: 'Все заказы очищены.'
-    };
+    return withSaveNote({ changed: true, tone: 'info', message: 'Все заказы очищены.' }, saved);
   }
 
   /**
@@ -243,8 +251,10 @@ export class AppService {
 
   /**
    * Сохраняет текущее состояние через внешний persistence-адаптер.
+   *
+   * @returns `false`, если адаптер сообщил о неудачном сохранении.
    */
-  private persistState(): void {
-    this.dependencies.persistState(this.getState());
+  private persistState(): boolean {
+    return this.dependencies.persistState(this.getState()) !== false;
   }
 }

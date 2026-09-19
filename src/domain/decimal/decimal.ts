@@ -40,13 +40,16 @@ function normalizeSignedZero(value: string): string {
  * @returns Нормализованное число в формате с точкой или `0`.
  */
 export function normalizeDecimalInput(raw: string): string {
-  const trimmed = raw.replace(/\u00A0/g, ' ').trim();
+  // Excel и Google Sheets могут отдавать минус как «−» (U+2212) или тире; скобки — бухгалтерская запись отрицательного.
+  const normalized = raw.replace(/\u00A0/g, ' ').replace(/[\u2212\u2012-\u2015]/g, '-').trim();
+  const isParenthesized = /^\(.*\)$/.test(normalized);
+  const trimmed = isParenthesized ? normalized.slice(1, -1).trim() : normalized;
   if (!trimmed) {
     return ZERO_RAW;
   }
 
-  const sign = trimmed.startsWith('-') ? '-' : '';
-  const unsigned = sign ? trimmed.slice(1) : trimmed;
+  const sign = isParenthesized || trimmed.startsWith('-') ? '-' : '';
+  const unsigned = trimmed.startsWith('-') ? trimmed.slice(1) : trimmed;
   const compact = unsigned.replace(/\s+/g, '');
   const cleaned = compact.replace(/[^0-9,.-]/g, '').replace(/-/g, '');
 

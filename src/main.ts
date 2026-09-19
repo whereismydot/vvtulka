@@ -26,9 +26,7 @@ const service = new AppService(
     parseOrderText,
     createOrderId: () => idGenerator.nextId(),
     nowIso: () => clock.nowIso(),
-    persistState: (state) => {
-      saveState(buildStorageState(state.orders, state.percentRaw));
-    }
+    persistState: (state) => saveState(buildStorageState(state.orders, state.percentRaw))
   }
 );
 
