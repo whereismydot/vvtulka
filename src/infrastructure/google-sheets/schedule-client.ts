@@ -103,6 +103,23 @@ export function isNewbieColor(color: { red?: number; green?: number; blue?: numb
 }
 
 /**
+ * Определяет заливку сотрудников, закреплённых за другими линиями: жёлтую #FFFF00 (лояльность)
+ * и светло-розовую #F4CCCC (опоздавшие), с небольшим допуском.
+ *
+ * @param color Цвет из ответа API (компоненты 0..1, нулевые опускаются).
+ * @returns `true` для жёлтой или светло-розовой заливки.
+ */
+export function isReservedColor(color: { red?: number; green?: number; blue?: number } | undefined): boolean {
+  if (color === undefined) {
+    return false;
+  }
+  const near = (value: number | undefined, target: number): boolean => Math.abs((value ?? 0) - target) <= 0.03;
+  const yellow = near(color.red, 1) && near(color.green, 1) && near(color.blue, 0);
+  const pink = near(color.red, 0xf4 / 255) && near(color.green, 0xcc / 255) && near(color.blue, 0xcc / 255);
+  return yellow || pink;
+}
+
+/**
  * Переводит серийный номер даты Google Sheets в год/месяц/день (UTC, без влияния часового пояса).
  *
  * @param serial Число дней от 30.12.1899.
@@ -260,6 +277,7 @@ export function createScheduleClient(options: ScheduleClientOptions): ScheduleLo
         team,
         temporaryLeader: isTemporaryLeaderColor(cells[NAME_COLUMN]?.effectiveFormat?.backgroundColor),
         newbie: isNewbieColor(cells[NAME_COLUMN]?.effectiveFormat?.backgroundColor),
+        reserved: isReservedColor(cells[NAME_COLUMN]?.effectiveFormat?.backgroundColor),
         row: rowIndex + 1,
         shifts,
         urgentDays

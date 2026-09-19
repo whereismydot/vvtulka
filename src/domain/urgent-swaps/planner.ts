@@ -60,7 +60,7 @@ function pickReplacement(
   let best: { person: SchedulePerson; count: number } | null = null;
 
   for (const person of schedule.people) {
-    if (person.team === null || person.temporaryLeader || person.newbie) {
+    if (person.team === null || person.temporaryLeader || person.newbie || person.reserved) {
       continue;
     }
     if (usedNames.has(normalizeName(person.name))) {

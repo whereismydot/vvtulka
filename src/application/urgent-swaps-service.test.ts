@@ -11,8 +11,8 @@ const SCHEDULE: MonthSchedule = {
   truncated: false,
   duplicateNames: [],
   people: [
-    { name: 'Иванов Иван', tag: '@ivan', team: 1, temporaryLeader: false, newbie: false, row: 8, shifts: { 20: '08/20' }, urgentDays: [1, 2, 3] },
-    { name: 'Свободный Сергей', tag: '@free', team: 1, temporaryLeader: false, newbie: false, row: 9, shifts: { 20: '08/20' }, urgentDays: [] }
+    { name: 'Иванов Иван', tag: '@ivan', team: 1, temporaryLeader: false, newbie: false, reserved: false, row: 8, shifts: { 20: '08/20' }, urgentDays: [1, 2, 3] },
+    { name: 'Свободный Сергей', tag: '@free', team: 1, temporaryLeader: false, newbie: false, reserved: false, row: 9, shifts: { 20: '08/20' }, urgentDays: [] }
   ]
 };
 const TEXT = buildBotText('20.09.2026', ['Иванов Иван  @ivan  08/20']);
