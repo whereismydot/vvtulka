@@ -191,7 +191,7 @@ describe('urgent swaps controller', () => {
 
     expect(setStatus).toHaveBeenLastCalledWith('Нет связи с Google.', 'error');
     expect(elements.urgentSteps.querySelector('.urgent-step-err')).not.toBeNull();
-    expect(elements.urgentSteps.querySelector('.urgent-step-err small')).toBeNull();
+    expect(elements.urgentSteps.querySelector('.urgent-step-err small')?.textContent).toBe('Нет связи с Google.');
     expect(appLog.buildReport()).toContain('Ошибка на шаге');
     expect(elements.urgentResult.hidden).toBe(true);
     expect(elements.urgentRunButton.disabled).toBe(false);
