@@ -5,6 +5,11 @@ const { version } = JSON.parse(readFileSync(new URL('./package.json', import.met
 
 export default defineConfig({
   base: './',
+  build: {
+    // Сайт публикуется по адресу /vvtulka/; корень домена перебрасывает сюда (scripts/prepare-pages-dist.mjs)
+    outDir: 'dist/vvtulka',
+    emptyOutDir: true
+  },
   define: {
     __APP_VERSION__: JSON.stringify(version)
   },
