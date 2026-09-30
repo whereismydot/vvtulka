@@ -43,6 +43,16 @@ jobs:
       - name: Prepare Pages artifact
         run: node scripts/prepare-pages-dist.mjs
 
+      - name: Архив для сервера sanlover.ru
+        run: tar -czf site.tar.gz -C dist .
+
+      - name: Upload VPS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vps-site
+          path: site.tar.gz
+          retention-days: 7
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
@@ -61,3 +71,35 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  # Выкладка на собственный сервер (sanlover.ru). Вход — одноразовый токен GitHub OIDC:
+  # сервер принимает его только от этого репозитория, этого workflow и ветки main. Постоянных ключей нет.
+  deploy-vps:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Download VPS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: vps-site
+
+      - name: Deploy to sanlover.ru (VPS)
+        run: |
+          set -euo pipefail
+          sha=$(sha256sum site.tar.gz | cut -d' ' -f1)
+          for i in 1 2 3; do
+            token=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+                      "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://updates.sanlover.ru" | jq -r .value)
+            echo "::add-mask::$token"
+            code=$(curl -sS -o resp.json -w '%{http_code}' -H "Authorization: Bearer $token" \
+                     -F "sha256=$sha" -F "archive=@site.tar.gz" \
+                     https://updates.sanlover.ru/v1/sites/vvtulka/deploy || echo 000)
+            echo "Попытка $i: HTTP $code $(cat resp.json 2>/dev/null || true)"
+            [ "$code" = "201" ] && exit 0
+            case "$code" in 4??) exit 1;; esac
+            sleep $((10 * i))
+          done
+          exit 1
