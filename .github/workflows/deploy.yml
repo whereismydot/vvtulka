@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: deploy
 
 on:
   push:
@@ -8,11 +8,9 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: deploy
   cancel-in-progress: false
 
 jobs:
@@ -40,7 +38,7 @@ jobs:
           VITE_SHEETS_API_KEY: ${{ secrets.SHEETS_API_KEY }}
         run: npx vite build
 
-      - name: Prepare Pages artifact
+      - name: Prepare site (redirect from / to /vvtulka/)
         run: node scripts/prepare-pages-dist.mjs
 
       - name: Архив для сервера sanlover.ru
@@ -52,25 +50,6 @@ jobs:
           name: vps-site
           path: site.tar.gz
           retention-days: 7
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
 
   # Выкладка на собственный сервер (sanlover.ru). Вход — одноразовый токен GitHub OIDC:
   # сервер принимает его только от этого репозитория, этого workflow и ветки main. Постоянных ключей нет.
