@@ -8,21 +8,17 @@ function createElements(): AppElements {
   const serviceTabVkusbackButton = document.createElement('button');
   const serviceTabTwoButton = document.createElement('button');
   const serviceTabThreeButton = document.createElement('button');
-  const serviceTabUrgentButton = document.createElement('button');
   const servicePaneVkusback = document.createElement('section');
   const servicePaneTwo = document.createElement('section');
   const servicePaneThree = document.createElement('section');
-  const servicePaneUrgent = document.createElement('section');
 
   return {
     serviceTabVkusbackButton,
     serviceTabTwoButton,
     serviceTabThreeButton,
-    serviceTabUrgentButton,
     servicePaneVkusback,
     servicePaneTwo,
-    servicePaneThree,
-    servicePaneUrgent
+    servicePaneThree
   } as unknown as AppElements;
 }
 
@@ -82,21 +78,15 @@ describe('service tabs controller', () => {
     expect(elements.serviceTabThreeButton.classList.contains('service-tab-active')).toBe(true);
   });
 
-  it('loads and switches to the urgent swaps tab', () => {
+  it('opens VkusBack when the stored tab was the removed «Срочные»', () => {
     localStorage.setItem('vv-local-tool.active-service-tab', 'urgent');
     const elements = createElements();
 
     createServiceTabsController(elements);
 
-    expect(elements.servicePaneUrgent.hidden).toBe(false);
-    expect(elements.servicePaneVkusback.hidden).toBe(true);
-    expect(elements.serviceTabUrgentButton.classList.contains('service-tab-active')).toBe(true);
-
-    elements.serviceTabTwoButton.click();
-    expect(elements.servicePaneUrgent.hidden).toBe(true);
-
-    elements.serviceTabUrgentButton.click();
-    expect(localStorage.getItem('vv-local-tool.active-service-tab')).toBe('urgent');
-    expect(elements.servicePaneUrgent.hidden).toBe(false);
+    expect(elements.servicePaneVkusback.hidden).toBe(false);
+    expect(elements.servicePaneTwo.hidden).toBe(true);
+    expect(elements.servicePaneThree.hidden).toBe(true);
+    expect(elements.serviceTabVkusbackButton.classList.contains('service-tab-active')).toBe(true);
   });
 });

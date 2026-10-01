@@ -4,13 +4,9 @@ const icon = (paths: string): string =>
 const ICON_RECEIPT = icon('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"/><path d="M9 8h6M9 12h6"/>');
 const ICON_TEXT = icon('<path d="M4 6h16M4 12h10M4 18h7"/><path d="M15 15l5 5m0-5l-5 5"/>');
 const ICON_CALENDAR = icon('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>');
-const ICON_BOLT = icon('<path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/>');
 const ICON_BOX = icon('<path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4M12 11v10"/>');
 const ICON_PERCENT = icon('<path d="M19 5L5 19"/><circle cx="7" cy="7" r="2"/><circle cx="17" cy="17" r="2"/>');
 const ICON_WALLET = icon('<path d="M3 7a2 2 0 012-2h13v4"/><path d="M3 7v11a2 2 0 002 2h15V9H5a2 2 0 01-2-2z"/><path d="M16 14.5h2"/>');
-const ICON_USERS = icon('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14.2a6.5 6.5 0 013.5 5.8"/>');
-const ICON_SWAP = icon('<path d="M7 7h12l-3-3M17 17H5l3 3"/>');
-const ICON_CHECK = icon('<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/>');
 
 export const APP_TEMPLATE = `
   <div class="app-shell">
@@ -38,10 +34,6 @@ export const APP_TEMPLATE = `
           <button id="service-tab-3" class="service-tab" type="button" data-service-tab="service-3" aria-current="false">
             <span class="service-tab-icon">${ICON_CALENDAR}</span>
             <span class="service-tab-title">Срок годности</span>
-          </button>
-          <button id="service-tab-4" class="service-tab" type="button" data-service-tab="urgent" aria-current="false">
-            <span class="service-tab-icon">${ICON_BOLT}</span>
-            <span class="service-tab-title">Срочные</span>
           </button>
         </nav>
         <button id="theme-toggle" type="button" class="btn-theme" aria-label="Переключить тему" title="Переключить тему"></button>
@@ -262,90 +254,6 @@ export const APP_TEMPLATE = `
           <section id="shelf-life-result" class="shelf-life-result" aria-live="polite" hidden>
             <p id="shelf-life-result-text"></p>
           </section>
-        </section>
-      </section>
-
-      <section id="service-pane-4" class="service-pane service-pane-secondary" hidden>
-        <header class="page-head">
-          <h1 class="page-title">Срочные: замены</h1>
-          <p class="page-subtitle">Подбор замен по графику и числу срочных выходов</p>
-        </header>
-        <section class="panel panel-urgent">
-          <h2>Срочные: подбор замен</h2>
-          <div class="urgent-date-row">
-            <label for="urgent-date-input">Распределение на дату</label>
-            <input id="urgent-date-input" type="date" />
-            <span class="urgent-hint">Срочные считаются с 1-го числа месяца до этой даты (сам день не входит).</span>
-          </div>
-          <textarea id="urgent-text-input" rows="9" placeholder="Вставьте базовое сообщение, которое подготовил бот Коллега Поддержкин"></textarea>
-          <div class="input-actions">
-            <button id="urgent-run-btn" class="btn btn-primary" type="button">Подобрать замены</button>
-          </div>
-          <div id="urgent-steps" class="urgent-steps" hidden></div>
-        </section>
-
-        <section id="urgent-result" class="urgent-results" hidden>
-          <div class="kpi-grid">
-            <article class="kpi-card">
-              <span class="kpi-icon">${ICON_USERS}</span>
-              <p class="kpi-label">Всего дежурных</p>
-              <p class="kpi-value" id="urgent-kpi-total">0</p>
-            </article>
-            <article class="kpi-card">
-              <span class="kpi-icon">${ICON_SWAP}</span>
-              <p class="kpi-label">Замен</p>
-              <p class="kpi-value" id="urgent-kpi-swaps">0</p>
-            </article>
-            <article class="kpi-card">
-              <span class="kpi-icon kpi-icon-info">${ICON_CHECK}</span>
-              <p class="kpi-label">Без замены</p>
-              <p class="kpi-value" id="urgent-kpi-unchanged">0</p>
-            </article>
-          </div>
-          <div class="panel panel-urgent-result">
-          <div class="urgent-result-head">
-            <h2>Кого на кого меняем</h2>
-            <span id="urgent-stat" class="urgent-hint"></span>
-          </div>
-          <div id="urgent-warnings" class="urgent-warnings"></div>
-          <div class="urgent-tools">
-            <input id="urgent-search-input" type="text" placeholder="Поиск по ФИО или @тегу" autocomplete="off" />
-            <label class="urgent-only-swaps">
-              <input id="urgent-only-swaps-input" type="checkbox" checked />
-              <span>Только замены</span>
-            </label>
-            <label class="urgent-sort">
-              <span>Сортировка</span>
-              <select id="urgent-sort-select">
-                <option value="text">Как в тексте бота</option>
-                <option value="name-current:asc">ФИО (было): А → Я</option>
-                <option value="name-current:desc">ФИО (было): Я → А</option>
-                <option value="name-replacement:asc">ФИО (станет): А → Я</option>
-                <option value="name-replacement:desc">ФИО (станет): Я → А</option>
-                <option value="count-current:desc">Срочных (было): больше → меньше</option>
-                <option value="count-current:asc">Срочных (было): меньше → больше</option>
-                <option value="count-replacement:desc">Срочных (станет): больше → меньше</option>
-                <option value="count-replacement:asc">Срочных (станет): меньше → больше</option>
-                <option value="team-current:asc">Команда (было): 1 → 4</option>
-                <option value="team-current:desc">Команда (было): 4 → 1</option>
-                <option value="team-replacement:asc">Команда (станет): 1 → 4</option>
-                <option value="team-replacement:desc">Команда (станет): 4 → 1</option>
-                <option value="shift:asc">График: раньше → позже</option>
-                <option value="shift:desc">График: позже → раньше</option>
-              </select>
-            </label>
-            <span class="urgent-hint">Клик по ФИО или тегу копирует его. Порядок итогового текста не меняется.</span>
-          </div>
-          <div id="urgent-table" class="urgent-table-wrap"></div>
-          </div>
-        </section>
-
-        <section id="urgent-output-panel" class="panel panel-urgent-output" hidden>
-          <div class="urgent-result-head">
-            <h2>Готовый текст</h2>
-            <button id="urgent-copy-btn" class="btn btn-primary" type="button">Скопировать текст</button>
-          </div>
-          <div id="urgent-output" class="urgent-output"></div>
         </section>
       </section>
 
