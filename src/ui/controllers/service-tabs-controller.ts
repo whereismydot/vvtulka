@@ -1,7 +1,7 @@
 import { appLog } from '../../infrastructure/diagnostics/app-log';
 import type { AppElements } from '../dom/elements';
 
-type ServiceTabId = 'vkusback' | 'service-2' | 'service-3' | 'urgent';
+type ServiceTabId = 'vkusback' | 'service-2' | 'service-3';
 
 const ACTIVE_TAB_STORAGE_KEY = 'vv-local-tool.active-service-tab';
 
@@ -20,7 +20,7 @@ function getStorage(): Storage | null {
 }
 
 function isServiceTabId(value: string): value is ServiceTabId {
-  return value === 'vkusback' || value === 'service-2' || value === 'service-3' || value === 'urgent';
+  return value === 'vkusback' || value === 'service-2' || value === 'service-3';
 }
 
 function loadActiveTab(storage: Storage | null): ServiceTabId {
@@ -60,11 +60,6 @@ function getBindings(elements: AppElements): readonly ServiceTabBinding[] {
       id: 'service-3',
       button: elements.serviceTabThreeButton,
       pane: elements.servicePaneThree
-    },
-    {
-      id: 'urgent',
-      button: elements.serviceTabUrgentButton,
-      pane: elements.servicePaneUrgent
     }
   ];
 }

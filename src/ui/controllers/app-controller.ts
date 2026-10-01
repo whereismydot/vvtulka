@@ -12,7 +12,6 @@ import { createServiceTabsController } from './service-tabs-controller';
 import { createShelfLifeController } from './shelf-life-controller';
 import { createTextCleanerController } from './text-cleaner-controller';
 import { createThemeController } from './theme-controller';
-import { createUrgentSwapsController } from './urgent-swaps-controller';
 
 interface AppControllerDependencies {
   readonly service: AppService;
@@ -170,11 +169,6 @@ export function createAppController(dependencies: AppControllerDependencies): vo
   });
   createShelfLifeController({
     elements,
-    setStatus: (message, tone) => statusRenderer.setStatus(message, tone)
-  });
-  createUrgentSwapsController({
-    elements,
-    copyText: (value: string) => clipboard.copyText(value),
     setStatus: (message, tone) => statusRenderer.setStatus(message, tone)
   });
 

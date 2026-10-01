@@ -32,15 +32,7 @@ jobs:
       - name: Run full verification
         run: npm run test:all
 
-      # Ключ API нужен только сборке сайта: тесты и установка зависимостей его не получают.
-      - name: Build site with API key
-        env:
-          VITE_SHEETS_API_KEY: ${{ secrets.SHEETS_API_KEY }}
-        run: npx vite build
-
-      - name: Prepare site (redirect from / to /vvtulka/)
-        run: node scripts/prepare-pages-dist.mjs
-
+      # dist/ собран шагом проверки (npm run test:all → build), включая переадресацию / → /vvtulka/
       - name: Архив для сервера sanlover.ru
         run: tar -czf site.tar.gz -C dist .
 
